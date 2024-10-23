@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hjf.job.company.mapper.CompanyAlbumMapper">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="cn.hjf.job.company.entity.CompanyAlbum">
+                    <result column="company_id" property="companyId" />
+                    <result column="media_type" property="mediaType" />
+                    <result column="file_url" property="fileUrl" />
+                    <result column="file_description" property="fileDescription" />
+                    <result column="preview_image_url" property="previewImageUrl" />
+        </resultMap>
+
+        <!-- 通用查询结果列 -->
+        <sql id="columns">
+                company_id, media_type, file_url, file_description, preview_image_url
+        </sql>
+
+</mapper>

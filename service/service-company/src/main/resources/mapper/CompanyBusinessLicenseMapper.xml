@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hjf.job.company.mapper.CompanyBusinessLicenseMapper">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="cn.hjf.job.company.entity.CompanyBusinessLicense">
+                    <result column="company_id" property="companyId" />
+                    <result column="name" property="name" />
+                    <result column="license_number" property="licenseNumber" />
+                    <result column="capital" property="capital" />
+                    <result column="legal_person" property="legalPerson" />
+                    <result column="address" property="address" />
+                    <result column="business_scope" property="businessScope" />
+                    <result column="type" property="type" />
+                    <result column="period" property="period" />
+                    <result column="establishment_date" property="establishmentDate" />
+                    <result column="registration_date" property="registrationDate" />
+                    <result column="registration_authority" property="registrationAuthority" />
+                    <result column="is_electronic" property="isElectronic" />
+                    <result column="is_copy" property="isCopy" />
+                    <result column="has_seal" property="hasSeal" />
+                    <result column="legal_person_id" property="legalPersonId" />
+                    <result column="business_license_url" property="businessLicenseUrl" />
+                    <result column="legal_person_auth_status" property="legalPersonAuthStatus" />
+        </resultMap>
+
+        <!-- 通用查询结果列 -->
+        <sql id="columns">
+                company_id, name, license_number, capital, legal_person, address, business_scope, type, period, establishment_date, registration_date, registration_authority, is_electronic, is_copy, has_seal, legal_person_id, business_license_url, legal_person_auth_status
+        </sql>
+
+</mapper>

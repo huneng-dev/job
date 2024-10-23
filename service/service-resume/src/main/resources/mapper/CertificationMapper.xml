@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hjf.job.resume.mapper.CertificationMapper">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="cn.hjf.job.resume.entity.Certification">
+                    <result column="resume_id" property="resumeId" />
+                    <result column="certificate_name" property="certificateName" />
+        </resultMap>
+
+        <!-- 通用查询结果列 -->
+        <sql id="columns">
+                resume_id, certificate_name
+        </sql>
+
+</mapper>

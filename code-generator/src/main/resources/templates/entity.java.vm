@@ -1,0 +1,39 @@
+package ${package.Entity};
+
+import cn.hjf.job.model.entity.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.TableField;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import lombok.Data;
+## 引入公共资源
+#parse("templates/common.vm")
+## 引入导包宏
+#set($ignoreFieldList = ["id","createTime","updateTime","createBy","updateBy"] )
+#importEntityPackage($ignoreFieldList)
+/**
+ * $!{table.comment}
+ * @author ${author}
+ * @date ${date}
+ */
+@Data
+@Schema(description = "${entity}")
+@TableName("${schemaName}${table.name}")
+public class ${entity} extends BaseEntity {
+
+    private static final long serialVersionUID = 1L;
+    ## ----------  BEGIN 字段循环遍历  ----------
+    #foreach($field in ${table.fields})
+        #if(${ignoreFieldList.contains($field.propertyName)})
+            ## 如果是忽略字段什么都不干
+        #else
+            #if("$!field.comment" != "")
+
+    @Schema(description = "${field.comment}")
+    @TableField("${table.name}")
+            #end
+    private ${field.propertyType} ${field.propertyName};
+        #end
+    #end
+    ## ----------  END 字段循环遍历  ----------
+}

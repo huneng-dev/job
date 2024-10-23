@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hjf.job.company.mapper.CompanyInfoMapper">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="cn.hjf.job.company.entity.CompanyInfo">
+                    <result column="company_name" property="companyName" />
+                    <result column="company_logo" property="companyLogo" />
+                    <result column="company_size_id" property="companySizeId" />
+                    <result column="industry_id" property="industryId" />
+                    <result column="company_description" property="companyDescription" />
+                    <result column="company_website" property="companyWebsite" />
+                    <result column="start_time" property="startTime" />
+                    <result column="end_time" property="endTime" />
+                    <result column="rest_days_id" property="restDaysId" />
+                    <result column="status" property="status" />
+        </resultMap>
+
+        <!-- 通用查询结果列 -->
+        <sql id="columns">
+                company_name, company_logo, company_size_id, industry_id, company_description, company_website, start_time, end_time, rest_days_id, status
+        </sql>
+
+</mapper>

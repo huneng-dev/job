@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hjf.job.company.mapper.LegalPersonInfoMapper">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="cn.hjf.job.company.entity.LegalPersonInfo">
+                    <result column="name" property="name" />
+                    <result column="idcard_no" property="idcardNo" />
+                    <result column="birthday" property="birthday" />
+                    <result column="idcard_address" property="idcardAddress" />
+                    <result column="idcard_expire" property="idcardExpire" />
+                    <result column="gender" property="gender" />
+                    <result column="idcard_front_url" property="idcardFrontUrl" />
+                    <result column="idcard_back_url" property="idcardBackUrl" />
+                    <result column="face_model_id" property="faceModelId" />
+                    <result column="company_count" property="companyCount" />
+                    <result column="status" property="status" />
+        </resultMap>
+
+        <!-- 通用查询结果列 -->
+        <sql id="columns">
+                name, idcard_no, birthday, idcard_address, idcard_expire, gender, idcard_front_url, idcard_back_url, face_model_id, company_count, status
+        </sql>
+
+</mapper>

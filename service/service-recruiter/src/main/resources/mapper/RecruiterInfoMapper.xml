@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hjf.job.recruiter.mapper.RecruiterInfoMapper">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="cn.hjf.job.recruiter.entity.RecruiterInfo">
+                    <result column="company_id" property="companyId" />
+                    <result column="nckname" property="nckname" />
+                    <result column="phone" property="phone" />
+                    <result column="email" property="email" />
+                    <result column="password" property="password" />
+                    <result column="name" property="name" />
+                    <result column="gender" property="gender" />
+                    <result column="birthday" property="birthday" />
+                    <result column="idcard_no" property="idcardNo" />
+                    <result column="idcard_address" property="idcardAddress" />
+                    <result column="idcard_expire" property="idcardExpire" />
+                    <result column="idcard_front_url" property="idcardFrontUrl" />
+                    <result column="idcard_back_url" property="idcardBackUrl" />
+                    <result column="idcard_hand_url" property="idcardHandUrl" />
+                    <result column="face_model_id" property="faceModelId" />
+                    <result column="auth_status" property="authStatus" />
+                    <result column="status" property="status" />
+                    <result column="is_super_admin" property="isSuperAdmin" />
+        </resultMap>
+
+        <!-- 通用查询结果列 -->
+        <sql id="columns">
+                company_id, nckname, phone, email, password, name, gender, birthday, idcard_no, idcard_address, idcard_expire, idcard_front_url, idcard_back_url, idcard_hand_url, face_model_id, auth_status, status, is_super_admin
+        </sql>
+
+</mapper>

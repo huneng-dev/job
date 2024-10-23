@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hjf.job.resume.mapper.WorkExperienceMapper">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="cn.hjf.job.resume.entity.WorkExperience">
+                    <result column="resume_id" property="resumeId" />
+                    <result column="company_name" property="companyName" />
+                    <result column="industry_id" property="industryId" />
+                    <result column="start_date" property="startDate" />
+                    <result column="end_date" property="endDate" />
+                    <result column="position_id" property="positionId" />
+                    <result column="job_description" property="jobDescription" />
+                    <result column="is_internship" property="isInternship" />
+                    <result column="is_hidden" property="isHidden" />
+        </resultMap>
+
+        <!-- 通用查询结果列 -->
+        <sql id="columns">
+                resume_id, company_name, industry_id, start_date, end_date, position_id, job_description, is_internship, is_hidden
+        </sql>
+
+</mapper>
