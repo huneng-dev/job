@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.position.mapper.ApplicantFavoriteMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.position.entity.ApplicantFavorite">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.position.ApplicantFavorite">
                     <result column="position_id" property="positionId" />
                     <result column="candidate_id" property="candidateId" />
         </resultMap>

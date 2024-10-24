@@ -8,7 +8,7 @@ import lombok.Data;
                                                                         /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-24
  */
 @Data
 @Schema(description = "Permission")
@@ -18,14 +18,14 @@ public class Permission extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "权限名")
-    @TableField("permission")
+    @TableField("permission_name")
     private String permissionName;
 
     @Schema(description = "权限标识符")
-    @TableField("permission")
+    @TableField("permission_key")
     private String permissionKey;
 
     @Schema(description = "权限描述")
-    @TableField("permission")
+    @TableField("permission_description")
     private String permissionDescription;
     }

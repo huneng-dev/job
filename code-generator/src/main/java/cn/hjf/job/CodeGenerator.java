@@ -33,7 +33,7 @@ public class CodeGenerator {
         String outputDir = "D:/Java/job/code-generator/src/main/java";
 
         // 基础包名 basePackageName + moduleName = cn.hjf.job.candidate
-        String basePackageName = "cn.hjf.job.";
+        String basePackageName = "cn.hjf.job";
 
         // 模块名 basePackageName + moduleName = cn.hjf.job.candidate
         String moduleName = "resume";
@@ -62,12 +62,12 @@ public class CodeGenerator {
                         })
                 )
                 .packageConfig(builder -> {
-                    builder.entity("entity")// 实体类包名
-                            .parent(basePackageName + moduleName)// 父包名。如果为空，将下面子包名必须写全部， 否则就只需写子包名
-//                            .controller("controller")// 控制层包名
-                            .mapper("mapper")// mapper层包名
-                            .service("service")// service层包名
-                            .serviceImpl("service.impl")// service实现类包名
+                    builder.entity("model.entity." + moduleName)// 实体类包名
+                            .parent(basePackageName)// 父包名。如果为空，将下面子包名必须写全部， 否则就只需写子包名
+                            .controller(moduleName + ".controller")// 控制层包名
+                            .mapper(moduleName + ".mapper")// mapper层包名
+                            .service(moduleName + ".service")// service层包名
+                            .serviceImpl(moduleName + ".service.impl")// service实现类包名
                             // 自定义mapper.xml文件输出目录
                             .pathInfo(Collections.singletonMap(OutputFile.xml,
                                     mapperXmlOutputPath));

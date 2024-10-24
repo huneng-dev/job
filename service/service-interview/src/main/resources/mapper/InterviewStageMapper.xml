@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.interview.mapper.InterviewStageMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.interview.entity.InterviewStage">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.interview.InterviewStage">
                     <result column="record_id" property="recordId" />
                     <result column="stage_id" property="stageId" />
                     <result column="start_time" property="startTime" />

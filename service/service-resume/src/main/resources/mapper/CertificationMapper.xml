@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.resume.mapper.CertificationMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.resume.entity.Certification">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.resume.Certification">
                     <result column="resume_id" property="resumeId" />
                     <result column="certificate_name" property="certificateName" />
         </resultMap>

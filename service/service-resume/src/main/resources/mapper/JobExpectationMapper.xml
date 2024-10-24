@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.resume.mapper.JobExpectationMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.resume.entity.JobExpectation">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.resume.JobExpectation">
                     <result column="resume_id" property="resumeId" />
                     <result column="expected_position_id" property="expectedPositionId" />
                     <result column="work_city" property="workCity" />

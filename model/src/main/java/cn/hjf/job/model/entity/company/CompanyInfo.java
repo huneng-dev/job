@@ -10,7 +10,7 @@ import java.time.LocalTime;
 /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "CompanyInfo")
@@ -20,42 +20,42 @@ public class CompanyInfo extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "公司名称")
-    @TableField("company_info")
+    @TableField("company_name")
     private String companyName;
 
     @Schema(description = "公司logo")
-    @TableField("company_info")
+    @TableField("company_logo")
     private String companyLogo;
 
     @Schema(description = "公司规模_id")
-    @TableField("company_info")
+    @TableField("company_size_id")
     private Integer companySizeId;
 
     @Schema(description = "公司行业_id")
-    @TableField("company_info")
+    @TableField("industry_id")
     private Long industryId;
 
     @Schema(description = "公司描述")
-    @TableField("company_info")
+    @TableField("company_description")
     private String companyDescription;
 
     @Schema(description = "公司官网")
-    @TableField("company_info")
+    @TableField("company_website")
     private String companyWebsite;
 
     @Schema(description = "工作开始时间")
-    @TableField("company_info")
+    @TableField("start_time")
     private LocalTime startTime;
 
     @Schema(description = "工作结束时间")
-    @TableField("company_info")
+    @TableField("end_time")
     private LocalTime endTime;
 
     @Schema(description = "休息日id")
-    @TableField("company_info")
+    @TableField("rest_days_id")
     private Integer restDaysId;
 
     @Schema(description = "公司状态，0 ： 禁用，1：停招 ，2：招聘中")
-    @TableField("company_info")
+    @TableField("status")
     private Integer status;
     }

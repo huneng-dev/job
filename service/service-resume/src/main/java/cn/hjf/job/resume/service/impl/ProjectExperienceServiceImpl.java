@@ -1,6 +1,5 @@
 package cn.hjf.job.resume.service.impl;
 
-
 import cn.hjf.job.model.entity.resume.ProjectExperience;
 import cn.hjf.job.resume.mapper.ProjectExperienceMapper;
 import cn.hjf.job.resume.service.ProjectExperienceService;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author hjf
- * @since 2024-10-23
+ * @since 2024-10-25
  */
 @Service
 public class ProjectExperienceServiceImpl extends ServiceImpl<ProjectExperienceMapper, ProjectExperience> implements ProjectExperienceService {

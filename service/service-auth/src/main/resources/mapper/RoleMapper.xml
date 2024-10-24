@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.auth.mapper.RoleMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.auth.entity.Role">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.auth.Role">
                     <result column="role_name" property="roleName" />
                     <result column="role_key" property="roleKey" />
                     <result column="role_description" property="roleDescription" />

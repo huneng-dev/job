@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.company.mapper.LegalPersonInfoMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.company.entity.LegalPersonInfo">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.company.LegalPersonInfo">
                     <result column="name" property="name" />
                     <result column="idcard_no" property="idcardNo" />
                     <result column="birthday" property="birthday" />

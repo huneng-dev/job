@@ -1,6 +1,5 @@
 package cn.hjf.job.company.service.impl;
 
-
 import cn.hjf.job.company.mapper.CompanyBusinessLicenseMapper;
 import cn.hjf.job.company.service.CompanyBusinessLicenseService;
 import cn.hjf.job.model.entity.company.CompanyBusinessLicense;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author hjf
- * @since 2024-10-23
+ * @since 2024-10-25
  */
 @Service
 public class CompanyBusinessLicenseServiceImpl extends ServiceImpl<CompanyBusinessLicenseMapper, CompanyBusinessLicense> implements CompanyBusinessLicenseService {

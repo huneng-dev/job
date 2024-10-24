@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.recruiter.mapper.UserDepartmentMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.recruiter.entity.UserDepartment">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.recruiter.UserDepartment">
                     <result column="department_id" property="departmentId" />
                     <result column="user_id" property="userId" />
                     <result column="is_manager" property="isManager" />

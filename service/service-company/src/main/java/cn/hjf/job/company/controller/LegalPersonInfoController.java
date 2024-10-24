@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
  * </p>
  *
  * @author hjf
- * @since 2024-10-23
+ * @since 2024-10-25
  */
 @RestController
 @RequestMapping("/legalPersonInfo")

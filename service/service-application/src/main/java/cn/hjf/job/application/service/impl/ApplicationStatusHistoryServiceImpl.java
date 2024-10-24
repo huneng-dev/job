@@ -1,6 +1,5 @@
 package cn.hjf.job.application.service.impl;
 
-
 import cn.hjf.job.application.mapper.ApplicationStatusHistoryMapper;
 import cn.hjf.job.application.service.ApplicationStatusHistoryService;
 import cn.hjf.job.model.entity.application.ApplicationStatusHistory;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author hjf
- * @since 2024-10-23
+ * @since 2024-10-24
  */
 @Service
 public class ApplicationStatusHistoryServiceImpl extends ServiceImpl<ApplicationStatusHistoryMapper, ApplicationStatusHistory> implements ApplicationStatusHistoryService {

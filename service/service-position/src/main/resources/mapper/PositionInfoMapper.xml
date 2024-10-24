@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.position.mapper.PositionInfoMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.position.entity.PositionInfo">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.position.PositionInfo">
                     <result column="company_id" property="companyId" />
                     <result column="department_id" property="departmentId" />
                     <result column="creator_id" property="creatorId" />

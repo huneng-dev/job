@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "CompanyAddress")
@@ -20,30 +20,30 @@ public class CompanyAddress extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "公司id")
-    @TableField("company_address")
+    @TableField("company_id")
     private Long companyId;
 
     @Schema(description = "省")
-    @TableField("company_address")
+    @TableField("province")
     private String province;
 
     @Schema(description = "市")
-    @TableField("company_address")
+    @TableField("city")
     private String city;
 
     @Schema(description = "县 | 区")
-    @TableField("company_address")
+    @TableField("district")
     private String district;
 
     @Schema(description = "详细地址")
-    @TableField("company_address")
+    @TableField("address")
     private String address;
 
     @Schema(description = "经度")
-    @TableField("company_address")
+    @TableField("longitude")
     private BigDecimal longitude;
 
     @Schema(description = "维度")
-    @TableField("company_address")
+    @TableField("latitude")
     private BigDecimal latitude;
     }

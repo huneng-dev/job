@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.company.mapper.CompanyInfoMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.company.entity.CompanyInfo">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.company.CompanyInfo">
                     <result column="company_name" property="companyName" />
                     <result column="company_logo" property="companyLogo" />
                     <result column="company_size_id" property="companySizeId" />

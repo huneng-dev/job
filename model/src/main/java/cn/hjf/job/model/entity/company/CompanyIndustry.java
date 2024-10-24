@@ -8,7 +8,7 @@ import lombok.Data;
                                                     /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "CompanyIndustry")
@@ -18,10 +18,10 @@ public class CompanyIndustry extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "行业名称")
-    @TableField("company_industry")
+    @TableField("industry_name")
     private String industryName;
 
     @Schema(description = "父行业ID，指向该表中的另一个行业的 id")
-    @TableField("company_industry")
+    @TableField("parent_id")
     private Long parentId;
     }

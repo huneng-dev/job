@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.company.mapper.CompanyAddressMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.company.entity.CompanyAddress">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.company.CompanyAddress">
                     <result column="company_id" property="companyId" />
                     <result column="province" property="province" />
                     <result column="city" property="city" />

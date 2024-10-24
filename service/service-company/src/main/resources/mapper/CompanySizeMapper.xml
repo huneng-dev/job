@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.company.mapper.CompanySizeMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.company.entity.CompanySize">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.company.CompanySize">
                     <result column="size_description" property="sizeDescription" />
                     <result column="min_employee_count" property="minEmployeeCount" />
                     <result column="max_employee_count" property="maxEmployeeCount" />

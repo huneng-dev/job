@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.candidate.mapper.CandidateInfoMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.candidate.entity.CandidateInfo">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.candidate.CandidateInfo">
                     <result column="nickname" property="nickname" />
                     <result column="phone" property="phone" />
                     <result column="email" property="email" />

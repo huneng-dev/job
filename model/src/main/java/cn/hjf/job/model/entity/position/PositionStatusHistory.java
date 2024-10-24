@@ -8,7 +8,7 @@ import lombok.Data;
                                                                         /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "PositionStatusHistory")
@@ -18,14 +18,14 @@ public class PositionStatusHistory extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "职位id")
-    @TableField("position_status_history")
+    @TableField("position_id")
     private Long positionId;
 
     @Schema(description = "变更状态")
-    @TableField("position_status_history")
+    @TableField("status")
     private Integer status;
 
     @Schema(description = "变更人id   null表示：系统")
-    @TableField("position_status_history")
+    @TableField("operator_id")
     private Long operatorId;
     }

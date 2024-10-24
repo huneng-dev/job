@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.company.mapper.CompanyBusinessLicenseMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.company.entity.CompanyBusinessLicense">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.company.CompanyBusinessLicense">
                     <result column="company_id" property="companyId" />
                     <result column="name" property="name" />
                     <result column="license_number" property="licenseNumber" />

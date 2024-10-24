@@ -11,7 +11,7 @@ import java.time.LocalDate;
 /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-24
  */
 @Data
 @Schema(description = "CandidateInfo")
@@ -21,66 +21,66 @@ public class CandidateInfo extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "用户昵称")
-    @TableField("candidate_info")
+    @TableField("nickname")
     private String nickname;
 
     @Schema(description = "手机号")
-    @TableField("candidate_info")
+    @TableField("phone")
     private String phone;
 
     @Schema(description = "邮箱地址")
-    @TableField("candidate_info")
+    @TableField("email")
     private String email;
 
     @Schema(description = "登录密码(加密存储)")
-    @TableField("candidate_info")
+    @TableField("password")
     private String password;
 
     @Schema(description = "真实姓名")
-    @TableField("candidate_info")
+    @TableField("name")
     private String name;
 
     @Schema(description = "性别  0:不便透露 1:男 2:女")
-    @TableField("candidate_info")
+    @TableField("gender")
     private Integer gender;
 
     @Schema(description = "出生日期")
-    @TableField("candidate_info")
+    @TableField("birthday")
     private LocalDate birthday;
 
     @Schema(description = "身份证号")
-    @TableField("candidate_info")
+    @TableField("idcard_no")
     private String idcardNo;
 
     @Schema(description = "身份证地址")
-    @TableField("candidate_info")
+    @TableField("idcard_address")
     private String idcardAddress;
 
     @Schema(description = "身份证有效日期")
-    @TableField("candidate_info")
+    @TableField("idcard_expire")
     private LocalDate idcardExpire;
 
     @Schema(description = "身份证正面 url")
-    @TableField("candidate_info")
+    @TableField("idcard_front_url")
     private String idcardFrontUrl;
 
     @Schema(description = "身份证背面 url")
-    @TableField("candidate_info")
+    @TableField("idcard_back_url")
     private String idcardBackUrl;
 
     @Schema(description = "手持身份证 url")
-    @TableField("candidate_info")
+    @TableField("idcard_hand_url")
     private String idcardHandUrl;
 
     @Schema(description = "腾讯云人脸模型id")
-    @TableField("candidate_info")
+    @TableField("face_model_id")
     private String faceModelId;
 
     @Schema(description = "人脸识别认证状态 0:未认证  1：审核中 2：认证通过 -1：认证未通过")
-    @TableField("candidate_info")
+    @TableField("auth_status")
     private Integer authStatus;
 
     @Schema(description = "状态，1正常，2禁用")
-    @TableField("candidate_info")
+    @TableField("status")
     private Integer status;
     }

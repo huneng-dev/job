@@ -30,7 +30,7 @@ public class ${entity} extends BaseEntity {
             #if("$!field.comment" != "")
 
     @Schema(description = "${field.comment}")
-    @TableField("${table.name}")
+    @TableField("${field.name}")
             #end
     private ${field.propertyType} ${field.propertyName};
         #end

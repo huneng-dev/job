@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.auth.mapper.PermissionMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.auth.entity.Permission">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.auth.Permission">
                     <result column="permission_name" property="permissionName" />
                     <result column="permission_key" property="permissionKey" />
                     <result column="permission_description" property="permissionDescription" />

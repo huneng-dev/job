@@ -8,7 +8,7 @@ import lombok.Data;
                                                     /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "Certification")
@@ -18,10 +18,10 @@ public class Certification extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "简历id")
-    @TableField("certification")
+    @TableField("resume_id")
     private Long resumeId;
 
     @Schema(description = "证书名称")
-    @TableField("certification")
+    @TableField("certificate_name")
     private String certificateName;
     }

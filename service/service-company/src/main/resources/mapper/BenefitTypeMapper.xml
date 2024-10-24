@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.company.mapper.BenefitTypeMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.company.entity.BenefitType">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.company.BenefitType">
                     <result column="benefit_name" property="benefitName" />
                     <result column="benefit_description" property="benefitDescription" />
                     <result column="icon" property="icon" />

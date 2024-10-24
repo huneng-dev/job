@@ -8,7 +8,7 @@ import lombok.Data;
                                                                         /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-24
  */
 @Data
 @Schema(description = "ApplicationStatusHistory")
@@ -18,14 +18,14 @@ public class ApplicationStatusHistory extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "投递记录id")
-    @TableField("application_status_history")
+    @TableField("application_id")
     private Long applicationId;
 
     @Schema(description = "状态 ")
-    @TableField("application_status_history")
+    @TableField("status")
     private Integer status;
 
     @Schema(description = "操作人id")
-    @TableField("application_status_history")
+    @TableField("recruiter_id")
     private Long recruiterId;
     }

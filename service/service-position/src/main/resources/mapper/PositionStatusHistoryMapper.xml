@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.position.mapper.PositionStatusHistoryMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.position.entity.PositionStatusHistory">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.position.PositionStatusHistory">
                     <result column="position_id" property="positionId" />
                     <result column="status" property="status" />
                     <result column="operator_id" property="operatorId" />

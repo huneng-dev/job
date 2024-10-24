@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.resume.mapper.EducationBackgroundMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.resume.entity.EducationBackground">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.resume.EducationBackground">
                     <result column="resume_id" property="resumeId" />
                     <result column="school_name" property="schoolName" />
                     <result column="major" property="major" />

@@ -10,7 +10,7 @@ import java.time.LocalDate;
 /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "WorkExperience")
@@ -20,38 +20,38 @@ public class WorkExperience extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "简历id")
-    @TableField("work_experience")
+    @TableField("resume_id")
     private Long resumeId;
 
     @Schema(description = "公司名称")
-    @TableField("work_experience")
+    @TableField("company_name")
     private String companyName;
 
     @Schema(description = "行业id")
-    @TableField("work_experience")
+    @TableField("industry_id")
     private Long industryId;
 
     @Schema(description = "开始时间")
-    @TableField("work_experience")
+    @TableField("start_date")
     private LocalDate startDate;
 
     @Schema(description = "结束时间 （null 表示为至今）")
-    @TableField("work_experience")
+    @TableField("end_date")
     private LocalDate endDate;
 
     @Schema(description = "职位id")
-    @TableField("work_experience")
+    @TableField("position_id")
     private Long positionId;
 
     @Schema(description = "工作描述")
-    @TableField("work_experience")
+    @TableField("job_description")
     private String jobDescription;
 
     @Schema(description = "是否是实习 0表示不是，1表示是")
-    @TableField("work_experience")
+    @TableField("is_internship")
     private Integer isInternship;
 
     @Schema(description = "是否对这家公司隐藏 0表示不隐藏，1表示隐藏")
-    @TableField("work_experience")
+    @TableField("is_hidden")
     private Integer isHidden;
     }

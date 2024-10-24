@@ -8,7 +8,7 @@ import lombok.Data;
                                                                                             /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "CompanyDepartment")
@@ -18,18 +18,18 @@ public class CompanyDepartment extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "公司id")
-    @TableField("company_department")
+    @TableField("company_id")
     private Long companyId;
 
     @Schema(description = "部门名称")
-    @TableField("company_department")
+    @TableField("department_name")
     private String departmentName;
 
     @Schema(description = "父部门id")
-    @TableField("company_department")
+    @TableField("parent_id")
     private Long parentId;
 
     @Schema(description = "部门描述")
-    @TableField("company_department")
+    @TableField("department_description")
     private String departmentDescription;
     }

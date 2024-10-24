@@ -8,7 +8,7 @@ import lombok.Data;
                                                                                                                 /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "CompanyAlbum")
@@ -18,22 +18,22 @@ public class CompanyAlbum extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "公司id")
-    @TableField("company_album")
+    @TableField("company_id")
     private Long companyId;
 
     @Schema(description = "标识是图片还是视频，0 表示图片，1 表示视频")
-    @TableField("company_album")
+    @TableField("media_type")
     private Integer mediaType;
 
     @Schema(description = "存储图片或视频文件的 URL 地址")
-    @TableField("company_album")
+    @TableField("file_url")
     private String fileUrl;
 
     @Schema(description = "照片描述")
-    @TableField("company_album")
+    @TableField("file_description")
     private String fileDescription;
 
     @Schema(description = "视频预览图")
-    @TableField("company_album")
+    @TableField("preview_image_url")
     private String previewImageUrl;
     }

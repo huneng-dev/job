@@ -8,7 +8,7 @@ import lombok.Data;
                                                                         /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "CompanySize")
@@ -18,14 +18,14 @@ public class CompanySize extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "公司规模描述。如：10-20人")
-    @TableField("company_size")
+    @TableField("size_description")
     private String sizeDescription;
 
     @Schema(description = "员工最小人数")
-    @TableField("company_size")
+    @TableField("min_employee_count")
     private Integer minEmployeeCount;
 
     @Schema(description = "员工最大人数")
-    @TableField("company_size")
+    @TableField("max_employee_count")
     private Integer maxEmployeeCount;
     }

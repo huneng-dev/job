@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.resume.mapper.WorkExperienceMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.resume.entity.WorkExperience">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.resume.WorkExperience">
                     <result column="resume_id" property="resumeId" />
                     <result column="company_name" property="companyName" />
                     <result column="industry_id" property="industryId" />

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "InterviewStage")
@@ -20,22 +20,22 @@ public class InterviewStage extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "面试记录id")
-    @TableField("interview_stage")
+    @TableField("record_id")
     private Long recordId;
 
     @Schema(description = "阶段id")
-    @TableField("interview_stage")
+    @TableField("stage_id")
     private Long stageId;
 
     @Schema(description = "面试开始时间")
-    @TableField("interview_stage")
+    @TableField("start_time")
     private LocalDateTime startTime;
 
     @Schema(description = "面试地点")
-    @TableField("interview_stage")
+    @TableField("interview_location")
     private String interviewLocation;
 
     @Schema(description = "状态 0 未开始 1 进行中 2 已完成")
-    @TableField("interview_stage")
+    @TableField("status")
     private Integer status;
     }

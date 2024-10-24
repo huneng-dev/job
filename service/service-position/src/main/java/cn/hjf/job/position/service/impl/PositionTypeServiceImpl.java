@@ -1,6 +1,5 @@
 package cn.hjf.job.position.service.impl;
 
-
 import cn.hjf.job.model.entity.position.PositionType;
 import cn.hjf.job.position.mapper.PositionTypeMapper;
 import cn.hjf.job.position.service.PositionTypeService;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author hjf
- * @since 2024-10-23
+ * @since 2024-10-25
  */
 @Service
 public class PositionTypeServiceImpl extends ServiceImpl<PositionTypeMapper, PositionType> implements PositionTypeService {

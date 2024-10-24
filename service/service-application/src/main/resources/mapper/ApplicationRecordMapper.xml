@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.application.mapper.ApplicationRecordMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.application.entity.ApplicationRecord">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.application.ApplicationRecord">
                     <result column="candidate_id" property="candidateId" />
                     <result column="resume_id" property="resumeId" />
                     <result column="position_id" property="positionId" />

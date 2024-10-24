@@ -8,7 +8,7 @@ import lombok.Data;
                                                     /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "ApplicantFavorite")
@@ -18,10 +18,10 @@ public class ApplicantFavorite extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "职位id")
-    @TableField("applicant_favorite")
+    @TableField("position_id")
     private Long positionId;
 
     @Schema(description = "应聘者id")
-    @TableField("applicant_favorite")
+    @TableField("candidate_id")
     private Long candidateId;
     }

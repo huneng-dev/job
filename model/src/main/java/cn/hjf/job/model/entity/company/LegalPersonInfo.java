@@ -10,7 +10,7 @@ import java.time.LocalDate;
 /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "LegalPersonInfo")
@@ -20,46 +20,46 @@ public class LegalPersonInfo extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "姓名")
-    @TableField("legal_person_info")
+    @TableField("name")
     private String name;
 
     @Schema(description = "身份证号")
-    @TableField("legal_person_info")
+    @TableField("idcard_no")
     private String idcardNo;
 
     @Schema(description = "出生日期")
-    @TableField("legal_person_info")
+    @TableField("birthday")
     private LocalDate birthday;
 
     @Schema(description = "地址")
-    @TableField("legal_person_info")
+    @TableField("idcard_address")
     private String idcardAddress;
 
     @Schema(description = "身份证有效日期")
-    @TableField("legal_person_info")
+    @TableField("idcard_expire")
     private LocalDate idcardExpire;
 
     @Schema(description = "性别 1:男 2:女")
-    @TableField("legal_person_info")
+    @TableField("gender")
     private Integer gender;
 
     @Schema(description = "身份证正面url")
-    @TableField("legal_person_info")
+    @TableField("idcard_front_url")
     private String idcardFrontUrl;
 
     @Schema(description = "身份证反面url")
-    @TableField("legal_person_info")
+    @TableField("idcard_back_url")
     private String idcardBackUrl;
 
     @Schema(description = "腾讯云人脸识别模型id")
-    @TableField("legal_person_info")
+    @TableField("face_model_id")
     private String faceModelId;
 
     @Schema(description = "名下企业数量")
-    @TableField("legal_person_info")
+    @TableField("company_count")
     private Integer companyCount;
 
     @Schema(description = "1表示正常，2表示禁用")
-    @TableField("legal_person_info")
+    @TableField("status")
     private Integer status;
     }

@@ -8,7 +8,7 @@ import lombok.Data;
                                                                         /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "InterviewTemplateStage")
@@ -18,14 +18,14 @@ public class InterviewTemplateStage extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "面试流程模板id")
-    @TableField("interview_template_stage")
+    @TableField("interview_template_id")
     private Long interviewTemplateId;
 
     @Schema(description = "阶段名称")
-    @TableField("interview_template_stage")
+    @TableField("stage_name")
     private String stageName;
 
     @Schema(description = "阶段在流程中的顺序  从0开始")
-    @TableField("interview_template_stage")
+    @TableField("stage_order")
     private Integer stageOrder;
     }

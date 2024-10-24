@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.resume.mapper.ResumeInfoMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.resume.entity.ResumeInfo">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.resume.ResumeInfo">
                     <result column="candidate_id" property="candidateId" />
                     <result column="resume_name" property="resumeName" />
                     <result column="job_status" property="jobStatus" />

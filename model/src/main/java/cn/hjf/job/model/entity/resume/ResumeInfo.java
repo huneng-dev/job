@@ -8,7 +8,7 @@ import lombok.Data;
                                                                                                                 /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "ResumeInfo")
@@ -18,22 +18,22 @@ public class ResumeInfo extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "应聘者id")
-    @TableField("resume_info")
+    @TableField("candidate_id")
     private Long candidateId;
 
     @Schema(description = "仅用户可见")
-    @TableField("resume_info")
+    @TableField("resume_name")
     private String resumeName;
 
     @Schema(description = "求职状态 (默认：0 离职随时到岗)")
-    @TableField("resume_info")
+    @TableField("job_status")
     private Integer jobStatus;
 
     @Schema(description = "个人优势")
-    @TableField("resume_info")
+    @TableField("personal_advantages")
     private String personalAdvantages;
 
     @Schema(description = "用户描述自己拥有的专业技能")
-    @TableField("resume_info")
+    @TableField("professional_skills")
     private String professionalSkills;
     }

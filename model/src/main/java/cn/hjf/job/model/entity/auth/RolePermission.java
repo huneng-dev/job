@@ -8,7 +8,7 @@ import lombok.Data;
                                                     /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-24
  */
 @Data
 @Schema(description = "RolePermission")
@@ -18,10 +18,10 @@ public class RolePermission extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "角色id")
-    @TableField("role_permission")
+    @TableField("role_id")
     private Long roleId;
 
     @Schema(description = "权限id")
-    @TableField("role_permission")
+    @TableField("permission_id")
     private Long permissionId;
     }

@@ -1,6 +1,5 @@
 package cn.hjf.job.company.service.impl;
 
-
 import cn.hjf.job.company.mapper.CompanyBenefitMapper;
 import cn.hjf.job.company.service.CompanyBenefitService;
 import cn.hjf.job.model.entity.company.CompanyBenefit;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author hjf
- * @since 2024-10-23
+ * @since 2024-10-25
  */
 @Service
 public class CompanyBenefitServiceImpl extends ServiceImpl<CompanyBenefitMapper, CompanyBenefit> implements CompanyBenefitService {

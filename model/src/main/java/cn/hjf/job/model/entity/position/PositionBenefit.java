@@ -8,7 +8,7 @@ import lombok.Data;
                                                     /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "PositionBenefit")
@@ -18,10 +18,10 @@ public class PositionBenefit extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "职位id")
-    @TableField("position_benefit")
+    @TableField("position_id")
     private Long positionId;
 
     @Schema(description = "公司福利id")
-    @TableField("position_benefit")
+    @TableField("company_benefit_id")
     private Long companyBenefitId;
     }

@@ -8,7 +8,7 @@ import lombok.Data;
                                                                         /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-24
  */
 @Data
 @Schema(description = "Role")
@@ -18,14 +18,14 @@ public class Role extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "角色名称")
-    @TableField("role")
+    @TableField("role_name")
     private String roleName;
 
     @Schema(description = "角色标识符")
-    @TableField("role")
+    @TableField("role_key")
     private String roleKey;
 
     @Schema(description = "角色描述")
-    @TableField("role")
+    @TableField("role_description")
     private String roleDescription;
     }

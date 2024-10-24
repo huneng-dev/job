@@ -8,7 +8,7 @@ import lombok.Data;
                                                                         /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "PositionType")
@@ -18,14 +18,14 @@ public class PositionType extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "行业id")
-    @TableField("position_type")
+    @TableField("industry_id")
     private Long industryId;
 
     @Schema(description = "职位类型的名称")
-    @TableField("position_type")
+    @TableField("type_name")
     private String typeName;
 
     @Schema(description = "职位类型的描述")
-    @TableField("position_type")
+    @TableField("description")
     private String description;
     }

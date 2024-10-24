@@ -1,6 +1,5 @@
 package cn.hjf.job.interview.service.impl;
 
-
 import cn.hjf.job.interview.mapper.InterviewRecordMapper;
 import cn.hjf.job.interview.service.InterviewRecordService;
 import cn.hjf.job.model.entity.interview.InterviewRecord;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author hjf
- * @since 2024-10-23
+ * @since 2024-10-25
  */
 @Service
 public class InterviewRecordServiceImpl extends ServiceImpl<InterviewRecordMapper, InterviewRecord> implements InterviewRecordService {

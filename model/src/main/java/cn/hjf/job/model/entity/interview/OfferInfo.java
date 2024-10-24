@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 /**
  * 
  * @author hjf
- * @date 2024-10-23
+ * @date 2024-10-25
  */
 @Data
 @Schema(description = "OfferInfo")
@@ -20,30 +20,30 @@ public class OfferInfo extends BaseEntity {
     private static final long serialVersionUID = 1L;
     
     @Schema(description = "候选者id")
-    @TableField("offer_info")
+    @TableField("candidate_id")
     private Long candidateId;
 
     @Schema(description = "职位id")
-    @TableField("offer_info")
+    @TableField("position_id")
     private Long positionId;
 
     @Schema(description = "发送者id")
-    @TableField("offer_info")
+    @TableField("sender_id")
     private Long senderId;
 
     @Schema(description = "录用状态  0 待确认  1 已接受  2 已拒绝")
-    @TableField("offer_info")
+    @TableField("offer_status")
     private Integer offerStatus;
 
     @Schema(description = "报道地点")
-    @TableField("offer_info")
+    @TableField("reporting_location")
     private String reportingLocation;
 
     @Schema(description = "最后报道时间")
-    @TableField("offer_info")
+    @TableField("final_reporting_time")
     private LocalDateTime finalReportingTime;
 
     @Schema(description = "描述")
-    @TableField("offer_info")
+    @TableField("offer_description")
     private String offerDescription;
     }

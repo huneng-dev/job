@@ -3,7 +3,7 @@
 <mapper namespace="cn.hjf.job.interview.mapper.InterviewProcessTemplateMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.interview.entity.InterviewProcessTemplate">
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.interview.InterviewProcessTemplate">
                     <result column="company_id" property="companyId" />
                     <result column="creator_id" property="creatorId" />
                     <result column="template_name" property="templateName" />

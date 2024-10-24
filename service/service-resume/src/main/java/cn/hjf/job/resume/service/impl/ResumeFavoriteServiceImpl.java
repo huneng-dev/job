@@ -1,6 +1,5 @@
 package cn.hjf.job.resume.service.impl;
 
-
 import cn.hjf.job.model.entity.resume.ResumeFavorite;
 import cn.hjf.job.resume.mapper.ResumeFavoriteMapper;
 import cn.hjf.job.resume.service.ResumeFavoriteService;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author hjf
- * @since 2024-10-23
+ * @since 2024-10-25
  */
 @Service
 public class ResumeFavoriteServiceImpl extends ServiceImpl<ResumeFavoriteMapper, ResumeFavorite> implements ResumeFavoriteService {
