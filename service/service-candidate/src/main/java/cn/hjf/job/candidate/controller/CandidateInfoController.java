@@ -1,6 +1,7 @@
 package cn.hjf.job.candidate.controller;
 
 import cn.hjf.job.candidate.service.CandidateInfoService;
+import cn.hjf.job.common.result.Result;
 import cn.hjf.job.model.entity.candidate.CandidateInfo;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +25,8 @@ public class CandidateInfoController {
     private CandidateInfoService candidateInfoService;
 
     @GetMapping("/{id}")
-    public CandidateInfo getCandidateInfo(@PathVariable(name = "id") Integer id) {
-        return candidateInfoService.getCandidateInfo(id);
+    public Result<CandidateInfo> getCandidateInfo(@PathVariable(name = "id") Integer id) {
+        return Result.ok(candidateInfoService.getCandidateInfo(id));
     }
 
 }

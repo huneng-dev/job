@@ -1,5 +1,6 @@
 package cn.hjf.job.recruiter.controller;
 
+import cn.hjf.job.common.result.Result;
 import cn.hjf.job.model.entity.recruiter.RecruiterInfo;
 import cn.hjf.job.recruiter.service.RecruiterInfoService;
 import jakarta.annotation.Resource;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- *  前端控制器
+ * 前端控制器
  * </p>
  *
  * @author hjf
@@ -24,7 +25,7 @@ public class RecruiterInfoController {
     private RecruiterInfoService recruiterInfoService;
 
     @GetMapping("/{id}")
-    public RecruiterInfo getRecruiterInfoById(@PathVariable(name = "id") Integer id){
-        return recruiterInfoService.getRecruiterInfoById(id);
+    public Result<RecruiterInfo> getRecruiterInfoById(@PathVariable(name = "id") Integer id) {
+        return Result.ok(recruiterInfoService.getRecruiterInfoById(id));
     }
 }
