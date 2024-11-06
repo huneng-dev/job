@@ -8,7 +8,7 @@ import lombok.Data;
                                                                                                                                                                                                                                                                                                                                                                                     /**
  * 
  * @author hjf
- * @date 2024-10-25
+ * @date 2024-10-31
  */
 @Data
 @Schema(description = "CompanyBusinessLicense")
@@ -41,7 +41,7 @@ public class CompanyBusinessLicense extends BaseEntity {
     @TableField("address")
     private String address;
 
-    @Schema(description = "经营范围")
+    @Schema(description = "经营范围 (MongoDB)")
     @TableField("business_scope")
     private String businessScope;
 

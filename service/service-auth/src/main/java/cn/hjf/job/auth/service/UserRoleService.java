@@ -3,6 +3,8 @@ package cn.hjf.job.auth.service;
 import cn.hjf.job.model.entity.auth.UserRole;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务类
@@ -12,5 +14,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2024-10-24
  */
 public interface UserRoleService extends IService<UserRole> {
+
+    /**
+     *  获取用户角色列表
+     * @param id 用户id
+     * @return 角色Key
+     */
+    List<String> getUserRoleById(Long id);
 
 }

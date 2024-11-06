@@ -13,12 +13,13 @@
                     <result column="start_time" property="startTime" />
                     <result column="end_time" property="endTime" />
                     <result column="rest_days_id" property="restDaysId" />
+                    <result column="count" property="count" />
                     <result column="status" property="status" />
         </resultMap>
 
         <!-- 通用查询结果列 -->
         <sql id="columns">
-                company_name, company_logo, company_size_id, industry_id, company_description, company_website, start_time, end_time, rest_days_id, status
+                company_name, company_logo, company_size_id, industry_id, company_description, company_website, start_time, end_time, rest_days_id, count, status
         </sql>
 
 </mapper>

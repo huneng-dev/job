@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author hjf
- * @since 2024-10-25
+ * @since 2024-10-31
  */
 public interface CompanyBenefitService extends IService<CompanyBenefit> {
 

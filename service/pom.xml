@@ -15,12 +15,11 @@
     <modules>
         <module>service-application</module>
         <module>service-auth</module>
-        <module>service-candidate</module>
         <module>service-company</module>
         <module>service-interview</module>
         <module>service-position</module>
-        <module>service-recruiter</module>
         <module>service-resume</module>
+        <module>service-user</module>
     </modules>
 
     <properties>
@@ -112,7 +111,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
 </project>

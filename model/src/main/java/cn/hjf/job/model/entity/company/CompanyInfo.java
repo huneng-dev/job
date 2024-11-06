@@ -10,7 +10,7 @@ import java.time.LocalTime;
 /**
  * 
  * @author hjf
- * @date 2024-10-25
+ * @date 2024-10-31
  */
 @Data
 @Schema(description = "CompanyInfo")
@@ -35,7 +35,7 @@ public class CompanyInfo extends BaseEntity {
     @TableField("industry_id")
     private Long industryId;
 
-    @Schema(description = "公司描述")
+    @Schema(description = "公司描述 （MongoDB）")
     @TableField("company_description")
     private String companyDescription;
 
@@ -54,6 +54,10 @@ public class CompanyInfo extends BaseEntity {
     @Schema(description = "休息日id")
     @TableField("rest_days_id")
     private Integer restDaysId;
+
+    @Schema(description = "当前系统下公司中的人数量")
+    @TableField("count")
+    private Integer count;
 
     @Schema(description = "公司状态，0 ： 禁用，1：停招 ，2：招聘中")
     @TableField("status")

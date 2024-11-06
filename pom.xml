@@ -14,10 +14,8 @@
         <module>service</module>
         <module>service-gateway</module>
         <module>service-client</module>
-        <module>code-generator</module>
         <module>model</module>
-        <module>service/service-candidate</module>
-        <module>service/service-company</module>
+        <module>code-generator</module>
     </modules>
 
     <parent>

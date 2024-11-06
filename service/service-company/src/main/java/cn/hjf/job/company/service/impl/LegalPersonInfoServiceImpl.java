@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author hjf
- * @since 2024-10-25
+ * @since 2024-10-31
  */
 @Service
 public class LegalPersonInfoServiceImpl extends ServiceImpl<LegalPersonInfoMapper, LegalPersonInfo> implements LegalPersonInfoService {

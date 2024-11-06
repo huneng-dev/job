@@ -10,7 +10,7 @@ import java.time.LocalDate;
 /**
  * 
  * @author hjf
- * @date 2024-10-25
+ * @date 2024-10-31
  */
 @Data
 @Schema(description = "ProjectExperience")
@@ -39,7 +39,7 @@ public class ProjectExperience extends BaseEntity {
     @TableField("end_time")
     private LocalDate endTime;
 
-    @Schema(description = "项目描述")
+    @Schema(description = "项目描述 (MongoDB)")
     @TableField("project_description")
     private String projectDescription;
 

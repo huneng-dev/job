@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * Mapper接口
  * @author hjf
- * @date 2024-10-25
+ * @date 2024-10-31
  */
 @Mapper
 public interface CompanySizeMapper extends BaseMapper<CompanySize> {

@@ -7,10 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+
 /**
  * 
  * @author hjf
- * @date 2024-10-25
+ * @date 2024-10-31
  */
 @Data
 @Schema(description = "OfferInfo")
@@ -43,7 +44,7 @@ public class OfferInfo extends BaseEntity {
     @TableField("final_reporting_time")
     private LocalDateTime finalReportingTime;
 
-    @Schema(description = "描述")
+    @Schema(description = "描述 (MongoDB)")
     @TableField("offer_description")
     private String offerDescription;
     }
