@@ -28,7 +28,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
         boolean matches = passwordEncoder.matches(password, userDetails.getPassword());
         if (!matches) {
-            throw new BadCredentialsException("账户或密码错误");
+            throw new BadCredentialsException("用户名或密码错误");
         }
         return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
     }

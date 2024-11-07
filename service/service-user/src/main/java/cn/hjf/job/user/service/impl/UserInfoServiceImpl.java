@@ -5,11 +5,13 @@ import cn.hjf.job.model.entity.user.UserInfo;
 import cn.hjf.job.model.form.user.EmailPasswordVerifyForm;
 import cn.hjf.job.model.form.user.PhonePasswordVerifyForm;
 import cn.hjf.job.model.query.user.UserVerifyQuery;
+import cn.hjf.job.model.vo.user.UserInfoVo;
 import cn.hjf.job.user.mapper.UserInfoMapper;
 import cn.hjf.job.user.service.UserInfoService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +54,31 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         return VerifyUserInfo(emailPasswordVerifyForm.getPassword(), userInfo);
     }
 
+    @Override
+    public UserInfoVo getUserInfo(Long id) {
+        LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        userInfoLambdaQueryWrapper.select(
+                UserInfo::getNickname,
+                UserInfo::getAvatar,
+                UserInfo::getPhone,
+                UserInfo::getEmail
+        ).eq(UserInfo::getId, id);
+        UserInfo userInfo = userInfoMapper.selectOne(userInfoLambdaQueryWrapper);
+        UserInfoVo userInfoVo = new UserInfoVo();
+        BeanUtils.copyProperties(userInfo, userInfoVo);
+        userInfoVo = maskSensitiveUserInfo(userInfoVo);
+        return userInfoVo;
+    }
+
+    /**
+     *  对用户信息进行遮蔽或脱敏操作，防止敏感数据泄露。
+     * @param userInfoVo 用户信息
+     * @return UserInfoVo
+     */
+    private UserInfoVo maskSensitiveUserInfo(UserInfoVo userInfoVo) {
+        // TODO 模糊 UserInfoVo 中的信息防止泄露用户隐私
+        return null;
+    }
 
     /**
      * @param password 用户输入的密码

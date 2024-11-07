@@ -9,7 +9,6 @@ import cn.hjf.job.model.form.auth.LoginInfoForm;
 import cn.hjf.job.user.client.UserInfoFeignClient;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.jsonwebtoken.io.IOException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,12 +18,15 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -58,7 +60,6 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
     @Override
     @SneakyThrows
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        log.info("CustomUsernamePasswordAuthenticationFilter authentication start");
         // 数据是通过 RequestBody 传输
         LoginInfoForm user = JSON.parseObject(request.getInputStream(), StandardCharsets.UTF_8, LoginInfoForm.class);
 
@@ -73,9 +74,12 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
         } else {
             throw new UsernameNotFoundException("登录方式异常");
         }
+
         // 判断用户是否存在
         if (id == null) {
-            throw new UsernameNotFoundException("用户名不存在");
+            throw new UsernameNotFoundException("账号或密码错误");
+        } else if (id == 0) {  // 表示账号已禁用
+            throw new UsernameNotFoundException("账号已禁用");
         }
         return this.getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(id.toString(), user.getPassword()));
     }
@@ -120,6 +124,4 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
         String jsonResponse = new ObjectMapper().writeValueAsString(build);
         response.getWriter().write(jsonResponse);
     }
-
-
 }

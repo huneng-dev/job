@@ -1,7 +1,5 @@
 package cn.hjf.job.auth.config;
 
-
-
 import cn.hjf.job.common.jwt.JwtUtil;
 import cn.hjf.job.user.client.UserInfoFeignClient;
 import jakarta.annotation.Resource;
@@ -66,8 +64,13 @@ public class SecurityConfig {
 
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public static PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(4);
     }
 
+    public static void main(String[] args) {
+        PasswordEncoder passwordEncoder = passwordEncoder();
+        System.out.println(passwordEncoder.encode("job@020902"));
+//        System.out.println(passwordEncoder.matches("job@020902","$2a$04$O7B1jE9bGKDO6BYFbtIu4OoDhYF.EOIhBglOvAusUw6ZBTsCNQlLa"));
+    }
 }

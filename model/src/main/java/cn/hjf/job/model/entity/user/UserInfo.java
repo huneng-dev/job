@@ -9,7 +9,6 @@ import lombok.Data;
 import java.time.LocalDate;
 
 /**
- * 
  * @author hjf
  * @date 2024-10-31
  */
@@ -19,7 +18,7 @@ import java.time.LocalDate;
 public class UserInfo extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Schema(description = "用户昵称")
     @TableField("nickname")
     private String nickname;
@@ -87,4 +86,4 @@ public class UserInfo extends BaseEntity {
     @Schema(description = "用户类型  1：应聘者 ，2：招聘者")
     @TableField("type")
     private Integer type;
-    }
+}

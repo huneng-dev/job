@@ -4,11 +4,12 @@ import cn.hjf.job.model.entity.user.UserInfo;
 import cn.hjf.job.model.form.user.EmailPasswordVerifyForm;
 import cn.hjf.job.model.form.user.PhonePasswordVerifyForm;
 import cn.hjf.job.model.query.user.UserVerifyQuery;
+import cn.hjf.job.model.vo.user.UserInfoVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author hjf
@@ -17,17 +18,28 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface UserInfoService extends IService<UserInfo> {
 
     /**
-     *  校验手机号登录方式的密码
-     * @param phonePasswordVerifyForm  phonePasswordVerifyForm
+     * 校验手机号登录方式的密码
+     *
+     * @param phonePasswordVerifyForm phonePasswordVerifyForm
      * @return UserVerifyQuery
      */
     UserVerifyQuery phonePasswordVerify(PhonePasswordVerifyForm phonePasswordVerifyForm);
 
     /**
-     *  校验邮箱登录方式的密码
-     * @param emailPasswordVerifyForm  emailPasswordVerifyForm
+     * 校验邮箱登录方式的密码
+     *
+     * @param emailPasswordVerifyForm emailPasswordVerifyForm
      * @return UserVerifyQuery
      */
     UserVerifyQuery emailPasswordVerify(EmailPasswordVerifyForm emailPasswordVerifyForm);
+
+
+    /**
+     * 获取用户信息 (去敏)
+     *
+     * @param id 用户id
+     * @return UserInfoQuery
+     */
+    UserInfoVo getUserInfo(Long id);
 
 }

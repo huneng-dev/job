@@ -1,12 +1,9 @@
 package cn.hjf.job.auth.config;
 
 import cn.hjf.job.auth.service.UserRoleService;
-import cn.hjf.job.common.constant.AccountStateConstant;
 import cn.hjf.job.common.result.Result;
-import cn.hjf.job.model.query.user.UserVerifyQuery;
 import cn.hjf.job.user.client.UserInfoFeignClient;
 import jakarta.annotation.Resource;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -14,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
