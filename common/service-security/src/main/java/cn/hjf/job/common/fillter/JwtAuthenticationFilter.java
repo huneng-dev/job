@@ -1,5 +1,6 @@
 package cn.hjf.job.common.fillter;
 
+import cn.hjf.job.common.whitelist.WhitelistConfig;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -12,6 +13,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,8 +28,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Resource
     private JwtDecoder jwtDecoder;
 
+    private WhitelistConfig whitelistConfig;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+
         String token = extractTokenFromRequest(request);
         if (token != null) {
             Authentication authentication = getAuthenticationFromToken(token);
@@ -45,11 +52,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Authentication getAuthenticationFromToken(String token) {
-        Jwt jwt = jwtDecoder.decode(token);
-        String username = jwt.getClaim("sub");  // 假设JWT中存储了username
-        List<GrantedAuthority> authorities = extractAuthoritiesFromJwt(jwt); // 提取角色信息
-
-        return new UsernamePasswordAuthenticationToken(username, null, authorities);
+        try {
+            Jwt jwt = jwtDecoder.decode(token);
+            String username = jwt.getClaim("sub");  // 假设JWT中存储了username
+            List<GrantedAuthority> authorities = extractAuthoritiesFromJwt(jwt); // 提取角色信息
+            // TODO 从redis中查询权限
+            return new UsernamePasswordAuthenticationToken(username, null, authorities);
+        }  catch (JwtValidationException ex) {
+            // 处理 JWT 校验失败（如过期或无效）
+            return null; // 或者可以抛出一个特定的认证异常
+        } catch (JwtException ex) {
+            // 其他 JWT 相关异常
+            return null; // 或者抛出一个认证异常
+        } catch (Exception ex) {
+            // 捕获其他类型的异常
+            return null;
+        }
     }
 
     private List<GrantedAuthority> extractAuthoritiesFromJwt(Jwt jwt) {

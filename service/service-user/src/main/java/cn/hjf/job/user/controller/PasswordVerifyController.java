@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * 密码校验
  * @author hjf
  * @version 1.0
  * @description 密码校验控制器只为内部使用

@@ -1,11 +1,17 @@
 package cn.hjf.job.company.service;
 
 import cn.hjf.job.model.entity.company.CompanyIndustry;
+import cn.hjf.job.model.vo.base.PageVo;
+import cn.hjf.job.model.vo.company.IndustryVo;
+import cn.hjf.job.model.vo.company.SubIndustriesVo;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author hjf
@@ -13,4 +19,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface CompanyIndustryService extends IService<CompanyIndustry> {
 
+    public PageVo<IndustryVo> selectIndustryByPage(Page<CompanyIndustry> couponInfoPage);
+
+    public List<SubIndustriesVo> getSubIndustriesFromRedisOrDb(Long parentId);
 }

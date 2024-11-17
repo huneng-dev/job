@@ -66,18 +66,48 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         UserInfo userInfo = userInfoMapper.selectOne(userInfoLambdaQueryWrapper);
         UserInfoVo userInfoVo = new UserInfoVo();
         BeanUtils.copyProperties(userInfo, userInfoVo);
-        userInfoVo = maskSensitiveUserInfo(userInfoVo);
+        maskSensitiveUserInfo(userInfoVo);
         return userInfoVo;
     }
 
     /**
-     *  对用户信息进行遮蔽或脱敏操作，防止敏感数据泄露。
+     * 对用户信息进行遮蔽或脱敏操作，防止敏感数据泄露。
+     *
      * @param userInfoVo 用户信息
-     * @return UserInfoVo
      */
-    private UserInfoVo maskSensitiveUserInfo(UserInfoVo userInfoVo) {
-        // TODO 模糊 UserInfoVo 中的信息防止泄露用户隐私
-        return null;
+    private void maskSensitiveUserInfo(UserInfoVo userInfoVo) {
+        if (userInfoVo.getEmail() != null) {
+            userInfoVo.setEmail(maskEmail(userInfoVo.getEmail()));
+        }
+
+        if (userInfoVo.getPhone() != null) {
+            userInfoVo.setPhone(maskPhone(userInfoVo.getPhone()));
+        }
+        // TODO 后续自行扩展
+    }
+
+    //模糊邮箱
+    private String maskEmail(String email) {
+
+        String[] parts = email.split("@");
+        if (parts.length == 2) {
+            String localPart = parts[0];
+            if (localPart.length() > 3) {
+                return localPart.substring(0, 3) + "****@" + parts[1];
+            } else {
+                return localPart.charAt(0) + "****" + parts[1];
+            }
+        }
+        return email;
+    }
+
+    // 模糊手机号
+    private String maskPhone(String phone) {
+        // 将手机号脱敏，保留前3后4位，中间的部分用星号代替
+        if (phone != null && phone.length() == 11) {
+            return phone.substring(0, 3) + "****" + phone.substring(7);
+        }
+        return phone;
     }
 
     /**

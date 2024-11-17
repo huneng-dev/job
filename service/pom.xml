@@ -41,7 +41,6 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
-
         <!-- 服务注册 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>

@@ -43,7 +43,7 @@ public class RedisConfig {
         };
     }
 
-    @Bean
+    @Bean(name = "redisTemplate")
     @Primary
     public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();

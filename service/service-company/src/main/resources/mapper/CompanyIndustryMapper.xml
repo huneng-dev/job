@@ -1,16 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.hjf.job.company.mapper.CompanyIndustryMapper">
+    <!-- 启用缓存 -->
+    <!--    <cache/>-->
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.company.CompanyIndustry">
+        <result column="industry_name" property="industryName"/>
+        <result column="parent_id" property="parentId"/>
+    </resultMap>
 
-        <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.company.CompanyIndustry">
-                    <result column="industry_name" property="industryName" />
-                    <result column="parent_id" property="parentId" />
-        </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="columns">
+        industry_name
+        , parent_id
+    </sql>
 
-        <!-- 通用查询结果列 -->
-        <sql id="columns">
-                industry_name, parent_id
-        </sql>
+    <!--结果映射：将查询结果映射成 IndustryVo 对象-->
+    <resultMap id="industryResultMap" type="cn.hjf.job.model.vo.company.IndustryVo">
+        <!-- 父行业 -->
+        <result property="id" column="parent_id"/>
+        <result property="industryName" column="parent_name"/>
+        <!-- 子行业，使用嵌套查询 -->
+        <collection property="subIndustriesVo" ofType="cn.hjf.job.model.vo.company.SubIndustriesVo">
+            <result property="id" column="child_id"/>
+            <result property="industryName" column="child_name"/>
+        </collection>
+    </resultMap>
 
+    <!-- 查询父行业及其子行业 -->
+    <select id="selectAllIndustries" resultMap="industryResultMap">
+        SELECT ci1.id            AS parent_id,
+               ci1.industry_name AS parent_name,
+               ci2.id            AS child_id,
+               ci2.industry_name AS child_name
+        FROM company_industry ci1
+                 LEFT JOIN company_industry ci2
+                           ON ci1.id = ci2.parent_id
+        WHERE ci1.parent_id IS NULL
+    </select>
 </mapper>

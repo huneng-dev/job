@@ -5,25 +5,28 @@ import cn.hjf.job.model.auth.test.UserInfoEntity;
 import cn.hjf.job.model.auth.test.UserInfoForm;
 import cn.hjf.job.model.entity.user.UserInfo;
 import cn.hjf.job.model.query.user.UserInfoQuery;
+import cn.hjf.job.model.vo.user.UserInfoVo;
 import cn.hjf.job.user.mapper.UserInfoMapper;
+import cn.hjf.job.user.service.UserInfoService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * <p>
- * 前端控制器
- * </p>
- *
+ *  用户信息
  * @author hjf
  * @since 2024-10-31
  */
 @RestController
 @RequestMapping("/user")
 public class UserInfoController {
+
+    @Resource
+    private UserInfoService userInfoService;
 
     @Resource
     private UserInfoMapper userInfoMapper;
@@ -33,7 +36,7 @@ public class UserInfoController {
 
 
     /**
-     * 验证密码服务
+     * 密码验证
      *
      * @param userInfoForm 基本信息
      * @return 用户信息
@@ -58,7 +61,7 @@ public class UserInfoController {
     }
 
     /**
-     * 根据手机号获取用户id
+     * 手机号获取用户id
      *
      * @param phone 手机号
      * @return 用户id
@@ -77,7 +80,7 @@ public class UserInfoController {
     }
 
     /**
-     * 根据邮箱获取用户id
+     * 邮箱获取用户id
      *
      * @param email 邮箱
      * @return 用户id
@@ -109,6 +112,12 @@ public class UserInfoController {
         return userInfo == null ? Result.ok(null) : Result.ok(userInfo.getPassword());
     }
 
+
+    /**
+     * 获取用户信息
+     *
+     * @return UserInfoQuery
+     */
     @GetMapping("/info")
     public Result<UserInfoQuery> getUserInfo() {
         // 获取用户id
@@ -117,8 +126,10 @@ public class UserInfoController {
             return Result.fail();
         }
         Long id = Long.parseLong(authentication.getName());
-
         // 获取用户信息
-        return null;
+        UserInfoVo userInfoVo = userInfoService.getUserInfo(id);
+        UserInfoQuery userInfoQuery = new UserInfoQuery();
+        if (userInfoVo != null) BeanUtils.copyProperties(userInfoVo, userInfoQuery);
+        return Result.ok(userInfoQuery);
     }
 }

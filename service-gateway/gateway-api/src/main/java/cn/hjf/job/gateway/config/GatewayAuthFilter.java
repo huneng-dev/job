@@ -1,13 +1,16 @@
 package cn.hjf.job.gateway.config;
 
 
+import cn.hjf.job.common.constant.RedisConstant;
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.common.result.ResultCodeEnum;
+import cn.hjf.job.common.whitelist.WhitelistConfig;
 import com.alibaba.fastjson2.JSON;
 import jakarta.annotation.Resource;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -36,6 +39,9 @@ public class GatewayAuthFilter implements GlobalFilter {
     @Resource
     private WhitelistConfig whitelistConfig;
 
+    @Resource
+    private RedisTemplate<String, String> redisTemplate;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String requestUrl = exchange.getRequest().getPath().value();
@@ -56,9 +62,16 @@ public class GatewayAuthFilter implements GlobalFilter {
         // 判断是否是有效的token
         try {
             Jwt jwt = jwtDecoder.decode(token);
-            // 你可以在这里添加更多的自定义验证逻辑，比如检查 JWT 的过期时间等
             Instant expiration = jwt.getExpiresAt();
             if (expiration.isBefore(Instant.now())) {
+                return buildReturnMono("认证令牌已过期", exchange);
+            }
+            // 获取用户id
+            String id = jwt.getClaim("sub");
+            // 从redis中查询用户token
+            String redisToken = redisTemplate.opsForValue().get(RedisConstant.USER_TOKEN + id);
+            // 判断用户携带的token是否与redis中的相同
+            if (!token.equals(redisToken)) {
                 return buildReturnMono("认证令牌已过期", exchange);
             }
             return chain.filter(exchange);

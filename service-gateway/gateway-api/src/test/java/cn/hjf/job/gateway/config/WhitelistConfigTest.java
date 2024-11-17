@@ -1,5 +1,6 @@
 package cn.hjf.job.gateway.config;
 
+import cn.hjf.job.common.whitelist.WhitelistConfig;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

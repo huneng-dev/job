@@ -19,10 +19,10 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
         // 设置响应的内容类型为 JSON
         response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpStatus.OK.value()); // 响应 200 状态码
-        Result<String> result = Result.build(accessDeniedException.getMessage(), ResultCodeEnum.PERMISSION);
+        response.setStatus(HttpStatus.FORBIDDEN.value()); // 响应 403 状态码
+        Result<String> result = Result.build(accessDeniedException.getMessage(), ResultCodeEnum.FORBIDDEN);
         String jsonResponse = new ObjectMapper().writeValueAsString(result);
-                // 将 JSON 数据写入响应
+        // 将 JSON 数据写入响应
         response.getWriter().write(jsonResponse);
     }
 }
