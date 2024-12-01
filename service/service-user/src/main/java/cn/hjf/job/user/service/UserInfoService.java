@@ -1,9 +1,11 @@
 package cn.hjf.job.user.service;
 
 import cn.hjf.job.model.entity.user.UserInfo;
-import cn.hjf.job.model.form.user.EmailPasswordVerifyForm;
-import cn.hjf.job.model.form.user.PhonePasswordVerifyForm;
-import cn.hjf.job.model.query.user.UserVerifyQuery;
+import cn.hjf.job.model.form.user.*;
+import cn.hjf.job.model.query.user.UserInfoPasswordStatus;
+import cn.hjf.job.model.query.user.UserInfoStatus;
+import cn.hjf.job.model.request.EmailAndUserTypeRequest;
+import cn.hjf.job.model.request.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -18,28 +20,61 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface UserInfoService extends IService<UserInfo> {
 
     /**
-     * 校验手机号登录方式的密码
-     *
-     * @param phonePasswordVerifyForm phonePasswordVerifyForm
-     * @return UserVerifyQuery
-     */
-    UserVerifyQuery phonePasswordVerify(PhonePasswordVerifyForm phonePasswordVerifyForm);
-
-    /**
-     * 校验邮箱登录方式的密码
-     *
-     * @param emailPasswordVerifyForm emailPasswordVerifyForm
-     * @return UserVerifyQuery
-     */
-    UserVerifyQuery emailPasswordVerify(EmailPasswordVerifyForm emailPasswordVerifyForm);
-
-
-    /**
      * 获取用户信息 (去敏)
      *
      * @param id 用户id
      * @return UserInfoQuery
      */
     UserInfoVo getUserInfo(Long id);
+
+
+    /**
+     * 通过邮箱注册
+     *
+     * @param emailRegisterInfoForm 注册信息表单
+     * @return 是否注册成功
+     */
+    boolean recruiterRegisterByEmail(EmailRegisterInfoForm emailRegisterInfoForm);
+
+    /**
+     * 通过手机号注册
+     *
+     * @param phoneRegisterInfoForm 注册信息表单
+     * @return 是否注册成功
+     */
+    boolean recruiterRegisterByPhone(PhoneRegisterInfoForm phoneRegisterInfoForm);
+
+
+    /**
+     * 邮件验证码方式获取用户信息
+     *
+     * @param emailAndUserTypeRequest EmailAndUserTypeRequest
+     * @return UserInfoStatus
+     */
+    UserInfoStatus getUserInfoStatusByEmailCode(EmailAndUserTypeRequest emailAndUserTypeRequest);
+
+    /**
+     * 手机验证码方式获取用户信息
+     *
+     * @param phoneAndUserTypeRequest PhoneAndUserTypeRequest
+     * @return UserInfoStatus
+     */
+    UserInfoStatus getUserInfoStatusByPhoneCode(PhoneAndUserTypeRequest phoneAndUserTypeRequest);
+
+    /**
+     * 邮箱密码方式获取用户信息
+     *
+     * @param emailAndUserTypeRequest EmailAndUserTypeRequest
+     * @return UserInfoPasswordStatus
+     */
+    UserInfoPasswordStatus getUserInfoPasswordStatusByEmailPassword(EmailAndUserTypeRequest emailAndUserTypeRequest);
+
+    /**
+     * 手机号密码获取用户信息
+     *
+     * @param phoneAndUserTypeRequest PhoneAndUserTypeRequest
+     * @return UserInfoPasswordStatus
+     */
+    UserInfoPasswordStatus getUserInfoPasswordStatusByPhonePassword(PhoneAndUserTypeRequest phoneAndUserTypeRequest);
 
 }

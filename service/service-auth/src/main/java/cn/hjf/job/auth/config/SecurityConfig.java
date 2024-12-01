@@ -1,13 +1,20 @@
 package cn.hjf.job.auth.config;
 
-import cn.hjf.job.common.jwt.JwtUtil;
-import cn.hjf.job.common.whitelist.WhitelistConfig;
-import cn.hjf.job.user.client.UserInfoFeignClient;
+import cn.hjf.job.auth.filter.CandidateEmailCodeAuthenticationFilter;
+import cn.hjf.job.auth.filter.CandidatePhoneCodeAuthenticationFilter;
+import cn.hjf.job.auth.filter.RecruiterEmailCodeAuthenticationFilter;
+import cn.hjf.job.auth.filter.RecruiterPhoneCodeAuthenticationFilter;
+import cn.hjf.job.auth.handler.CustomAuthenticationFailureHandler;
+import cn.hjf.job.auth.handler.CustomAuthenticationSuccessHandler;
+import cn.hjf.job.auth.provider.EmailCodeAuthenticationProvider;
+import cn.hjf.job.auth.provider.PhoneCodeAuthenticationProvider;
 import jakarta.annotation.Resource;
+import cn.hjf.job.common.util.ValidationUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,7 +25,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -26,67 +34,105 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     @Resource
+    private CustomAuthenticationSuccessHandler successHandler;
+
+    @Resource
+    private CustomAuthenticationFailureHandler failureHandler;
+
+    @Resource
     private AuthenticationConfiguration authenticationConfiguration;
 
     @Resource
-    private UserInfoFeignClient userInfoFeignClient;
+    private ValidationUtil validationUtil;
 
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private EmailCodeAuthenticationProvider emailCodeAuthenticationProvider;
 
     @Resource
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private PhoneCodeAuthenticationProvider phoneCodeAuthenticationProvider;
 
-    @Resource
-    private CustomAccessDeniedHandler customAccessDeniedHandler;
 
-    @Resource
-    private JwtUtil jwtUtil;
-
-    @Resource
-    private WhitelistConfig whitelistConfig;
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .authorizeHttpRequests((authorize) -> authorize
+////                        .requestMatchers(whitelistConfig.getPathArrayByPrefixes("/auth")).permitAll()
+//                        .anyRequest().permitAll()
+//                )
+//                .exceptionHandling(exception -> exception.accessDeniedHandler(customAccessDeniedHandler))
+//                // 关闭csrf
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .authenticationManager(authenticationManager(authenticationConfiguration))
+//                .authenticationProvider(new CustomAuthenticationProvider())
+//                .addFilterAt(new CustomUsernamePasswordAuthenticationFilter(
+//                                authenticationManager(authenticationConfiguration),
+//                                redisTemplate,
+//                                11111111L,
+//                                userInfoFeignClient,
+//                                jwtUtil
+//                        )
+//                        , UsernamePasswordAuthenticationFilter.class
+//                )
+//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+//        ;
+//        return http.build();
+//    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests((authorize) -> authorize
-//                        .requestMatchers(whitelistConfig.getPathArrayByPrefixes("/auth")).permitAll()
-                        .anyRequest().permitAll()
-                )
-                .exceptionHandling(exception -> exception.accessDeniedHandler(customAccessDeniedHandler))
-                // 关闭csrf
+        //邮箱验证码登录过滤器
+        RecruiterEmailCodeAuthenticationFilter recruiterEmailCodeAuthenticationFilter =
+                new RecruiterEmailCodeAuthenticationFilter(
+                        authenticationManager(authenticationConfiguration),
+                        successHandler,
+                        failureHandler,
+                        validationUtil
+                );
+        CandidateEmailCodeAuthenticationFilter candidateEmailCodeAuthenticationFilter =
+                new CandidateEmailCodeAuthenticationFilter(
+                        authenticationManager(authenticationConfiguration),
+                        successHandler,
+                        failureHandler,
+                        validationUtil
+                );
+
+        // 手机验证码登录过滤器
+        RecruiterPhoneCodeAuthenticationFilter recruiterPhoneCodeAuthenticationFilter =
+                new RecruiterPhoneCodeAuthenticationFilter(
+                        authenticationManager(authenticationConfiguration),
+                        successHandler,
+                        failureHandler,
+                        validationUtil
+                );
+        CandidatePhoneCodeAuthenticationFilter candidatePhoneCodeAuthenticationFilter =
+                new CandidatePhoneCodeAuthenticationFilter(
+                        authenticationManager(authenticationConfiguration),
+                        successHandler,
+                        failureHandler,
+                        validationUtil
+                );
+
+        http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .csrf(AbstractHttpConfigurer::disable)
-                .authenticationManager(authenticationManager(authenticationConfiguration))
-                .authenticationProvider(new CustomAuthenticationProvider())
-                .addFilterAt(new CustomUsernamePasswordAuthenticationFilter(
-                                authenticationManager(authenticationConfiguration),
-                                redisTemplate,
-                                11111111L,
-                                userInfoFeignClient,
-                                jwtUtil
-                        )
-                        , UsernamePasswordAuthenticationFilter.class
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(recruiterEmailCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(candidateEmailCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(candidatePhoneCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(recruiterPhoneCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         ;
         return http.build();
     }
 
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+        List<AuthenticationProvider> providers = new ArrayList<>();
+        providers.add(emailCodeAuthenticationProvider);
+        providers.add(phoneCodeAuthenticationProvider);
 
+        return new ProviderManager(providers);
+    }
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(4);
-    }
-
-    public static void main(String[] args) {
-        PasswordEncoder passwordEncoder = passwordEncoder();
-        System.out.println(passwordEncoder.encode("job@020902"));
-//        System.out.println(passwordEncoder.matches("job@020902","$2a$04$O7B1jE9bGKDO6BYFbtIu4OoDhYF.EOIhBglOvAusUw6ZBTsCNQlLa"));
     }
 }

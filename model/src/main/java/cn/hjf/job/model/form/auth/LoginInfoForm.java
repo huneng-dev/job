@@ -26,7 +26,6 @@ public class LoginInfoForm {
     @Pattern(regexp = "(?=.*[a-zA-Z])(?=.*[!@#$%^&*(),.?\":{}|<>])[a-zA-Z!@#$%^&*(),.?\":{}|<>]{8,20}",
             message = "密码必须包含字母和至少一个常用特殊符号")
     @NotBlank(message = "密码不能为空")
-    @NotBlank(message = "密码不能为空")
     @Schema(description = "密码")
     private String password;
 

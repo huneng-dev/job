@@ -1,8 +1,8 @@
 package cn.hjf.job.user.client;
 
 import cn.hjf.job.common.result.Result;
-import cn.hjf.job.model.auth.test.UserInfoEntity;
-import cn.hjf.job.model.auth.test.UserInfoForm;
+import cn.hjf.job.model.query.user.UserInfoPasswordStatus;
+import cn.hjf.job.model.query.user.UserInfoStatus;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,40 +10,62 @@ import org.springframework.web.bind.annotation.*;
 public interface UserInfoFeignClient {
 
     /**
-     * 验证密码服务
+     * 邮件验证码方式获取用户信息
      *
-     * @param userInfoForm 基本信息
-     * @return 用户信息
+     * @param email    邮箱
+     * @param userType 用户类型
+     * @param key      密钥
+     * @return UserInfoStatus
      */
-    @PostMapping("/user/verifyUser")
-    public Result<UserInfoEntity> verifyUserInfo(@RequestBody UserInfoForm userInfoForm);
+    @GetMapping("/user/email-code")
+    public Result<UserInfoStatus> getUserInfoStatusByEmailCode(
+            @RequestParam String email,
+            @RequestParam Integer userType,
+            @RequestParam String key
+    );
 
     /**
-     * 根据手机号获取用户id
+     * 手机验证码方式获取用户信息
      *
-     * @param phone 手机号
-     * @return 用户id
+     * @param phone    手机号
+     * @param userType 用户类型
+     * @param key      密钥
+     * @return UserInfoStatus
      */
-    @GetMapping("/user/phone/{phone}")
-    public Result<Long> findUserIdByPhone(@PathVariable(name = "phone") String phone);
-
+    @GetMapping("/user/phone-code")
+    public Result<UserInfoStatus> getUserInfoStatusByPhoneCode(
+            @RequestParam String phone,
+            @RequestParam Integer userType,
+            @RequestParam String key
+    );
 
     /**
-     * 根据邮箱获取用户id
-     * @param email 邮箱
-     * @return 用户id
+     * 邮箱密码方式获取用户信息
+     *
+     * @param email    邮箱
+     * @param userType 用户类型
+     * @param key      密钥
+     * @return UserInfoPasswordStatus
      */
-    @GetMapping("/user/email/{email}")
-    public Result<Long> findUserIdByEmail(@PathVariable(name = "email") String email);
-
+    @GetMapping("/user/email-password")
+    public Result<UserInfoPasswordStatus> getUserInfoPasswordStatusByEmailPassword(
+            @RequestParam String email,
+            @RequestParam Integer userType,
+            @RequestParam String key
+    );
 
     /**
-     *  查询用户的密码
-     * @param id 用户id
-     * @return 用户密码
+     * 手机号密码方式获取用户信息
+     *
+     * @param phone    手机号
+     * @param userType 用户类型
+     * @param key      密钥
+     * @return UserInfoPasswordStatus
      */
-    @GetMapping("/user/password/{id}")
-    public Result<String> getPasswordById(@PathVariable(name = "id") Long id);
-
-
+    @GetMapping("/user/phone-password")
+    public Result<UserInfoPasswordStatus> getUserInfoPasswordStatusByPhonePassword(
+            @RequestParam String phone,
+            @RequestParam Integer userType,
+            @RequestParam String key
+    );
 }

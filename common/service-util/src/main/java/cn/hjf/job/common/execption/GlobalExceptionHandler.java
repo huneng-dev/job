@@ -5,6 +5,8 @@ import cn.hjf.job.common.result.Result;
 import cn.hjf.job.common.result.ResultCodeEnum;
 import feign.codec.DecodeException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -76,5 +78,11 @@ public class GlobalExceptionHandler {
             errorMap.put(error.getField(), error.getDefaultMessage());
         });
         return Result.build(errorMap, ResultCodeEnum.ARGUMENT_VALID_ERROR);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseBody
+    public Result handleValidationException(ValidationException e) {
+        return Result.build(e.getMessage(), ResultCodeEnum.ARGUMENT_VALID_ERROR);
     }
 }

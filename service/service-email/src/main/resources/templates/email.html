@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>验证码提醒 - 121JOB</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .email-container {
+            max-width: 600px;
+            width: 100%;
+            min-width: 320px;
+            margin: 5px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        .email-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .email-header img {
+            max-width: 150px;
+        }
+
+        .email-body {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .email-body h2 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        .email-body p {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .email-body .code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0078D7;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="email-header">
+        <span style="color: #0078D7;font-size: 32px;font-weight: bold">121JOB</span>
+    </div>
+    <div class="email-body">
+        <h2>尊敬的用户，您好！</h2>
+        <p>感谢您使用 <strong>121JOB</strong>！您正在进行以下操作：</p>
+        <p><strong th:text="${action}">操作名称</strong></p> <!-- action 是一个在控制器中传递的变量 -->
+        <p>请使用以下验证码完成操作：</p>
+        <p class="code" th:text="${verificationCode}">验证码</p> <!-- verificationCode 是在控制器中传递的验证码 -->
+        <p>验证码有效期为 5 分钟，请及时完成操作。</p>
+        <p>如果您没有进行此操作，请忽略此邮件。</p>
+    </div>
+    <div class="footer">
+        <p>此邮件由 <strong>121JOB</strong> 自动发送，请勿回复。</p>
+        <p>© 2024 121JOB, All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
