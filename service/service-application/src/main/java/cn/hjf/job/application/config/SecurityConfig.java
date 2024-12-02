@@ -1,5 +1,4 @@
-package cn.hjf.job.common.config;
-
+package cn.hjf.job.application.config;
 
 import cn.hjf.job.common.fillter.JwtAuthenticationFilter;
 import cn.hjf.job.common.handler.CustomAccessDeniedHandler;
@@ -16,8 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class JwtSecurityConfig {
-
+public class SecurityConfig {
     @Resource
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 

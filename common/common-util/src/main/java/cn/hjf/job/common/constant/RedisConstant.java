@@ -1,5 +1,7 @@
 package cn.hjf.job.common.constant;
 
+import java.util.Map;
+
 public class RedisConstant {
 
     //用户登录
@@ -25,7 +27,7 @@ public class RedisConstant {
 
     //等待获取锁的时间
     public static final Integer USER_INFO_OPERATE_LOCK_WAIT_TIME = 1;
-    
+
     //加锁的时间
     public static final Integer USER_INFO_OPERATE_LOCK_LEASE_TIME = 1;
 
@@ -35,6 +37,18 @@ public class RedisConstant {
 
     // 注册分布式锁的手机号前缀
     public static final String PHONE_REGISTER_LOCK_PREFIX = "register:phone:";
+
+
+    // 密码登录尝试次数和最后时间相关前缀
+    public static final String PASSWORD_LOGIN_ATTEMPTS_PREFIX = "login:attempts:";
+
+    // 账户冷却时间，单位为毫秒（30 分钟）
+    public static final int LOCKED_ACCOUNT_COOL_DOWN_TIME_MS = 30 * 60 * 1000;
+
+    public static final Map<Integer, String> USER_TYPE_MAP = Map.of(
+            1, "candidate:",
+            2, "recruiter:"
+    );
 
 
 }

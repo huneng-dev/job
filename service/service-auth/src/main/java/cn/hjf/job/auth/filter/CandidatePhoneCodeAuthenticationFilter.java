@@ -44,7 +44,7 @@ public class CandidatePhoneCodeAuthenticationFilter extends UsernamePasswordAuth
             // 校验参数
             validationUtil.validate(phoneCodeLoginForm);
         } catch (ValidationException e) {
-            throw new BadCredentialsException("Invalid input: " + e.getMessage());
+            throw new BadCredentialsException(e.getMessage());
         }
         return this.getAuthenticationManager().authenticate(new PhoneCodeAuthenticationToken(phoneCodeLoginForm.getPhone(), phoneCodeLoginForm.getValidateCode(), UserTypeConstant.CANDIDATE));
     }

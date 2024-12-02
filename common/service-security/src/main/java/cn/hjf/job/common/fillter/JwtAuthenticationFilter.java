@@ -1,6 +1,5 @@
 package cn.hjf.job.common.fillter;
 
-import cn.hjf.job.common.whitelist.WhitelistConfig;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,11 +27,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Resource
     private JwtDecoder jwtDecoder;
 
-    private WhitelistConfig whitelistConfig;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
 
         String token = extractTokenFromRequest(request);
         if (token != null) {

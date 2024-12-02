@@ -44,7 +44,7 @@ public class RecruiterEmailCodeAuthenticationFilter extends UsernamePasswordAuth
             // 校验参数
             validationUtil.validate(emailCodeLoginForm);
         } catch (ValidationException e) {
-            throw new BadCredentialsException("Invalid input: " + e.getMessage());
+            throw new BadCredentialsException(e.getMessage());
         }
 
         return this.getAuthenticationManager().authenticate(new EmailCodeAuthenticationToken(emailCodeLoginForm.getEmail(), emailCodeLoginForm.getValidateCode(), UserTypeConstant.RECRUITER));

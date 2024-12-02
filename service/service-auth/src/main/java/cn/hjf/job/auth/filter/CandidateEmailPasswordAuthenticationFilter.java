@@ -2,11 +2,11 @@ package cn.hjf.job.auth.filter;
 
 import cn.hjf.job.auth.handler.CustomAuthenticationFailureHandler;
 import cn.hjf.job.auth.handler.CustomAuthenticationSuccessHandler;
-import cn.hjf.job.auth.token.EmailCodeAuthenticationToken;
+import cn.hjf.job.auth.token.EmailPasswordAuthenticationToken;
 import cn.hjf.job.common.constant.UserTypeConstant;
 import cn.hjf.job.common.execption.ValidationException;
 import cn.hjf.job.common.util.ValidationUtil;
-import cn.hjf.job.model.form.auth.EmailCodeLoginForm;
+import cn.hjf.job.model.form.auth.EmailPasswordLoginForm;
 import com.alibaba.fastjson2.JSON;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,11 +17,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-public class CandidateEmailCodeAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class CandidateEmailPasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final ValidationUtil validationUtil;
 
-    public CandidateEmailCodeAuthenticationFilter(
+    public CandidateEmailPasswordAuthenticationFilter(
             AuthenticationManager authenticationManager,
             CustomAuthenticationSuccessHandler successHandler,
             CustomAuthenticationFailureHandler failureHandler,
@@ -30,7 +30,7 @@ public class CandidateEmailCodeAuthenticationFilter extends UsernamePasswordAuth
         this.validationUtil = validationUtil;
         super.setAuthenticationManager(authenticationManager);
         super.setPostOnly(true);
-        super.setFilterProcessesUrl("/auth/candidate/email/code");
+        super.setFilterProcessesUrl("/auth/candidate/email/password");
         super.setAuthenticationSuccessHandler(successHandler);
         super.setAuthenticationFailureHandler(failureHandler);
     }
@@ -38,14 +38,16 @@ public class CandidateEmailCodeAuthenticationFilter extends UsernamePasswordAuth
     @Override
     @SneakyThrows
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        // 获取参数
-        EmailCodeLoginForm emailCodeLoginForm = JSON.parseObject(request.getInputStream(), EmailCodeLoginForm.class);
+        // 从请求中获取表单
+        EmailPasswordLoginForm emailPasswordLoginForm = JSON.parseObject(request.getInputStream(), EmailPasswordLoginForm.class);
+
         try {
             // 校验参数
-            validationUtil.validate(emailCodeLoginForm);
+            validationUtil.validate(emailPasswordLoginForm);
         } catch (ValidationException e) {
             throw new BadCredentialsException(e.getMessage());
         }
-        return this.getAuthenticationManager().authenticate(new EmailCodeAuthenticationToken(emailCodeLoginForm.getEmail(), emailCodeLoginForm.getValidateCode(), UserTypeConstant.CANDIDATE));
+
+        return this.getAuthenticationManager().authenticate(new EmailPasswordAuthenticationToken(emailPasswordLoginForm.getEmail(), emailPasswordLoginForm.getPassword(), UserTypeConstant.CANDIDATE));
     }
 }

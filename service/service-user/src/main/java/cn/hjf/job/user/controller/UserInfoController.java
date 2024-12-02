@@ -16,11 +16,16 @@ import cn.hjf.job.user.exception.VerificationCodeException;
 import cn.hjf.job.user.service.UserInfoService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 /**
  * 用户信息
@@ -45,15 +50,12 @@ public class UserInfoController {
      * @return UserInfoQuery
      */
     @GetMapping("/info")
-    public Result<UserInfoQuery> getUserInfo() {
-        // 获取用户id
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
+    public Result<UserInfoQuery> getUserInfo(@NotNull Principal principal) {
+        if (principal == null) {
             return Result.fail();
         }
-        Long id = Long.parseLong(authentication.getName());
         // 获取用户信息
-        UserInfoVo userInfoVo = userInfoService.getUserInfo(id);
+        UserInfoVo userInfoVo = userInfoService.getUserInfo(Long.valueOf(principal.getName()));
         UserInfoQuery userInfoQuery = new UserInfoQuery();
         if (userInfoVo != null) BeanUtils.copyProperties(userInfoVo, userInfoQuery);
         return Result.ok(userInfoQuery);
