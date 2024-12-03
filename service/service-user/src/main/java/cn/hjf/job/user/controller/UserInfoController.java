@@ -50,7 +50,7 @@ public class UserInfoController {
      * @return UserInfoQuery
      */
     @GetMapping("/info")
-    public Result<UserInfoQuery> getUserInfo(@NotNull Principal principal) {
+    public Result<UserInfoQuery> getUserInfo(Principal principal) {
         if (principal == null) {
             return Result.fail();
         }

@@ -11,7 +11,6 @@ import cn.hjf.job.common.fillter.JwtAuthenticationFilter;
 import cn.hjf.job.common.handler.CustomAccessDeniedHandler;
 import jakarta.annotation.Resource;
 import cn.hjf.job.common.util.ValidationUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -63,6 +62,62 @@ public class SecurityConfig {
     @Resource
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    /**
+     * --------------------------------------------------------------
+     * 执行流程注释图（ASCII图）：
+     * --------------------------------------------------------------
+     * <p>
+     * 1. 客户端发起认证请求（如：/recruiter/email/code）
+     * |
+     * V
+     * 2. 请求到达 SecurityFilterChain 配置类，过滤器链开始处理
+     * |
+     * V
+     * 3. HttpSecurity 会根据请求路径找到相应的认证过滤器
+     * |
+     * V
+     * |--> 邮箱验证码登录过滤器
+     * |    |
+     * |    V
+     * |  RecruiterEmailCodeAuthenticationFilter
+     * |    |
+     * |    V
+     * |  调用 authenticationManager() 来处理认证
+     * |    |
+     * |    V
+     * |  authenticationManager 会遍历所有 AuthenticationProvider
+     * |    |
+     * |    V
+     * |  找到对应的 EmailCodeAuthenticationProvider
+     * |    |
+     * |    V
+     * |  调用 EmailCodeAuthenticationProvider 的 authenticate() 方法
+     * |    |
+     * |    V
+     * |  EmailCodeAuthenticationProvider 内部调用 EmailCodeUserDetailsService
+     * |    |
+     * |    V
+     * |  EmailCodeUserDetailsService 调用 loadUserByUsernameAndType(email, type)
+     * |    |
+     * |    V
+     * |  验证验证码
+     * |    |
+     * |    V
+     * |  验证通过后返回认证成功，调用 successHandler
+     * |    |
+     * |    V
+     * |  返回认证成功响应
+     * |
+     * V
+     * 4. 认证成功，继续访问受保护资源（如：职位详情、公司信息等）
+     * <p>
+     * --------------------------------------------------------------
+     * 其他认证方式（手机验证码、手机密码、邮箱密码）类似处理流程：
+     * - 找到相应的过滤器
+     * - 认证提供者处理验证
+     * - 成功后调用 successHandler 处理结果
+     * --------------------------------------------------------------
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         //邮箱验证码登录过滤器
