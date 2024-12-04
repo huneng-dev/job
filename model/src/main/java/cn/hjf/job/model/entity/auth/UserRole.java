@@ -4,7 +4,9 @@ import cn.hjf.job.model.entity.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author hjf
@@ -13,6 +15,8 @@ import lombok.Data;
 @Data
 @Schema(description = "UserRole")
 @TableName("user_role")
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserRole extends BaseEntity {
 
     private static final long serialVersionUID = 1L;

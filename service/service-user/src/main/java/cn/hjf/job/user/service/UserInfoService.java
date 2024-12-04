@@ -4,8 +4,8 @@ import cn.hjf.job.model.entity.user.UserInfo;
 import cn.hjf.job.model.form.user.*;
 import cn.hjf.job.model.query.user.UserInfoPasswordStatus;
 import cn.hjf.job.model.query.user.UserInfoStatus;
-import cn.hjf.job.model.request.EmailAndUserTypeRequest;
-import cn.hjf.job.model.request.PhoneAndUserTypeRequest;
+import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
+import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -29,7 +29,7 @@ public interface UserInfoService extends IService<UserInfo> {
 
 
     /**
-     * 通过邮箱注册
+     * 招聘端通过邮箱注册
      *
      * @param emailRegisterInfoForm 注册信息表单
      * @return 是否注册成功
@@ -37,12 +37,20 @@ public interface UserInfoService extends IService<UserInfo> {
     boolean recruiterRegisterByEmail(EmailRegisterInfoForm emailRegisterInfoForm);
 
     /**
-     * 通过手机号注册
+     * 招聘端通过手机号注册
      *
      * @param phoneRegisterInfoForm 注册信息表单
      * @return 是否注册成功
      */
     boolean recruiterRegisterByPhone(PhoneRegisterInfoForm phoneRegisterInfoForm);
+
+    /**
+     * 应聘端手机号注册
+     *
+     * @param phoneRegisterInfoForm 注册信息表单
+     * @return 是否注册成功
+     */
+    boolean candidateRegisterByPhone(PhoneRegisterInfoForm phoneRegisterInfoForm);
 
 
     /**

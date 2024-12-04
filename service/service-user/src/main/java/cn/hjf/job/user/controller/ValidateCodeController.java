@@ -1,8 +1,8 @@
 package cn.hjf.job.user.controller;
 
 import cn.hjf.job.common.result.Result;
-import cn.hjf.job.model.request.EmailRequest;
-import cn.hjf.job.model.request.PhoneRequest;
+import cn.hjf.job.model.request.user.EmailRequest;
+import cn.hjf.job.model.request.user.PhoneRequest;
 import cn.hjf.job.user.service.ValidateCodeService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;

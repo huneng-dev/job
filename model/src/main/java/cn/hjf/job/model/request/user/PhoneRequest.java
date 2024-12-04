@@ -1,4 +1,4 @@
-package cn.hjf.job.model.request;
+package cn.hjf.job.model.request.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

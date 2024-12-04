@@ -38,7 +38,6 @@ public class RedisConstant {
     // 注册分布式锁的手机号前缀
     public static final String PHONE_REGISTER_LOCK_PREFIX = "register:phone:";
 
-
     // 密码登录尝试次数和最后时间相关前缀
     public static final String PASSWORD_LOGIN_ATTEMPTS_PREFIX = "login:attempts:";
 

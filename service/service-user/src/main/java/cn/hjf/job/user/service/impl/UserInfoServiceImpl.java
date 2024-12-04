@@ -1,20 +1,28 @@
 package cn.hjf.job.user.service.impl;
 
+import cn.hjf.job.auth.client.UserRoleFeignClient;
 import cn.hjf.job.common.constant.RedisConstant;
+import cn.hjf.job.common.constant.UserDefaultInfoConstant;
+import cn.hjf.job.common.constant.UserTypeConstant;
+import cn.hjf.job.common.result.Result;
 import cn.hjf.job.model.entity.user.UserInfo;
 import cn.hjf.job.model.form.user.*;
 import cn.hjf.job.model.query.user.UserInfoPasswordStatus;
 import cn.hjf.job.model.query.user.UserInfoStatus;
-import cn.hjf.job.model.request.EmailAndUserTypeRequest;
-import cn.hjf.job.model.request.PhoneAndUserTypeRequest;
+import cn.hjf.job.model.request.auth.DefaultUserRoleRequest;
+import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
+import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.UserInfoVo;
+import cn.hjf.job.user.config.KeyProperties;
 import cn.hjf.job.user.exception.EmailAlreadyRegisteredException;
 import cn.hjf.job.user.exception.PhoneAlreadyRegisterException;
 import cn.hjf.job.user.exception.VerificationCodeException;
 import cn.hjf.job.user.mapper.UserInfoMapper;
 import cn.hjf.job.user.service.UserInfoService;
+import cn.hjf.job.user.utils.UsernameGenerator;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.annotation.Resource;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -22,6 +30,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.concurrent.TimeUnit;
 
@@ -48,6 +57,12 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Resource
     private RedissonClient redissonClient;
 
+    @Resource
+    private UserRoleFeignClient userRoleFeignClient;
+
+    @Resource
+    private KeyProperties keyProperties;
+
     @Override
     public UserInfoVo getUserInfo(Long id) {
         LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -65,6 +80,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     }
 
     @Override
+    @GlobalTransactional(name = "recruiter-register-email", rollbackFor = Exception.class)
     public boolean recruiterRegisterByEmail(EmailRegisterInfoForm emailRegisterInfoForm) {
 
         String email = emailRegisterInfoForm.getEmail();
@@ -107,21 +123,29 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 // 保存用户信息
                 // 默认头像 http://localhost:9000/121job-candidate-file/default/default-user-avatar.png
                 UserInfo info = new UserInfo();
-                info.setAvatar("/121job-candidate-file/default/default-user-avatar.png");
-                info.setNickname("默认用户名");
+                info.setAvatar(UserDefaultInfoConstant.RECRUITER_DEFAULT_AVATAR);
+
+                info.setNickname(UsernameGenerator.generateDefaultUsername());
                 info.setEmail(email);
                 // 对密码进行加密
                 String encode = passwordEncoder.encode(emailRegisterInfoForm.getPassword());
                 info.setPassword(encode);
-                info.setType(2); // 招聘用户
+                info.setType(UserTypeConstant.RECRUITER); // 招聘用户
+
                 userInfoMapper.insert(info);
 
-                // 更新用户名
-                UserInfo updataUserInfo = new UserInfo();
-                Long id = info.getId();
-                updataUserInfo.setId(id);
-                updataUserInfo.setNickname("用户" + id);
-                userInfoMapper.updateById(updataUserInfo);
+                // 设置用户角色
+                Result<String> result = userRoleFeignClient.setDefaultUserRole(
+                        new DefaultUserRoleRequest(
+                                info.getId(),
+                                UserDefaultInfoConstant.RECRUITER_DEFAULT_ROLES,
+                                keyProperties.getKey()
+                        )
+                );
+
+                if (!result.getCode().equals(200)) {
+                    throw new RuntimeException();
+                }
                 return true;
             }
 
@@ -160,9 +184,10 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 if (!rawCode.equals(phoneRegisterInfoForm.getValidateCode())) {
                     throw new VerificationCodeException("验证码不正确");
                 }
-
                 // 验证码验证成功后删除
                 redisTemplate.delete(RedisConstant.PHONE_REGISTER_CODE + phone);
+
+                // FIXME 在这里结束分布式锁会得到更好的性能，但是可能会存在用户重复注册等。概率极小
 
                 // 判断手机号是否被注册
                 LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -190,6 +215,76 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 updateUserInfo.setId(user.getId());
                 updateUserInfo.setNickname("用户" + user.getId());
                 userInfoMapper.updateById(updateUserInfo);
+                return true;
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            lock.unlock();
+        }
+        return false;
+    }
+
+    // TODO 加分布式事务
+    @Override
+    public boolean candidateRegisterByPhone(PhoneRegisterInfoForm phoneRegisterInfoForm) {
+        String phone = phoneRegisterInfoForm.getPhone();
+        String lockKey = RedisConstant.PHONE_REGISTER_LOCK_PREFIX + phone;
+
+        RLock lock = redissonClient.getLock(lockKey);
+
+        try {
+            boolean flag = lock.tryLock(
+                    RedisConstant.USER_INFO_OPERATE_LOCK_WAIT_TIME,
+                    RedisConstant.USER_INFO_OPERATE_LOCK_LEASE_TIME,
+                    TimeUnit.SECONDS
+            );
+            if (flag) {
+                // 判断验证码是否过期
+                String rawCode = redisTemplate.opsForValue().get(RedisConstant.PHONE_REGISTER_CODE + phone);
+                if (rawCode == null || rawCode.isEmpty()) {
+                    throw new VerificationCodeException("验证码已过期");
+                }
+                // 判断验证码是否正确
+                if (!rawCode.equals(phoneRegisterInfoForm.getValidateCode())) {
+                    throw new VerificationCodeException("验证码不正确");
+                }
+                // 验证码验证成功后删除
+                redisTemplate.delete(RedisConstant.PHONE_REGISTER_CODE + phone);
+
+                // FIXME 在这里结束分布式锁会得到更好的性能，但是可能会存在用户重复注册等。概率极小
+
+                // 判断手机号是否被注册
+                LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                userInfoLambdaQueryWrapper
+                        .select(UserInfo::getPhone)
+                        .eq(UserInfo::getPhone, phone)
+                        .eq(UserInfo::getType, UserTypeConstant.CANDIDATE);
+                UserInfo userInfo = userInfoMapper.selectOne(userInfoLambdaQueryWrapper);
+                if (userInfo != null) {
+                    throw new PhoneAlreadyRegisterException("已注册");
+                }
+
+                // 将信息插入数据库
+                UserInfo user = new UserInfo();
+                user.setPhone(phone);
+                // FIXME 使用定义常量
+                user.setAvatar("/121job-candidate-file/default/default-user-avatar.png");
+                user.setNickname("默认用户名");
+                // 加密密码
+                String encode = passwordEncoder.encode(phoneRegisterInfoForm.getPassword());
+                user.setPassword(encode);
+                user.setType(UserTypeConstant.CANDIDATE);
+                userInfoMapper.insert(user);
+
+                // 设置用户默认用户名
+                UserInfo updateUserInfo = new UserInfo();
+                updateUserInfo.setId(user.getId());
+                updateUserInfo.setNickname("用户" + user.getId());
+                userInfoMapper.updateById(updateUserInfo);
+
+                // TODO 设置用户权限
+
                 return true;
             }
         } catch (InterruptedException e) {

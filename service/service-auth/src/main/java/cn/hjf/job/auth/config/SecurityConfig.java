@@ -32,10 +32,10 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Resource
+    @Resource(name = "customAuthenticationSuccessHandler")
     private CustomAuthenticationSuccessHandler successHandler;
 
-    @Resource
+    @Resource(name = "customAuthenticationFailureHandler")
     private CustomAuthenticationFailureHandler failureHandler;
 
     @Resource

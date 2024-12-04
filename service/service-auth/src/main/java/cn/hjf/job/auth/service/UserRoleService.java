@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author hjf
@@ -16,10 +16,20 @@ import java.util.List;
 public interface UserRoleService extends IService<UserRole> {
 
     /**
-     *  获取用户角色列表
+     * 获取用户角色列表
+     *
      * @param id 用户id
      * @return 角色Key
      */
     List<String> getUserRoleById(Long id);
+
+    /**
+     * 设置用户角色
+     *
+     * @param id    用户id
+     * @param roles 角色
+     * @return 是否成功
+     */
+    boolean setDefaultUserRole(Long id, List<Long> roles);
 
 }

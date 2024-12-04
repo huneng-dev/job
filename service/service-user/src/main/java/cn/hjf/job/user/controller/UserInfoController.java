@@ -6,8 +6,8 @@ import cn.hjf.job.model.form.user.PhoneRegisterInfoForm;
 import cn.hjf.job.model.query.user.UserInfoPasswordStatus;
 import cn.hjf.job.model.query.user.UserInfoQuery;
 import cn.hjf.job.model.query.user.UserInfoStatus;
-import cn.hjf.job.model.request.EmailAndUserTypeRequest;
-import cn.hjf.job.model.request.PhoneAndUserTypeRequest;
+import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
+import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import cn.hjf.job.user.config.KeyProperties;
 import cn.hjf.job.user.exception.EmailAlreadyRegisteredException;
@@ -16,13 +16,8 @@ import cn.hjf.job.user.exception.VerificationCodeException;
 import cn.hjf.job.user.service.UserInfoService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -103,6 +98,37 @@ public class UserInfoController {
      */
     @PostMapping("/recruiter/register/phone")
     public Result<String> recruiterRegisterByPhone(@Valid @RequestBody PhoneRegisterInfoForm phoneRegisterInfoForm) {
+        try {
+
+            boolean isRegistered = userInfoService.recruiterRegisterByPhone(phoneRegisterInfoForm);
+            // 判断是否注册成功
+            if (isRegistered) {
+                return Result.ok("手机注册成功");
+            } else {
+                return Result.fail("手机注册失败");
+            }
+        } catch (VerificationCodeException e) {
+            // 验证码相关异常处理
+            return Result.fail(e.getMessage());
+
+        } catch (PhoneAlreadyRegisterException e) {
+            // 邮箱已注册异常处理
+            return Result.fail(e.getMessage());
+        } catch (Exception e) {
+            // 捕获其他异常并记录日志
+            log.error("注册异常: ", e);
+            return Result.fail("系统错误，请稍后再试");
+        }
+    }
+
+    /**
+     * 应聘端手机号注册
+     *
+     * @param phoneRegisterInfoForm 手机注册表单
+     * @return 返回注册信息
+     */
+    @PostMapping("/candidate/register/phone")
+    public Result<String> CandidateRegisterByPhone(@Valid @RequestBody PhoneRegisterInfoForm phoneRegisterInfoForm) {
         try {
 
             boolean isRegistered = userInfoService.recruiterRegisterByPhone(phoneRegisterInfoForm);
