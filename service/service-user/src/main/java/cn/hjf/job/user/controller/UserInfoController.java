@@ -76,17 +76,10 @@ public class UserInfoController {
                 return Result.fail("邮箱注册失败");
             }
 
-        } catch (VerificationCodeException e) {
-            // 验证码相关异常处理
-            return Result.fail(e.getMessage());
-
-        } catch (EmailAlreadyRegisteredException e) {
-            // 邮箱已注册异常处理
-            return Result.fail(e.getMessage());
         } catch (Exception e) {
             // 捕获其他异常并记录日志
             log.error("注册异常: ", e);
-            return Result.fail("系统错误，请稍后再试");
+            return Result.fail(e.getCause().getMessage());
         }
     }
 
@@ -107,17 +100,10 @@ public class UserInfoController {
             } else {
                 return Result.fail("手机注册失败");
             }
-        } catch (VerificationCodeException e) {
-            // 验证码相关异常处理
-            return Result.fail(e.getMessage());
-
-        } catch (PhoneAlreadyRegisterException e) {
-            // 邮箱已注册异常处理
-            return Result.fail(e.getMessage());
         } catch (Exception e) {
             // 捕获其他异常并记录日志
             log.error("注册异常: ", e);
-            return Result.fail("系统错误，请稍后再试");
+            return Result.fail(e.getCause().getMessage());
         }
     }
 
@@ -131,26 +117,46 @@ public class UserInfoController {
     public Result<String> CandidateRegisterByPhone(@Valid @RequestBody PhoneRegisterInfoForm phoneRegisterInfoForm) {
         try {
 
-            boolean isRegistered = userInfoService.recruiterRegisterByPhone(phoneRegisterInfoForm);
+            boolean isRegistered = userInfoService.candidateRegisterByPhone(phoneRegisterInfoForm);
             // 判断是否注册成功
             if (isRegistered) {
                 return Result.ok("手机注册成功");
             } else {
                 return Result.fail("手机注册失败");
             }
-        } catch (VerificationCodeException e) {
-            // 验证码相关异常处理
-            return Result.fail(e.getMessage());
-
-        } catch (PhoneAlreadyRegisterException e) {
-            // 邮箱已注册异常处理
-            return Result.fail(e.getMessage());
         } catch (Exception e) {
             // 捕获其他异常并记录日志
             log.error("注册异常: ", e);
-            return Result.fail("系统错误，请稍后再试");
+            return Result.fail(e.getCause().getMessage());
         }
     }
+
+    /**
+     * 应聘端邮箱注册
+     *
+     * @param emailRegisterInfoForm 邮箱注册表单
+     * @return 返回注册信息
+     */
+    @PostMapping("/candidate/register/email")
+    public Result<String> CandidateRegisterByEmail(@Valid @RequestBody EmailRegisterInfoForm emailRegisterInfoForm) {
+
+        try {
+
+            boolean isRegistered = userInfoService.candidateRegisterByEmail(emailRegisterInfoForm);
+            // 判断是否注册成功
+            if (isRegistered) {
+                return Result.ok("邮箱注册成功");
+            } else {
+                return Result.fail("邮箱注册失败");
+            }
+        } catch (Exception e) {
+            // 捕获其他异常并记录日志
+            log.error("注册异常: ", e);
+            return Result.fail(e.getCause().getMessage());
+        }
+
+    }
+
 
     /**
      * 邮件验证码方式获取用户信息

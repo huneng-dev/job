@@ -52,6 +52,14 @@ public interface UserInfoService extends IService<UserInfo> {
      */
     boolean candidateRegisterByPhone(PhoneRegisterInfoForm phoneRegisterInfoForm);
 
+    /**
+     * 应聘端邮箱注册
+     *
+     * @param emailRegisterInfoForm 注册信息表单
+     * @return 是否注册成功
+     */
+    boolean candidateRegisterByEmail(EmailRegisterInfoForm emailRegisterInfoForm);
+
 
     /**
      * 邮件验证码方式获取用户信息

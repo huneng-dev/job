@@ -16,4 +16,8 @@ public class UserDefaultInfoConstant {
             4L
     );
 
+    public static final List<Long> CANDIDATE_DEFAULT_ROLES = List.of(
+            2L
+    );
+
 }

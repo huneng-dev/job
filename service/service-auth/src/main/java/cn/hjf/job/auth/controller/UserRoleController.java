@@ -46,8 +46,7 @@ public class UserRoleController {
         // 设置权限
         boolean isSuccess = userRoleService.setDefaultUserRole(defaultUserRoleRequest.getUserId(), defaultUserRoleRequest.getRoles());
         if (isSuccess) {
-            throw new RuntimeException();
-//            return Result.ok();
+            return Result.ok();
         }
         return Result.fail();
     }
