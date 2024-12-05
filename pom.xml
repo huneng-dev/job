@@ -33,7 +33,7 @@
         <knife4j.version>4.5.0</knife4j.version>
         <fastjson.version>2.0.53</fastjson.version>
         <vod_api.version>2.1.4</vod_api.version>
-        <minio.version>8.5.12</minio.version>
+        <minio.version>8.5.14</minio.version>
         <jodatime.version>2.12.7</jodatime.version>
         <xxl-job.version>2.4.1</xxl-job.version>
         <wxpay.version>0.2.11</wxpay.version>

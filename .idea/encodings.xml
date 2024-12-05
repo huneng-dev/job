@@ -3,6 +3,7 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/code-generator/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/common-util/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/minio-util/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/rabbit-util/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/service-security/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/service-util/src/main/java" charset="UTF-8" />
@@ -27,6 +28,8 @@
     <file url="file://$PROJECT_DIR$/service/service-recruiter/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/service-resume/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/service-sms/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/service/service-uplaod/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/service/service-upload/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/service-user/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/src/main/resources" charset="UTF-8" />
