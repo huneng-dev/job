@@ -1,8 +1,8 @@
 package cn.hjf.job.user.client;
 
 import cn.hjf.job.common.result.Result;
-import cn.hjf.job.model.query.user.UserInfoPasswordStatus;
-import cn.hjf.job.model.query.user.UserInfoStatus;
+import cn.hjf.job.model.dto.user.UserInfoPasswordStatus;
+import cn.hjf.job.model.dto.user.UserInfoStatus;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 

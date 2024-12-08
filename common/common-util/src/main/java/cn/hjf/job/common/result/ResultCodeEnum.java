@@ -29,6 +29,11 @@ public enum ResultCodeEnum {
     VERIFY_CODE_TOO_MANY_REQUESTS(429, "验证码请求次数过多"), // 请求次数过多
     INVALID_EMAIL_FORMAT(400, "邮箱格式错误"), // 邮箱格式不正确
 
+    // 公司相关
+    EMPLOYEE_COMPANY_NOT_FOUND(404, "员工所在公司不存在"),
+
+
+
     LOGIN_AUTH(208, "未登陆"),
     PERMISSION(401, "认证失效"),
     FORBIDDEN(403, "没有权限"),

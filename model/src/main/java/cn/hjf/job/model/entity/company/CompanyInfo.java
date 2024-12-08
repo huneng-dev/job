@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalTime;
+
 /**
- * 
  * @author hjf
  * @date 2024-10-31
  */
@@ -18,7 +18,7 @@ import java.time.LocalTime;
 public class CompanyInfo extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Schema(description = "公司名称")
     @TableField("company_name")
     private String companyName;
@@ -59,7 +59,7 @@ public class CompanyInfo extends BaseEntity {
     @TableField("count")
     private Integer count;
 
-    @Schema(description = "公司状态，0 ： 禁用，1：停招 ，2：招聘中")
+    @Schema(description = "公司状态，-1：禁用，0:法人认证状态 1：激活")
     @TableField("status")
     private Integer status;
-    }
+}

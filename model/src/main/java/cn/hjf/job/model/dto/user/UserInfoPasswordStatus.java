@@ -1,4 +1,4 @@
-package cn.hjf.job.model.query.user;
+package cn.hjf.job.model.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

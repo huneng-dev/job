@@ -3,7 +3,7 @@ package cn.hjf.job.auth.details;
 import cn.hjf.job.auth.config.KeyProperties;
 import cn.hjf.job.auth.service.UserRoleService;
 import cn.hjf.job.common.result.Result;
-import cn.hjf.job.model.query.user.UserInfoPasswordStatus;
+import cn.hjf.job.model.dto.user.UserInfoPasswordStatus;
 import cn.hjf.job.user.client.UserInfoFeignClient;
 import jakarta.annotation.Resource;
 import org.springframework.security.core.GrantedAuthority;

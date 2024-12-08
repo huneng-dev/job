@@ -2,8 +2,8 @@ package cn.hjf.job.user.service;
 
 import cn.hjf.job.model.entity.user.UserInfo;
 import cn.hjf.job.model.form.user.*;
-import cn.hjf.job.model.query.user.UserInfoPasswordStatus;
-import cn.hjf.job.model.query.user.UserInfoStatus;
+import cn.hjf.job.model.dto.user.UserInfoPasswordStatus;
+import cn.hjf.job.model.dto.user.UserInfoStatus;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.UserInfoVo;

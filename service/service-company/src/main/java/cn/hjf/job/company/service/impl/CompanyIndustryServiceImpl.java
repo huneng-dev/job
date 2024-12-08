@@ -7,6 +7,7 @@ import cn.hjf.job.company.service.CompanyIndustryService;
 import cn.hjf.job.model.entity.company.CompanyIndustry;
 import cn.hjf.job.model.vo.base.PageVo;
 import cn.hjf.job.model.vo.company.IndustryVo;
+import cn.hjf.job.model.vo.company.ParentIndustryVo;
 import cn.hjf.job.model.vo.company.SubIndustriesVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -54,6 +55,7 @@ public class CompanyIndustryServiceImpl extends ServiceImpl<CompanyIndustryMappe
         long end = start + industryPage.getSize() - 1; // 计算分页的起始和结束位置
         // 从 Redis 查询分页数据
         Set<IndustryVo> industryVos = industryVosRedisTemplate.opsForZSet().range(RedisConstant.COMPANY_INDUSTRY_PARENT, start, end);
+
         // 如果查询到父行业数据
         if (industryVos != null && !industryVos.isEmpty()) {
             // 查询到数据后，根据父行业ID查询其子行业，并组合返回结果
@@ -151,6 +153,19 @@ public class CompanyIndustryServiceImpl extends ServiceImpl<CompanyIndustryMappe
         }
 
         return subIndustriesVos;
+    }
+
+    @Override
+    public List<ParentIndustryVo> getParentIndustryAll() {
+        LambdaQueryWrapper<CompanyIndustry> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(CompanyIndustry::getId, CompanyIndustry::getIndustryName)
+                .isNull(CompanyIndustry::getParentId);
+
+        List<CompanyIndustry> companyIndustries = companyIndustryMapper.selectList(queryWrapper);
+
+        return companyIndustries.stream()
+                .map(companyIndustry -> new ParentIndustryVo(companyIndustry.getId(), companyIndustry.getIndustryName()))
+                .toList();
     }
 
 
