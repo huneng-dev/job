@@ -16,4 +16,14 @@ public class UploadPathConstant {
      * 营业执照上传路径
      */
     public static final String BUSINESS_LICENSE = "business-license";
+
+    /**
+     * 身份证正面
+     */
+    public static final String FRONT_ID_CARD = "front-idcard";
+
+    /**
+     * 身份证反面
+     */
+    public static final String BACK_ID_CARD = "back-idcard";
 }

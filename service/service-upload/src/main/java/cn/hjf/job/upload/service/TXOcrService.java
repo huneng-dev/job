@@ -1,6 +1,7 @@
 package cn.hjf.job.upload.service;
 
 import cn.hjf.job.model.vo.company.BusinessLicenseVo;
+import cn.hjf.job.model.vo.company.LegalPersonInfoVo;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 
 /**
@@ -14,4 +15,6 @@ import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 public interface TXOcrService {
 
     BusinessLicenseVo BizLicenseOCR(String imageBase64) throws TencentCloudSDKException;
+
+    LegalPersonInfoVo IDCardOCR(String imageBase64,String cardSide) throws TencentCloudSDKException;
 }

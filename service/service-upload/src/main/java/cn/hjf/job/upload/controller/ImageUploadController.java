@@ -4,6 +4,7 @@ import cn.hjf.job.common.constant.UploadPathConstant;
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.model.dto.company.BusinessLicenseDTO;
 import cn.hjf.job.model.vo.company.BusinessLicenseVo;
+import cn.hjf.job.model.vo.company.LegalPersonInfoVo;
 import cn.hjf.job.upload.exception.BusinessLicenseException;
 import cn.hjf.job.upload.service.FileUploadService;
 import cn.hjf.job.upload.service.TXOcrService;
@@ -51,9 +52,7 @@ public class ImageUploadController {
     @PostMapping("/user/avatar")
     public Result<String> userAvatar(@RequestPart("file") MultipartFile file) {
         // 设置类型校验
-        List<String> IMAGE_MIME_TYPES = Arrays.asList(
-                "image/jpeg", "image/png"
-        );
+        List<String> IMAGE_MIME_TYPES = Arrays.asList("image/jpeg", "image/png");
 
         try {
             // 校验文件
@@ -82,9 +81,7 @@ public class ImageUploadController {
     @PostMapping("/company/logo")
     public Result<String> companyLogo(@RequestPart("file") MultipartFile file) {
         // 设置类型校验
-        List<String> IMAGE_MIME_TYPES = Arrays.asList(
-                "image/jpeg", "image/png", "image/gif"
-        );
+        List<String> IMAGE_MIME_TYPES = Arrays.asList("image/jpeg", "image/png", "image/gif");
 
         // 设置文件大小限制，假设限制为 5MB
         long maxFileSize = 3 * 1024 * 1024;  // 1MB
@@ -116,12 +113,16 @@ public class ImageUploadController {
     }
 
 
+    /**
+     * 营业执照上传
+     *
+     * @param file 营业执照图片
+     * @return 回显 url 和 营业执照 Ocr 数据
+     */
     @PostMapping("/company/business/license")
     public Result<BusinessLicenseDTO> businessLicense(@RequestPart("file") MultipartFile file) {
         // 设置类型校验
-        List<String> IMAGE_MIME_TYPES = Arrays.asList(
-                "image/jpeg", "image/png"
-        );
+        List<String> IMAGE_MIME_TYPES = Arrays.asList("image/jpeg", "image/png");
 
         // 设置文件大小限制，假设限制为 5MB
         long maxFileSize = 5 * 1024 * 1024;  // 5MB
@@ -147,10 +148,7 @@ public class ImageUploadController {
             byte[] fileBytes = file.getBytes();
             String imageBase64 = Base64.getEncoder().encodeToString(fileBytes);
             BusinessLicenseVo businessLicenseVo = txOcrService.BizLicenseOCR(imageBase64);
-            BusinessLicenseDTO businessLicenseDTO = new BusinessLicenseDTO(
-                    url,
-                    businessLicenseVo
-            );
+            BusinessLicenseDTO businessLicenseDTO = new BusinessLicenseDTO(url, businessLicenseVo);
             return Result.ok(businessLicenseDTO);
         } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
                  InvalidKeyException | NoSuchAlgorithmException | InvalidResponseException | XmlParserException |
@@ -158,6 +156,55 @@ public class ImageUploadController {
             return Result.fail();
         } catch (BusinessLicenseException | TencentCloudSDKException e) {
             return Result.build(null, 422, e.getMessage());
+        }
+    }
+
+    /**
+     * 上传身份证正面
+     *
+     * @param file 身份证图片
+     * @return 身份证回显数据
+     */
+    @PostMapping("/front/idcard")
+    public Result<LegalPersonInfoVo> FrontIdCard(@RequestPart("file") MultipartFile file) {
+        // 设置类型校验
+        List<String> IMAGE_MIME_TYPES = Arrays.asList("image/jpeg", "image/png");
+
+        // 设置文件大小限制，假设限制为 5MB
+        long maxFileSize = 5 * 1024 * 1024;  // 5MB
+        try {
+
+            // 校验文件
+            boolean validatorResult = FileTypeValidatorUtils.fileTypeValidator(file, IMAGE_MIME_TYPES);
+
+            if (!validatorResult) {
+                return Result.fail();
+            }
+
+            // 校验文件大小
+            if (file.getSize() > maxFileSize) {
+                return Result.fail();
+            }
+
+            // 上传文件
+            String url = fileUploadService.upload(file, UploadPathConstant.FRONT_ID_CARD);
+
+            // 调用腾讯云 SDK 识别营业执照
+            byte[] fileBytes = file.getBytes();
+            String imageBase64 = Base64.getEncoder().encodeToString(fileBytes);
+
+            LegalPersonInfoVo legalPersonInfoVo = txOcrService.IDCardOCR(imageBase64, "FRONT");
+
+            legalPersonInfoVo.setIdcardFrontUrl(url);
+            return Result.ok(legalPersonInfoVo);
+        } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
+                 InvalidKeyException | NoSuchAlgorithmException | InvalidResponseException | XmlParserException |
+                 InternalException e) {
+            return Result.fail();
+        } catch (BusinessLicenseException e) {
+            return Result.build(null, 422, e.getMessage());
+        } catch (TencentCloudSDKException e) {
+            throw new RuntimeException(e);
         }
     }
 }
