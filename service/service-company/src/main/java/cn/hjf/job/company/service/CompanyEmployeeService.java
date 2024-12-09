@@ -10,4 +10,14 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 
 public interface CompanyEmployeeService extends IService<CompanyEmployee> {
+
+    /**
+     * 设置当前公司的管理员
+     *
+     * @param companyId 公司 id
+     * @param userId    用户 id
+     * @param titleId   职称 id
+     * @return 是否执行成功
+     */
+    boolean setCompanyAdminEmployee(Long companyId, Long userId, Long titleId);
 }

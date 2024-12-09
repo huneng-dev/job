@@ -4,7 +4,9 @@ import cn.hjf.job.model.entity.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author hjf
@@ -14,6 +16,8 @@ import lombok.Data;
 @Data
 @Schema(description = "CompanyEmployee")
 @TableName("company_employee")
+@AllArgsConstructor
+@NoArgsConstructor
 public class CompanyEmployee extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -33,5 +37,4 @@ public class CompanyEmployee extends BaseEntity {
     @Schema(description = "是否是管理员")
     @TableField("is_admin")
     private Integer isAdmin;
-
 }

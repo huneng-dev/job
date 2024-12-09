@@ -8,6 +8,10 @@ public class MqConst {
     public static final String ROUTING_REFRESH_INDUSTRY = "job.company.industry.refresh";
     public static final String QUEUE_REFRESH_INDUSTRY = "job.company.industry.refresh";
 
+    // 校验公司信息和营业执照信息
+    public static final String ROUTING_VALIDATE_COMPANY_BUSINESS_LICENSE = "job.company.company.business.license";
+    public static final String QUEUE_VALIDATE_COMPANY_BUSINESS_LICENSE = "job.company.company.business.license";
+
     // 邮箱相关的交换机、路由、队列
     public static final String EXCHANGE_EMAIL = "job.email";
     // 发送注册验证码
@@ -35,6 +39,4 @@ public class MqConst {
     // 登录验证码的路由和队列
     public static final String ROUTING_PHONE_LOGIN = "job.phone.login"; // 登录路由
     public static final String QUEUE_PHONE_LOGIN = "job.phone.login"; // 登录队列
-
-
 }

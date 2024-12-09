@@ -4,7 +4,6 @@ import cn.hjf.job.model.dto.company.CompanyIdAndNameDTO;
 import cn.hjf.job.model.entity.company.CompanyInfo;
 import cn.hjf.job.model.dto.company.CompanyInfoQuery;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
-import cn.hjf.job.model.vo.company.CompanySizeVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -40,8 +39,7 @@ public interface CompanyInfoService extends IService<CompanyInfo> {
      * 保存公司信息和营业执照信息(注册公司流程)
      *
      * @param companyInfoAndBusinessLicenseForm 公司信息和营业执照表单
-     * @return boolean 是否成功
      */
-    boolean saveCompanyInfoAndBusinessLicense(CompanyInfoAndBusinessLicenseForm companyInfoAndBusinessLicenseForm);
+    void saveCompanyInfoAndBusinessLicense(CompanyInfoAndBusinessLicenseForm companyInfoAndBusinessLicenseForm, Long userId);
 
 }

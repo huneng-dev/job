@@ -1,17 +1,13 @@
 package cn.hjf.job.upload.service.impl;
 
+import cn.hjf.job.common.tx.util.OcrUtil;
 import cn.hjf.job.model.vo.company.BusinessLicenseVo;
-import cn.hjf.job.upload.config.TencentCloudProperties;
+import com.tencentcloudapi.ocr.v20181119.models.BizLicenseOCRResponse;
 import cn.hjf.job.upload.exception.BusinessLicenseException;
 import cn.hjf.job.upload.service.TXOcrService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-import com.tencentcloudapi.common.Credential;
-import com.tencentcloudapi.common.profile.ClientProfile;
-import com.tencentcloudapi.common.profile.HttpProfile;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
-import com.tencentcloudapi.ocr.v20181119.OcrClient;
-import com.tencentcloudapi.ocr.v20181119.models.*;
 
 /**
  * @author hjf
@@ -22,33 +18,13 @@ import com.tencentcloudapi.ocr.v20181119.models.*;
 public class TXOcrServiceImpl implements TXOcrService {
 
     @Resource
-    private TencentCloudProperties tencentCloudProperties;
+    private OcrUtil ocrUtil;
 
     @Override
     public BusinessLicenseVo BizLicenseOCR(String imageBase64) throws TencentCloudSDKException {
-        // 构建Credential，验证秘钥
-        Credential cred = new Credential(tencentCloudProperties.getSecretId(), tencentCloudProperties.getSecretKey());
 
-        // 设置HTTP请求配置
-        HttpProfile httpProfile = new HttpProfile();
-        httpProfile.setEndpoint("ocr.tencentcloudapi.com");
+        BizLicenseOCRResponse resp = ocrUtil.BizLicenseOCR(imageBase64);
 
-        // 设置Client配置
-        ClientProfile clientProfile = new ClientProfile();
-        clientProfile.setHttpProfile(httpProfile);
-
-        // 创建OCR客户端
-        OcrClient client = new OcrClient(cred, "", clientProfile);
-
-        // 构造请求对象
-        BizLicenseOCRRequest req = new BizLicenseOCRRequest();
-        req.setImageBase64(imageBase64);
-
-
-        // 执行OCR请求
-        BizLicenseOCRResponse resp = client.BizLicenseOCR(req);
-
-        // 检查OCR识别结果
         if ("营业执照".equals(resp.getTitle()) && resp.getRecognizeWarnMsg().length == 0) {
             return new BusinessLicenseVo(
                     resp.getName(),

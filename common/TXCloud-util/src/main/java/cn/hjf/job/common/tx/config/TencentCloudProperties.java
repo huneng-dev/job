@@ -1,4 +1,4 @@
-package cn.hjf.job.upload.config;
+package cn.hjf.job.common.tx.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -43,18 +43,6 @@ public class CompanyInfo extends BaseEntity {
     @TableField("company_website")
     private String companyWebsite;
 
-    @Schema(description = "工作开始时间")
-    @TableField("start_time")
-    private LocalTime startTime;
-
-    @Schema(description = "工作结束时间")
-    @TableField("end_time")
-    private LocalTime endTime;
-
-    @Schema(description = "休息日id")
-    @TableField("rest_days_id")
-    private Integer restDaysId;
-
     @Schema(description = "当前系统下公司中的人数量")
     @TableField("count")
     private Integer count;

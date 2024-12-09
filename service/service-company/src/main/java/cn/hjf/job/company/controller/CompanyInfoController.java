@@ -9,6 +9,7 @@ import cn.hjf.job.model.dto.company.CompanyInfoQuery;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
 import cn.hjf.job.model.vo.company.CompanySizeVo;
 import jakarta.annotation.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -83,13 +84,16 @@ public class CompanyInfoController {
      * @return Result<String>
      */
     @PostMapping("/info")
-    public Result<String> saveCompanyInfoAndBusinessLicense(@RequestBody CompanyInfoAndBusinessLicenseForm companyInfoAndBusinessLicenseForm) {
-
-        boolean b = companyInfoService.saveCompanyInfoAndBusinessLicense(companyInfoAndBusinessLicenseForm);
-        if (b) {
-            return Result.ok("保存成功。审核中");
+    @PreAuthorize("hasRole('ROLE_BASE_RECRUITER')")
+    public Result<String> saveCompanyInfoAndBusinessLicense(
+            @RequestBody CompanyInfoAndBusinessLicenseForm companyInfoAndBusinessLicenseForm,
+            Principal principal
+    ) {
+        try {
+            companyInfoService.saveCompanyInfoAndBusinessLicense(companyInfoAndBusinessLicenseForm, Long.parseLong(principal.getName()));
+            return Result.ok("保存成功: 等待审核");
+        } catch (RuntimeException e) {
+            return Result.fail("保存失败: " + e.getCause().getMessage());
         }
-
-        return Result.fail("保存失败。请重试");
     }
 }

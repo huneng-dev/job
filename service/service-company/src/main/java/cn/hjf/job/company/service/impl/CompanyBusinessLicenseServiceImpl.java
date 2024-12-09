@@ -5,6 +5,7 @@ import cn.hjf.job.company.repository.BusinessScopeRepository;
 import cn.hjf.job.company.service.CompanyBusinessLicenseService;
 import cn.hjf.job.model.document.company.BusinessScopeDoc;
 import cn.hjf.job.model.entity.company.CompanyBusinessLicense;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,17 @@ public class CompanyBusinessLicenseServiceImpl extends ServiceImpl<CompanyBusine
 
     @Override
     public boolean saveBusinessLicenseInfo(CompanyBusinessLicense companyBusinessLicense) {
+        // 判断当前营业执照是否唯一,一个营业执照只能绑定一家公司
+        LambdaQueryWrapper<CompanyBusinessLicense> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.select(CompanyBusinessLicense::getLicenseNumber)
+                .eq(CompanyBusinessLicense::getLicenseNumber, companyBusinessLicense.getLicenseNumber());
+
+        CompanyBusinessLicense businessLicense = companyBusinessLicenseMapper.selectOne(lambdaQueryWrapper);
+
+        if (businessLicense != null) {
+            throw new RuntimeException("当前营业执照已被注册");
+        }
+
         // 保存 经营范围 MongoDB
         String businessScopeKey = saveBusinessScope(companyBusinessLicense.getBusinessScope());
 
