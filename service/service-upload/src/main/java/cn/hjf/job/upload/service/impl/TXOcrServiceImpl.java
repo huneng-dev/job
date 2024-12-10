@@ -60,20 +60,7 @@ public class TXOcrServiceImpl implements TXOcrService {
     }
 
     @Override
-    public LegalPersonInfoVo IDCardOCR(String imageBase64, String cardSide) throws TencentCloudSDKException {
-        IDCardOCRResponse idCardOCRResponse = ocrUtil.IDCardOCR(imageBase64, cardSide);
-        LegalPersonInfoVo legalPersonInfoVo = new LegalPersonInfoVo();
-        legalPersonInfoVo.setName(idCardOCRResponse.getName());
-        legalPersonInfoVo.setGender(Objects.equals("男", idCardOCRResponse.getSex()) ? 1 : 2);
-
-        // 定义格式化器，解析 yyyy/M/d 格式的日期
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/M/d");
-
-        // 将字符串转换为 LocalDate
-        LocalDate birthDate = LocalDate.parse(idCardOCRResponse.getBirth(), formatter);
-        legalPersonInfoVo.setBirthday(birthDate);
-        legalPersonInfoVo.setIdcardAddress(idCardOCRResponse.getAddress());
-        legalPersonInfoVo.setIdcardNo(idCardOCRResponse.getIdNum());
-        return legalPersonInfoVo;
+    public IDCardOCRResponse IDCardOCR(String imageBase64, String cardSide) throws TencentCloudSDKException {
+        return ocrUtil.IDCardOCR(imageBase64, cardSide);
     }
 }

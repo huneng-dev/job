@@ -20,4 +20,12 @@ public interface CompanyEmployeeService extends IService<CompanyEmployee> {
      * @return 是否执行成功
      */
     boolean setCompanyAdminEmployee(Long companyId, Long userId, Long titleId);
+
+    /**
+     * 获取公司 id
+     *
+     * @param userId 用户 id
+     * @return 公司 id
+     */
+    Long findCompanyIdByUserId(Long userId);
 }

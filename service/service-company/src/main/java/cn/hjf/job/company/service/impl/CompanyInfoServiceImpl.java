@@ -19,6 +19,7 @@ import cn.hjf.job.model.form.company.CompanyBusinessLicenseForm;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
 import cn.hjf.job.model.form.company.CompanyInfoForm;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.annotation.Resource;
@@ -139,6 +140,17 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
         Long companyId = companyInfo.getId();
         rabbitService.sendMessage(MqConst.EXCHANGE_COMPANY, MqConst.ROUTING_VALIDATE_COMPANY_BUSINESS_LICENSE, companyId);
     }
+
+    @Override
+    public boolean setCompanyStatus(Long companyId, Integer status) {
+        LambdaUpdateWrapper<CompanyInfo> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        lambdaUpdateWrapper.set(CompanyInfo::getStatus, status)
+                .eq(CompanyInfo::getId, companyId);
+        int update = companyInfoMapper.update(lambdaUpdateWrapper);
+
+        return update == 1;
+    }
+
 
     /**
      * 保存公司描述到 MongoDB

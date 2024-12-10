@@ -6,6 +6,7 @@ import cn.hjf.job.company.service.CompanyBusinessLicenseService;
 import cn.hjf.job.model.document.company.BusinessScopeDoc;
 import cn.hjf.job.model.entity.company.CompanyBusinessLicense;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -52,6 +53,35 @@ public class CompanyBusinessLicenseServiceImpl extends ServiceImpl<CompanyBusine
         }
 
         return true;
+    }
+
+    @Override
+    public boolean setBusinessLicenseLegalPersonId(Long businessLicenseId, Long legalPersonId) {
+        LambdaUpdateWrapper<CompanyBusinessLicense> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        lambdaUpdateWrapper.set(CompanyBusinessLicense::getLegalPersonId, legalPersonId)
+                .eq(CompanyBusinessLicense::getId, businessLicenseId);
+
+        int update = companyBusinessLicenseMapper.update(lambdaUpdateWrapper);
+        return update == 1;
+    }
+
+    @Override
+    public boolean setBusinessLicenseLegalPersonStatus(Long businessLicenseId, Integer legalPersonStatus) {
+        LambdaUpdateWrapper<CompanyBusinessLicense> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        lambdaUpdateWrapper.set(CompanyBusinessLicense::getLegalPersonAuthStatus, legalPersonStatus)
+                .eq(CompanyBusinessLicense::getId, businessLicenseId);
+        int update = companyBusinessLicenseMapper.update(lambdaUpdateWrapper);
+        return update == 1;
+    }
+
+    @Override
+    public Long findBusinessLicenseIdByCompanyId(Long companyId) {
+        LambdaQueryWrapper<CompanyBusinessLicense> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.select(CompanyBusinessLicense::getId)
+                .eq(CompanyBusinessLicense::getCompanyId, companyId);
+        CompanyBusinessLicense companyBusinessLicense = companyBusinessLicenseMapper.selectOne(lambdaQueryWrapper);
+        if (companyBusinessLicense == null) return null;
+        return companyBusinessLicense.getId();
     }
 
     private String saveBusinessScope(String businessScope) {

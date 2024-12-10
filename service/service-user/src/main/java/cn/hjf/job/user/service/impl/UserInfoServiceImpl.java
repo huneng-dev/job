@@ -67,12 +67,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     public UserInfoVo getUserInfo(Long id) {
         LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        userInfoLambdaQueryWrapper.select(
-                UserInfo::getNickname,
-                UserInfo::getAvatar,
-                UserInfo::getPhone,
-                UserInfo::getEmail
-        ).eq(UserInfo::getId, id);
+        userInfoLambdaQueryWrapper.select(UserInfo::getNickname, UserInfo::getAvatar, UserInfo::getPhone, UserInfo::getEmail).eq(UserInfo::getId, id);
         UserInfo userInfo = userInfoMapper.selectOne(userInfoLambdaQueryWrapper);
         UserInfoVo userInfoVo = new UserInfoVo();
         BeanUtils.copyProperties(userInfo, userInfoVo);
@@ -89,11 +84,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         RLock lock = redissonClient.getLock(lockKey);  // 创建锁
 
         try {
-            boolean lockAcquired = lock.tryLock(
-                    RedisConstant.USER_INFO_OPERATE_LOCK_WAIT_TIME,
-                    RedisConstant.USER_INFO_OPERATE_LOCK_LEASE_TIME,
-                    TimeUnit.SECONDS
-            );
+            boolean lockAcquired = lock.tryLock(RedisConstant.USER_INFO_OPERATE_LOCK_WAIT_TIME, RedisConstant.USER_INFO_OPERATE_LOCK_LEASE_TIME, TimeUnit.SECONDS);
 
             if (!lockAcquired) {
                 return false;  // 若未能获取到锁，则直接返回
@@ -114,9 +105,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
             // 检查邮箱是否已注册
             LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.select(UserInfo::getEmail)
-                    .eq(UserInfo::getEmail, email)
-                    .eq(UserInfo::getType, 2);
+            queryWrapper.select(UserInfo::getEmail).eq(UserInfo::getEmail, email).eq(UserInfo::getType, 2);
 
             UserInfo existingUser = userInfoMapper.selectOne(queryWrapper);
             if (existingUser != null) {
@@ -134,11 +123,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             userInfoMapper.insert(userInfo);
 
             // 设置用户角色
-            Result<String> result = userRoleFeignClient.setDefaultUserRole(
-                    new DefaultUserRoleRequest(userInfo.getId(),
-                            UserDefaultInfoConstant.RECRUITER_DEFAULT_ROLES,
-                            keyProperties.getKey())
-            );
+            Result<String> result = userRoleFeignClient.setDefaultUserRole(new DefaultUserRoleRequest(userInfo.getId(), UserDefaultInfoConstant.RECRUITER_DEFAULT_ROLES, keyProperties.getKey()));
 
             if (!result.getCode().equals(200)) {
                 throw new RuntimeException("角色分配失败！");
@@ -173,11 +158,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         RLock lock = redissonClient.getLock(lockKey);
 
         try {
-            boolean flag = lock.tryLock(
-                    RedisConstant.USER_INFO_OPERATE_LOCK_WAIT_TIME,
-                    RedisConstant.USER_INFO_OPERATE_LOCK_LEASE_TIME,
-                    TimeUnit.SECONDS
-            );
+            boolean flag = lock.tryLock(RedisConstant.USER_INFO_OPERATE_LOCK_WAIT_TIME, RedisConstant.USER_INFO_OPERATE_LOCK_LEASE_TIME, TimeUnit.SECONDS);
             if (flag) {
                 // 判断验证码是否过期
                 String rawCode = redisTemplate.opsForValue().get(RedisConstant.PHONE_REGISTER_CODE + phone);
@@ -193,10 +174,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
                 // 判断手机号是否被注册
                 LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
-                userInfoLambdaQueryWrapper
-                        .select(UserInfo::getPhone)
-                        .eq(UserInfo::getPhone, phone)
-                        .eq(UserInfo::getType, UserTypeConstant.RECRUITER);
+                userInfoLambdaQueryWrapper.select(UserInfo::getPhone).eq(UserInfo::getPhone, phone).eq(UserInfo::getType, UserTypeConstant.RECRUITER);
                 UserInfo userInfo = userInfoMapper.selectOne(userInfoLambdaQueryWrapper);
                 if (userInfo != null) {
                     throw new PhoneAlreadyRegisterException();
@@ -213,12 +191,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 userInfoMapper.insert(user);
 
                 // 设置用户角色
-                Result<String> result = userRoleFeignClient.setDefaultUserRole(
-                        new DefaultUserRoleRequest(user.getId(),
-                                UserDefaultInfoConstant.RECRUITER_DEFAULT_ROLES,
-                                keyProperties.getKey()
-                        )
-                );
+                Result<String> result = userRoleFeignClient.setDefaultUserRole(new DefaultUserRoleRequest(user.getId(), UserDefaultInfoConstant.RECRUITER_DEFAULT_ROLES, keyProperties.getKey()));
 
                 if (!result.getCode().equals(200)) {
                     throw new RuntimeException("角色分配失败！");
@@ -254,11 +227,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         RLock lock = redissonClient.getLock(lockKey);
 
         try {
-            boolean flag = lock.tryLock(
-                    RedisConstant.USER_INFO_OPERATE_LOCK_WAIT_TIME,
-                    RedisConstant.USER_INFO_OPERATE_LOCK_LEASE_TIME,
-                    TimeUnit.SECONDS
-            );
+            boolean flag = lock.tryLock(RedisConstant.USER_INFO_OPERATE_LOCK_WAIT_TIME, RedisConstant.USER_INFO_OPERATE_LOCK_LEASE_TIME, TimeUnit.SECONDS);
             if (flag) {
                 // 判断验证码是否过期
                 String rawCode = redisTemplate.opsForValue().get(RedisConstant.PHONE_REGISTER_CODE + phone);
@@ -274,10 +243,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
                 // 判断手机号是否被注册
                 LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
-                userInfoLambdaQueryWrapper
-                        .select(UserInfo::getPhone)
-                        .eq(UserInfo::getPhone, phone)
-                        .eq(UserInfo::getType, UserTypeConstant.CANDIDATE);
+                userInfoLambdaQueryWrapper.select(UserInfo::getPhone).eq(UserInfo::getPhone, phone).eq(UserInfo::getType, UserTypeConstant.CANDIDATE);
                 UserInfo userInfo = userInfoMapper.selectOne(userInfoLambdaQueryWrapper);
                 if (userInfo != null) {
                     throw new PhoneAlreadyRegisterException("已注册");
@@ -295,11 +261,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 userInfoMapper.insert(user);
 
                 // 设置用户角色
-                Result<String> result = userRoleFeignClient.setDefaultUserRole(
-                        new DefaultUserRoleRequest(user.getId(),
-                                UserDefaultInfoConstant.CANDIDATE_DEFAULT_ROLES,
-                                keyProperties.getKey())
-                );
+                Result<String> result = userRoleFeignClient.setDefaultUserRole(new DefaultUserRoleRequest(user.getId(), UserDefaultInfoConstant.CANDIDATE_DEFAULT_ROLES, keyProperties.getKey()));
 
                 if (!result.getCode().equals(200)) {
                     throw new RuntimeException("角色分配失败！");
@@ -335,11 +297,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         RLock lock = redissonClient.getLock(lockKey);
 
         try {
-            boolean flag = lock.tryLock(
-                    RedisConstant.USER_INFO_OPERATE_LOCK_WAIT_TIME,
-                    RedisConstant.USER_INFO_OPERATE_LOCK_LEASE_TIME,
-                    TimeUnit.SECONDS
-            );
+            boolean flag = lock.tryLock(RedisConstant.USER_INFO_OPERATE_LOCK_WAIT_TIME, RedisConstant.USER_INFO_OPERATE_LOCK_LEASE_TIME, TimeUnit.SECONDS);
             if (flag) {
                 // 判断验证码是否过期
                 String rawCode = redisTemplate.opsForValue().get(RedisConstant.EMAIL_REGISTER_CODE + email);
@@ -355,10 +313,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
                 // 判断手机号是否被注册
                 LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
-                userInfoLambdaQueryWrapper
-                        .select(UserInfo::getEmail)
-                        .eq(UserInfo::getEmail, email)
-                        .eq(UserInfo::getType, UserTypeConstant.CANDIDATE);
+                userInfoLambdaQueryWrapper.select(UserInfo::getEmail).eq(UserInfo::getEmail, email).eq(UserInfo::getType, UserTypeConstant.CANDIDATE);
                 UserInfo userInfo = userInfoMapper.selectOne(userInfoLambdaQueryWrapper);
                 if (userInfo != null) {
                     throw new EmailAlreadyRegisteredException("已注册");
@@ -376,11 +331,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 userInfoMapper.insert(user);
 
                 // 设置用户角色
-                Result<String> result = userRoleFeignClient.setDefaultUserRole(
-                        new DefaultUserRoleRequest(user.getId(),
-                                UserDefaultInfoConstant.CANDIDATE_DEFAULT_ROLES,
-                                keyProperties.getKey())
-                );
+                Result<String> result = userRoleFeignClient.setDefaultUserRole(new DefaultUserRoleRequest(user.getId(), UserDefaultInfoConstant.CANDIDATE_DEFAULT_ROLES, keyProperties.getKey()));
 
                 if (!result.getCode().equals(200)) {
                     throw new RuntimeException("角色分配失败！");
@@ -454,6 +405,20 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             return null;
         }
         return new UserInfoPasswordStatus(userInfo.getId(), userInfo.getPassword(), userInfo.getStatus());
+    }
+
+    @Override
+    public boolean setUserIdCardInfo(UserIdCardInfoForm userIdCardInfoForm, Long userId) {
+        UserInfo userInfo = new UserInfo();
+        BeanUtils.copyProperties(userIdCardInfoForm, userInfo);
+        userInfo.setId(userId);
+
+        /*  由于无法实现人脸核身,
+            所以直接设置当前用户认证状态为已认证
+         */
+        userInfo.setAuthStatus(2);
+        int i = userInfoMapper.updateById(userInfo);
+        return i == 1;
     }
 
     /**

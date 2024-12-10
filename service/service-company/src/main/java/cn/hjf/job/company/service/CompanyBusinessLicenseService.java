@@ -21,4 +21,29 @@ public interface CompanyBusinessLicenseService extends IService<CompanyBusinessL
      */
     boolean saveBusinessLicenseInfo(CompanyBusinessLicense companyBusinessLicense);
 
+    /**
+     * 设置企业营业执照的法人 id
+     *
+     * @param legalPersonId 法人 id
+     * @return 是否成功
+     */
+    boolean setBusinessLicenseLegalPersonId(Long businessLicenseId, Long legalPersonId);
+
+    /**
+     * 设置营业执照的法人认证状态
+     *
+     * @param businessLicenseId 营业执照 id
+     * @param legalPersonStatus 法人 id
+     * @return 是否成功
+     */
+    boolean setBusinessLicenseLegalPersonStatus(Long businessLicenseId, Integer legalPersonStatus);
+
+    /**
+     * 根据公司 id 获取 营业执照 id
+     *
+     * @param companyId 公司 id
+     * @return 营业执照 id
+     */
+    Long findBusinessLicenseIdByCompanyId(Long companyId);
+
 }

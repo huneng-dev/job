@@ -42,4 +42,13 @@ public interface CompanyInfoService extends IService<CompanyInfo> {
      */
     void saveCompanyInfoAndBusinessLicense(CompanyInfoAndBusinessLicenseForm companyInfoAndBusinessLicenseForm, Long userId);
 
+    /**
+     * 设置公司的状态
+     *
+     * @param companyId 公司 id
+     * @param status    状态
+     * @return 是否成功
+     */
+    boolean setCompanyStatus(Long companyId, Integer status);
+
 }

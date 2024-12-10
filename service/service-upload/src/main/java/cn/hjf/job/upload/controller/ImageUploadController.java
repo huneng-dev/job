@@ -10,6 +10,7 @@ import cn.hjf.job.upload.service.FileUploadService;
 import cn.hjf.job.upload.service.TXOcrService;
 import cn.hjf.job.upload.utils.FileTypeValidatorUtils;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
+import com.tencentcloudapi.ocr.v20181119.models.IDCardOCRResponse;
 import io.minio.errors.*;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,9 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 上传图片控制器
@@ -166,7 +170,7 @@ public class ImageUploadController {
      * @return 身份证回显数据
      */
     @PostMapping("/front/idcard")
-    public Result<LegalPersonInfoVo> FrontIdCard(@RequestPart("file") MultipartFile file) {
+    public Result<LegalPersonInfoVo> frontIdCard(@RequestPart("file") MultipartFile file) {
         // 设置类型校验
         List<String> IMAGE_MIME_TYPES = Arrays.asList("image/jpeg", "image/png");
 
@@ -193,8 +197,19 @@ public class ImageUploadController {
             byte[] fileBytes = file.getBytes();
             String imageBase64 = Base64.getEncoder().encodeToString(fileBytes);
 
-            LegalPersonInfoVo legalPersonInfoVo = txOcrService.IDCardOCR(imageBase64, "FRONT");
+            IDCardOCRResponse idCardOCRResponse = txOcrService.IDCardOCR(imageBase64, "FRONT");
+            LegalPersonInfoVo legalPersonInfoVo = new LegalPersonInfoVo();
+            legalPersonInfoVo.setName(idCardOCRResponse.getName());
+            legalPersonInfoVo.setGender(Objects.equals("男", idCardOCRResponse.getSex()) ? 1 : 2);
 
+            // 定义格式化器，解析 yyyy/M/d 格式的日期
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+
+            // 将字符串转换为 LocalDate
+            LocalDate birthDate = LocalDate.parse(idCardOCRResponse.getBirth(), formatter);
+            legalPersonInfoVo.setBirthday(birthDate);
+            legalPersonInfoVo.setIdcardAddress(idCardOCRResponse.getAddress());
+            legalPersonInfoVo.setIdcardNo(idCardOCRResponse.getIdNum());
             legalPersonInfoVo.setIdcardFrontUrl(url);
             return Result.ok(legalPersonInfoVo);
         } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
@@ -206,5 +221,67 @@ public class ImageUploadController {
         } catch (TencentCloudSDKException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 上传身份证反面
+     *
+     * @param file 身份证图片
+     * @return Result<LegalPersonInfoVo>
+     */
+    @PostMapping("/back/idcard")
+    public Result<LegalPersonInfoVo> backIdCard(@RequestPart("file") MultipartFile file) {
+        // 设置类型校验
+        List<String> IMAGE_MIME_TYPES = Arrays.asList("image/jpeg", "image/png");
+
+        // 设置文件大小限制，假设限制为 5MB
+        long maxFileSize = 5 * 1024 * 1024;  // 5MB
+        try {
+
+            // 校验文件
+            boolean validatorResult = FileTypeValidatorUtils.fileTypeValidator(file, IMAGE_MIME_TYPES);
+
+            if (!validatorResult) {
+                return Result.fail();
+            }
+
+            // 校验文件大小
+            if (file.getSize() > maxFileSize) {
+                return Result.fail();
+            }
+
+            // 上传文件
+            String url = fileUploadService.upload(file, UploadPathConstant.BACK_ID_CARD);
+
+            // 调用腾讯云 SDK 识别营业执照
+            byte[] fileBytes = file.getBytes();
+            String imageBase64 = Base64.getEncoder().encodeToString(fileBytes);
+
+            IDCardOCRResponse idCardOCRResponse = txOcrService.IDCardOCR(imageBase64, "BACK");
+            LegalPersonInfoVo legalPersonInfoVo = new LegalPersonInfoVo();
+            LocalDate expire = setIdcardExpireFromValidDate(idCardOCRResponse.getValidDate());
+
+            legalPersonInfoVo.setIdcardExpire(expire);
+
+            legalPersonInfoVo.setIdcardBackUrl(url);
+            return Result.ok(legalPersonInfoVo);
+        } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
+                 InvalidKeyException | NoSuchAlgorithmException | InvalidResponseException | XmlParserException |
+                 InternalException e) {
+            return Result.fail();
+        } catch (BusinessLicenseException e) {
+            return Result.build(null, 422, e.getMessage());
+        } catch (TencentCloudSDKException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public LocalDate setIdcardExpireFromValidDate(String validDate) {
+        // 按照 "-" 分割字符串，获取有效期的结束日期部分
+        String expireDateStr = validDate.split("-")[1];
+
+        // 使用 DateTimeFormatter 将字符串解析为 LocalDate 类型
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+        return LocalDate.parse(expireDateStr, formatter);
     }
 }

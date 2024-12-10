@@ -6,6 +6,7 @@ import cn.hjf.job.model.form.user.PhoneRegisterInfoForm;
 import cn.hjf.job.model.dto.user.UserInfoPasswordStatus;
 import cn.hjf.job.model.dto.user.UserInfoQuery;
 import cn.hjf.job.model.dto.user.UserInfoStatus;
+import cn.hjf.job.model.form.user.UserIdCardInfoForm;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.UserInfoVo;
@@ -243,5 +244,21 @@ public class UserInfoController {
         }
         PhoneAndUserTypeRequest phoneAndUserTypeRequest = new PhoneAndUserTypeRequest(phone, userType, "");
         return Result.ok(userInfoService.getUserInfoPasswordStatusByPhonePassword(phoneAndUserTypeRequest));
+    }
+
+    /**
+     * 设置用户身份证信息
+     *
+     * @param userIdCardInfoForm 用户身份证信息
+     * @param principal          用户信息
+     * @return Result<String>
+     */
+    @PostMapping("/id/card")
+    public Result<String> setUserIdCardInfo(@RequestBody UserIdCardInfoForm userIdCardInfoForm, Principal principal) {
+        boolean isSuccess = userInfoService.setUserIdCardInfo(userIdCardInfoForm, Long.parseLong(principal.getName()));
+        if (!isSuccess) {
+            return Result.fail();
+        }
+        return Result.ok();
     }
 }

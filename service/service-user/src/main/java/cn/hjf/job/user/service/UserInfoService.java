@@ -93,4 +93,13 @@ public interface UserInfoService extends IService<UserInfo> {
      */
     UserInfoPasswordStatus getUserInfoPasswordStatusByPhonePassword(PhoneAndUserTypeRequest phoneAndUserTypeRequest);
 
+
+    /**
+     * 设置用户的身份证信息
+     *
+     * @param userIdCardInfoForm 用户身份证信息
+     * @param userId             用户 id
+     * @return 是否成功
+     */
+    boolean setUserIdCardInfo(UserIdCardInfoForm userIdCardInfoForm, Long userId);
 }
