@@ -67,7 +67,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     public UserInfoVo getUserInfo(Long id) {
         LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        userInfoLambdaQueryWrapper.select(UserInfo::getNickname, UserInfo::getAvatar, UserInfo::getPhone, UserInfo::getEmail).eq(UserInfo::getId, id);
+        userInfoLambdaQueryWrapper.select(UserInfo::getNickname, UserInfo::getAvatar, UserInfo::getPhone, UserInfo::getEmail,UserInfo::getAuthStatus).eq(UserInfo::getId, id);
         UserInfo userInfo = userInfoMapper.selectOne(userInfoLambdaQueryWrapper);
         UserInfoVo userInfoVo = new UserInfoVo();
         BeanUtils.copyProperties(userInfo, userInfoVo);

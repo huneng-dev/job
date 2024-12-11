@@ -22,4 +22,7 @@ public class UserInfoQuery {
 
     @Schema(description = "邮箱(111****111@job.cn)")
     private String email;
+
+    @Schema(description = "人脸识别认证状态 0:未认证  1：审核中 2：认证通过 -1：认证未通过")
+    private Integer authStatus;
 }

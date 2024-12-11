@@ -1,5 +1,6 @@
 package cn.hjf.job.user.controller;
 
+import cn.hjf.job.common.minio.resolver.PublicFileUrlResolver;
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.model.form.user.EmailRegisterInfoForm;
 import cn.hjf.job.model.form.user.PhoneRegisterInfoForm;
@@ -37,6 +38,9 @@ public class UserInfoController {
     @Resource
     private KeyProperties keyProperties;
 
+    @Resource
+    private PublicFileUrlResolver publicFileUrlResolver;
+
     /**
      * 获取用户信息
      *
@@ -51,6 +55,8 @@ public class UserInfoController {
         UserInfoVo userInfoVo = userInfoService.getUserInfo(Long.valueOf(principal.getName()));
         UserInfoQuery userInfoQuery = new UserInfoQuery();
         if (userInfoVo != null) BeanUtils.copyProperties(userInfoVo, userInfoQuery);
+        assert userInfoVo != null;
+        userInfoQuery.setAvatar(publicFileUrlResolver.resolveSingleUrl(userInfoVo.getAvatar()));
         return Result.ok(userInfoQuery);
     }
 

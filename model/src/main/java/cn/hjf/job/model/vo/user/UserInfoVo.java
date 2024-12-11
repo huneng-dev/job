@@ -55,7 +55,7 @@ public class UserInfoVo {
     private String faceModelId;
 
     @Schema(description = "人脸识别认证状态 0:未认证  1：审核中 2：认证通过 -1：认证未通过")
-    private String authStatus;
+    private Integer authStatus;
 
     @Schema(description = "状态，1正常，2禁用")
     private Integer status;

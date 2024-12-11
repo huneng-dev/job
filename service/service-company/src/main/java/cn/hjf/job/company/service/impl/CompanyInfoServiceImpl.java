@@ -1,5 +1,6 @@
 package cn.hjf.job.company.service.impl;
 
+import cn.hjf.job.common.minio.resolver.PublicFileUrlResolver;
 import cn.hjf.job.common.rabbit.constant.MqConst;
 import cn.hjf.job.common.rabbit.service.RabbitService;
 import cn.hjf.job.company.mapper.CompanyEmployeeMapper;
@@ -60,6 +61,9 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
     @Resource
     private RabbitService rabbitService;
 
+    @Resource
+    private PublicFileUrlResolver publicFileUrlResolver;
+
 
     @Override
     public CompanyInfoQuery findCompanyInfoByUserId(Long userId) {
@@ -83,13 +87,15 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
             return null;
         }
 
-        return new CompanyInfoQuery(companyInfo.getCompanyName(), companyInfo.getCompanyLogo(), companyInfo.getStatus());
+
+
+        return new CompanyInfoQuery(companyInfo.getCompanyName(), publicFileUrlResolver.resolveSingleUrl(companyInfo.getCompanyLogo()), companyInfo.getStatus());
     }
 
     @Override
     public List<CompanyIdAndNameDTO> findCompanyIndexAndNameByName(String name) {
         LambdaQueryWrapper<CompanyInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.select(CompanyInfo::getId, CompanyInfo::getCompanyName).eq(CompanyInfo::getStatus, 2).like(CompanyInfo::getCompanyName, name).last("LIMIT 10");
+        queryWrapper.select(CompanyInfo::getId, CompanyInfo::getCompanyName).eq(CompanyInfo::getStatus, 3).like(CompanyInfo::getCompanyName, name).last("LIMIT 10");
 
         List<CompanyInfo> companyInfos = companyInfoMapper.selectList(queryWrapper);
 

@@ -85,7 +85,7 @@ public class LegalPersonInfoServiceImpl extends ServiceImpl<LegalPersonInfoMappe
         // 设置 营业执照状态为已认证
         companyBusinessLicenseService.setBusinessLicenseLegalPersonStatus(businessLicenseId, 2);
         // 设置 公司为已认证
-        companyInfoService.setCompanyStatus(companyId, 2);
+        companyInfoService.setCompanyStatus(companyId, 3);
         // 设置 用户状态为已认证(认证信息为当前法人)
         UserIdCardInfoForm userIdCardInfoForm = new UserIdCardInfoForm(
                 legalPersonInfoVo.getName(),
