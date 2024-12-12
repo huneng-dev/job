@@ -24,6 +24,11 @@ public class RedisConstant {
     public static final String PHONE_RECOVERY_CODE = "phone:code:recovery:"; // 找回密码验证码 Key
     public static final String PHONE_LOGIN_CODE = "phone:code:login:"; // 登录验证码 Key
 
+    // 加入公司验证码相关常量
+    public static final String COMPANY_ADD_CODE = "company:add:code:";
+
+    public static final String COMPANY_ADD_USER = "company:add:user:";
+
 
     //等待获取锁的时间
     public static final Integer USER_INFO_OPERATE_LOCK_WAIT_TIME = 1;

@@ -3,6 +3,7 @@ package cn.hjf.job.user.service.impl;
 import cn.hjf.job.auth.client.UserRoleFeignClient;
 import cn.hjf.job.common.constant.RedisConstant;
 import cn.hjf.job.common.constant.UserDefaultInfoConstant;
+import cn.hjf.job.common.constant.UserRoleConstant;
 import cn.hjf.job.common.constant.UserTypeConstant;
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.model.entity.user.UserInfo;
@@ -10,6 +11,7 @@ import cn.hjf.job.model.form.user.*;
 import cn.hjf.job.model.dto.user.UserInfoPasswordStatus;
 import cn.hjf.job.model.dto.user.UserInfoStatus;
 import cn.hjf.job.model.request.auth.DefaultUserRoleRequest;
+import cn.hjf.job.model.request.auth.UserRoleRequest;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.UserInfoVo;
@@ -22,6 +24,7 @@ import cn.hjf.job.user.service.UserInfoService;
 import cn.hjf.job.user.utils.UsernameGenerator;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.nimbusds.jose.util.IntegerUtils;
 import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -67,7 +71,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     public UserInfoVo getUserInfo(Long id) {
         LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        userInfoLambdaQueryWrapper.select(UserInfo::getNickname, UserInfo::getAvatar, UserInfo::getPhone, UserInfo::getEmail,UserInfo::getAuthStatus).eq(UserInfo::getId, id);
+        userInfoLambdaQueryWrapper.select(UserInfo::getNickname, UserInfo::getAvatar, UserInfo::getPhone, UserInfo::getEmail, UserInfo::getAuthStatus).eq(UserInfo::getId, id);
         UserInfo userInfo = userInfoMapper.selectOne(userInfoLambdaQueryWrapper);
         UserInfoVo userInfoVo = new UserInfoVo();
         BeanUtils.copyProperties(userInfo, userInfoVo);
@@ -418,7 +422,29 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
          */
         userInfo.setAuthStatus(2);
         int i = userInfoMapper.updateById(userInfo);
+
+        // TODO 根据用户的类型设置设置 普通角色
+        boolean b = setUserRoleByUserType(userId);
+
         return i == 1;
+    }
+
+    private boolean setUserRoleByUserType(Long userId) {
+        LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(UserInfo::getType).eq(UserInfo::getId, userId);
+
+        UserInfo userInfo = userInfoMapper.selectOne(queryWrapper);
+        if (userInfo == null) return false;
+        UserRoleRequest userRoleRequest = new UserRoleRequest(userId, null, keyProperties.getKey());
+        if (userInfo.getType().equals(1)) {
+            userRoleRequest.setRole(UserRoleConstant.ROLE_USER_CANDIDATE);
+            userRoleFeignClient.setUserRole(userRoleRequest);
+        } else if (userInfo.getType().equals(2)) {
+            userRoleRequest.setRole(UserRoleConstant.ROLE_EMPLOYEE_RECRUITER);
+            userRoleFeignClient.setUserRole(userRoleRequest);
+        }
+
+        return true;
     }
 
     /**

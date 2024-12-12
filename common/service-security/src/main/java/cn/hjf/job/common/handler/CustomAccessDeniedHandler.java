@@ -16,7 +16,7 @@ import java.io.IOException;
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
         // 设置响应的内容类型为 JSON
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpStatus.FORBIDDEN.value()); // 响应 403 状态码

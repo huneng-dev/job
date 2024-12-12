@@ -6,7 +6,6 @@ import cn.hjf.job.model.entity.auth.UserRole;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.executor.BatchResult;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,5 +45,12 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
             log.error("Error 用户角色插入失败: {}", id, e);
             return false;
         }
+    }
+
+    @Override
+    public boolean setUserRole(Long id, Long roleId) {
+        UserRole userRole = new UserRole(id, roleId);
+        int num = userRoleMapper.insert(userRole);
+        return num == 1;
     }
 }

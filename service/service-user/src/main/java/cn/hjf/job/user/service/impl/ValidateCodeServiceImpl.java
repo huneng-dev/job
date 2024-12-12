@@ -105,6 +105,4 @@ public class ValidateCodeServiceImpl implements ValidateCodeService {
         }
         return Result.ok("发送" + action + "验证码成功");
     }
-
-
 }

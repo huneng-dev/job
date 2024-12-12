@@ -1,8 +1,11 @@
 package cn.hjf.job.company.service.impl;
 
+import cn.hjf.job.auth.client.UserRoleFeignClient;
+import cn.hjf.job.common.constant.UserRoleConstant;
 import cn.hjf.job.common.minio.resolver.PublicFileUrlResolver;
 import cn.hjf.job.common.rabbit.constant.MqConst;
 import cn.hjf.job.common.rabbit.service.RabbitService;
+import cn.hjf.job.company.config.KeyProperties;
 import cn.hjf.job.company.mapper.CompanyEmployeeMapper;
 import cn.hjf.job.company.mapper.CompanyInfoMapper;
 import cn.hjf.job.company.repository.CompanyDescriptionRepository;
@@ -19,6 +22,7 @@ import cn.hjf.job.model.dto.company.CompanyInfoQuery;
 import cn.hjf.job.model.form.company.CompanyBusinessLicenseForm;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
 import cn.hjf.job.model.form.company.CompanyInfoForm;
+import cn.hjf.job.model.request.auth.UserRoleRequest;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -64,6 +68,11 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
     @Resource
     private PublicFileUrlResolver publicFileUrlResolver;
 
+    @Resource
+    private UserRoleFeignClient userRoleFeignClient;
+
+    @Resource
+    private KeyProperties keyProperties;
 
     @Override
     public CompanyInfoQuery findCompanyInfoByUserId(Long userId) {
@@ -86,7 +95,6 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
         if (companyInfo == null) {
             return null;
         }
-
 
 
         return new CompanyInfoQuery(companyInfo.getCompanyName(), publicFileUrlResolver.resolveSingleUrl(companyInfo.getCompanyLogo()), companyInfo.getStatus());
@@ -142,6 +150,10 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
         boolean b1 = companyEmployeeService.setCompanyAdminEmployee(companyInfo.getId(), userId, titleId);
 
         if (!b1) throw new RuntimeException();
+
+        // 设置当前用户为管理员角色
+        UserRoleRequest userRoleRequest = new UserRoleRequest(userId, UserRoleConstant.ROLE_ADMIN_RECRUITER, keyProperties.getKey());
+        userRoleFeignClient.setUserRole(userRoleRequest);
 
         Long companyId = companyInfo.getId();
         rabbitService.sendMessage(MqConst.EXCHANGE_COMPANY, MqConst.ROUTING_VALIDATE_COMPANY_BUSINESS_LICENSE, companyId);

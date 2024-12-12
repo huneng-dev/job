@@ -9,6 +9,7 @@ import cn.hjf.job.model.dto.company.CompanyInfoQuery;
 import cn.hjf.job.model.entity.company.CompanyBusinessLicense;
 import cn.hjf.job.model.vo.company.LegalPersonInfoVo;
 import jakarta.annotation.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +48,7 @@ public class LegalPersonInfoController {
      * @return Result<String>
      */
     @PostMapping("/save")
+    @PreAuthorize("hasRole('ROLE_BASE_RECRUITER')")
     public Result<String> saveLegalPersonInfo(@RequestBody LegalPersonInfoVo legalPersonInfoVo, Principal principal) {
         // 获取用户 id
         long userId = Long.parseLong(principal.getName());

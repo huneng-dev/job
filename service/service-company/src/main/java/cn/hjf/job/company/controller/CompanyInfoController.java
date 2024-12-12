@@ -41,6 +41,7 @@ public class CompanyInfoController {
      * @return Result<CompanyInfoQuery>
      */
     @GetMapping("/base/info")
+    @PreAuthorize("hasRole('ROLE_BASE_RECRUITER')")
     public Result<CompanyInfoQuery> getBaseCompanyInfo(Principal principal) {
         CompanyInfoQuery companyInfoQuery = companyInfoService.findCompanyInfoByUserId(Long.parseLong(principal.getName()));
         if (companyInfoQuery == null) {

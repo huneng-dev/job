@@ -24,12 +24,22 @@ public interface UserRoleService extends IService<UserRole> {
     List<String> getUserRoleById(Long id);
 
     /**
-     * 设置用户角色
+     * 设置默认用户角色
      *
-     * @param id    用户id
+     * @param id    用户 id
      * @param roles 角色
      * @return 是否成功
      */
     boolean setDefaultUserRole(Long id, List<Long> roles);
+
+
+    /**
+     * 设置用户角色
+     *
+     * @param id     用户 id
+     * @param roleId 角色 id
+     * @return 是否成功
+     */
+    boolean setUserRole(Long id, Long roleId);
 
 }

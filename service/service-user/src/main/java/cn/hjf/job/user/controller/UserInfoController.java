@@ -17,6 +17,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -259,6 +260,7 @@ public class UserInfoController {
      * @param principal          用户信息
      * @return Result<String>
      */
+    @PreAuthorize("hasAnyRole('ROLE_BASE_CANDIDATE','ROLE_BASE_RECRUITER')")
     @PostMapping("/id/card")
     public Result<String> setUserIdCardInfo(@RequestBody UserIdCardInfoForm userIdCardInfoForm, Principal principal) {
         boolean isSuccess = userInfoService.setUserIdCardInfo(userIdCardInfoForm, Long.parseLong(principal.getName()));

@@ -4,6 +4,7 @@ import cn.hjf.job.auth.config.KeyProperties;
 import cn.hjf.job.auth.service.UserRoleService;
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.model.request.auth.DefaultUserRoleRequest;
+import cn.hjf.job.model.request.auth.UserRoleRequest;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,6 +50,24 @@ public class UserRoleController {
             return Result.ok();
         }
         return Result.fail();
+    }
+
+    /**
+     * 设置用户权限
+     *
+     * @param userRoleRequest 用户权限
+     * @return 是否成功
+     */
+    @PostMapping("/user")
+    public Result<Boolean> setUserRole(@RequestBody UserRoleRequest userRoleRequest) {
+        // 判断是否有权限
+        String key = getKey();
+        if (key == null || !key.equals(userRoleRequest.getKey())) {
+            return Result.fail();
+        }
+
+        boolean isSuccess = userRoleService.setUserRole(userRoleRequest.getUserId(), userRoleRequest.getRole());
+        return isSuccess ? Result.ok(true) : Result.ok(false);
     }
 
     private String getKey() {

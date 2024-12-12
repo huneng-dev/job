@@ -18,4 +18,5 @@ public interface CompanyTitleService extends IService<CompanyTitle> {
      * @return 职称 id
      */
     Long setCompanyAdminTitle(Long companyId);
+
 }
