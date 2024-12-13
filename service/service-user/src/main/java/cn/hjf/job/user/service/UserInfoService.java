@@ -6,8 +6,11 @@ import cn.hjf.job.model.dto.user.UserInfoPasswordStatus;
 import cn.hjf.job.model.dto.user.UserInfoStatus;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
+import cn.hjf.job.model.vo.user.EmployeeInfoVo;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -26,7 +29,6 @@ public interface UserInfoService extends IService<UserInfo> {
      * @return UserInfoQuery
      */
     UserInfoVo getUserInfo(Long id);
-
 
     /**
      * 招聘端通过邮箱注册
@@ -93,7 +95,6 @@ public interface UserInfoService extends IService<UserInfo> {
      */
     UserInfoPasswordStatus getUserInfoPasswordStatusByPhonePassword(PhoneAndUserTypeRequest phoneAndUserTypeRequest);
 
-
     /**
      * 设置用户的身份证信息
      *
@@ -102,4 +103,12 @@ public interface UserInfoService extends IService<UserInfo> {
      * @return 是否成功
      */
     boolean setUserIdCardInfo(UserIdCardInfoForm userIdCardInfoForm, Long userId);
+
+    /**
+     * 获取员工信息
+     *
+     * @param ids 用户 ids
+     * @return List<EmployeeInfoVo>
+     */
+    List<EmployeeInfoVo> findCompanyEmployeeByUserIds(List<Long> ids);
 }

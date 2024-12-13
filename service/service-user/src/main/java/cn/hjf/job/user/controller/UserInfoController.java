@@ -10,6 +10,7 @@ import cn.hjf.job.model.dto.user.UserInfoStatus;
 import cn.hjf.job.model.form.user.UserIdCardInfoForm;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
+import cn.hjf.job.model.vo.user.EmployeeInfoVo;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import cn.hjf.job.user.config.KeyProperties;
 import cn.hjf.job.user.service.UserInfoService;
@@ -21,6 +22,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 用户信息
@@ -268,5 +271,20 @@ public class UserInfoController {
             return Result.fail();
         }
         return Result.ok();
+    }
+
+    /**
+     * 根据用户 ids 获取员工信息
+     *
+     * @param userIds 用户 id
+     * @return Result<List < EmployeeInfoVo>>
+     */
+    @GetMapping("/employee/infos")
+    public Result<List<EmployeeInfoVo>> findCompanyEmployeeByUserIds(@RequestParam List<Long> userIds, @RequestParam String serviceKey) {
+        if (!Objects.equals(serviceKey, keyProperties.getKey())) {
+            return Result.fail(null);
+        }
+        List<EmployeeInfoVo> companyEmployeeByUserIds = userInfoService.findCompanyEmployeeByUserIds(userIds);
+        return Result.ok(companyEmployeeByUserIds);
     }
 }

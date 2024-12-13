@@ -1,6 +1,9 @@
 package cn.hjf.job.company.service;
 
 import cn.hjf.job.model.entity.company.CompanyEmployee;
+import cn.hjf.job.model.vo.base.PageVo;
+import cn.hjf.job.model.vo.company.CompanyEmployeeVo;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -46,4 +49,13 @@ public interface CompanyEmployeeService extends IService<CompanyEmployee> {
      * @return 是否成功
      */
     boolean addEmployeeToCompany(Long userId, Long companyId, String code);
+
+    /**
+     * 获取公司下的员工
+     *
+     * @param companyEmployeePage 员工分页
+     * @param userId              用户 id
+     * @return PageVo<CompanyEmployeeVo>
+     */
+    PageVo<CompanyEmployeeVo> findCompanyEmployeePage(Page<CompanyEmployee> companyEmployeePage, Long userId);
 }

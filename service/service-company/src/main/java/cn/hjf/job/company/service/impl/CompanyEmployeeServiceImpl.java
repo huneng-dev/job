@@ -2,15 +2,26 @@ package cn.hjf.job.company.service.impl;
 
 import cn.hjf.job.common.constant.RedisConstant;
 import cn.hjf.job.common.constant.ValidateCodeConstant;
+import cn.hjf.job.common.result.Result;
+import cn.hjf.job.company.config.KeyProperties;
 import cn.hjf.job.company.mapper.CompanyEmployeeMapper;
 import cn.hjf.job.company.service.CompanyEmployeeService;
+import cn.hjf.job.company.service.CompanyTitleService;
 import cn.hjf.job.model.entity.company.CompanyEmployee;
+import cn.hjf.job.model.vo.base.PageVo;
+import cn.hjf.job.model.vo.company.CompanyEmployeeVo;
+import cn.hjf.job.model.vo.user.EmployeeInfoVo;
+import cn.hjf.job.user.client.UserInfoFeignClient;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -21,8 +32,17 @@ public class CompanyEmployeeServiceImpl extends ServiceImpl<CompanyEmployeeMappe
     @Resource
     private CompanyEmployeeMapper companyEmployeeMapper;
 
+    @Resource(name = "companyTitleServiceImpl")
+    private CompanyTitleService companyTitleService;
+
+    @Resource
+    private UserInfoFeignClient userInfoFeignClient;
+
     @Resource
     private RedisTemplate<String, String> redisTemplate;
+
+    @Resource
+    private KeyProperties keyProperties;
 
     @Override
     public boolean setCompanyAdminEmployee(Long companyId, Long userId, Long titleId) {
@@ -104,6 +124,84 @@ public class CompanyEmployeeServiceImpl extends ServiceImpl<CompanyEmployeeMappe
         companyEmployee.setUserId(userId);
         int isSuccess = companyEmployeeMapper.insert(companyEmployee);
         return isSuccess == 1;
+    }
+
+    @Override
+    public PageVo<CompanyEmployeeVo> findCompanyEmployeePage(Page<CompanyEmployee> companyEmployeePage, Long userId) {
+        Long companyId = findCompanyIdByUserId(userId);
+
+        LambdaQueryWrapper<CompanyEmployee> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        // 查询参数 {userId,titleId} , 排除当前公司的管理员
+        lambdaQueryWrapper.select(CompanyEmployee::getUserId, CompanyEmployee::getTitleId)
+                .eq(CompanyEmployee::getCompanyId, companyId)
+                .eq(CompanyEmployee::getIsAdmin, 0);
+
+        Page<CompanyEmployee> page = companyEmployeeMapper.selectPage(companyEmployeePage, lambdaQueryWrapper);
+
+        List<CompanyEmployee> records = page.getRecords();
+
+        List<CompanyEmployeeVo> companyEmployeeVos = new ArrayList<>();
+
+        // 使用 HashMap 缓存标题名称
+        HashMap<Long, String> titleNameCache = new HashMap<>();
+
+        for (CompanyEmployee recode : records) {
+            CompanyEmployeeVo companyEmployeeVo = new CompanyEmployeeVo();
+            companyEmployeeVo.setId(recode.getUserId());
+
+            String title;
+
+            if (recode.getTitleId() == null) {
+                // 如果没有 TitleId，设置为默认值
+                title = "专员";
+            } else {
+                // 查询缓存中是否存在标题
+                title = titleNameCache.get(recode.getTitleId());
+
+                if (title == null) {
+                    // 如果缓存中没有，查询数据库并缓存结果
+                    title = companyTitleService.findTitleNameById(recode.getTitleId());
+                    titleNameCache.put(recode.getTitleId(), title);
+                }
+            }
+
+            // 设置标题
+            companyEmployeeVo.setTitle(title);
+
+            // 添加到最终的列表
+            companyEmployeeVos.add(companyEmployeeVo);
+        }
+
+        // 找到全部的用户id
+        List<Long> userIds = companyEmployeeVos.stream().map(
+                CompanyEmployeeVo::getId
+        ).toList();
+
+        Result<List<EmployeeInfoVo>> companyEmployeeResult = userInfoFeignClient.findCompanyEmployeeByUserIds(userIds, keyProperties.getKey());
+
+        if (!Objects.equals(companyEmployeeResult.getCode(), 200)) {
+            return null;
+        }
+
+        List<EmployeeInfoVo> data = companyEmployeeResult.getData();
+
+        // 直接按顺序映射，确保 companyEmployeeVos 和 data 顺序一致
+        for (int i = 0; i < companyEmployeeVos.size(); i++) {
+            if (i < data.size()) {
+                EmployeeInfoVo employeeInfoVo = data.get(i);
+                companyEmployeeVos.get(i).setAvatar(employeeInfoVo.getAvatar());
+                companyEmployeeVos.get(i).setName(employeeInfoVo.getName());
+                companyEmployeeVos.get(i).setUserName(employeeInfoVo.getUserName());
+            }
+        }
+
+        PageVo<CompanyEmployeeVo> companyEmployeeVoPage = new PageVo<>();
+        companyEmployeeVoPage.setRecords(companyEmployeeVos);
+        companyEmployeeVoPage.setTotal(page.getTotal());
+        companyEmployeeVoPage.setPage(page.getCurrent());
+        companyEmployeeVoPage.setPages(page.getPages());
+        companyEmployeeVoPage.setLimit(page.getSize());
+        return companyEmployeeVoPage;
     }
 
     // 提取出增加用户尝试次数的方法

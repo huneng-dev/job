@@ -19,4 +19,12 @@ public interface CompanyTitleService extends IService<CompanyTitle> {
      */
     Long setCompanyAdminTitle(Long companyId);
 
+    /**
+     * 获取职称名称根据 id
+     *
+     * @param titleId id
+     * @return 职称
+     */
+    String findTitleNameById(Long titleId);
+
 }

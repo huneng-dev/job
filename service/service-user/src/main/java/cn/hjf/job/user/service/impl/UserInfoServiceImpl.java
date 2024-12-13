@@ -5,7 +5,9 @@ import cn.hjf.job.common.constant.RedisConstant;
 import cn.hjf.job.common.constant.UserDefaultInfoConstant;
 import cn.hjf.job.common.constant.UserRoleConstant;
 import cn.hjf.job.common.constant.UserTypeConstant;
+import cn.hjf.job.common.minio.resolver.PublicFileUrlResolver;
 import cn.hjf.job.common.result.Result;
+import cn.hjf.job.model.entity.company.CompanyInfo;
 import cn.hjf.job.model.entity.user.UserInfo;
 import cn.hjf.job.model.form.user.*;
 import cn.hjf.job.model.dto.user.UserInfoPasswordStatus;
@@ -14,6 +16,7 @@ import cn.hjf.job.model.request.auth.DefaultUserRoleRequest;
 import cn.hjf.job.model.request.auth.UserRoleRequest;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
+import cn.hjf.job.model.vo.user.EmployeeInfoVo;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import cn.hjf.job.user.config.KeyProperties;
 import cn.hjf.job.user.exception.EmailAlreadyRegisteredException;
@@ -35,6 +38,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -67,6 +71,9 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
     @Resource
     private KeyProperties keyProperties;
+
+    @Resource
+    private PublicFileUrlResolver publicFileUrlResolver;
 
     @Override
     public UserInfoVo getUserInfo(Long id) {
@@ -428,6 +435,20 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
         return i == 1;
     }
+
+    @Override
+    public List<EmployeeInfoVo> findCompanyEmployeeByUserIds(List<Long> ids) {
+        LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(UserInfo::getNickname, UserInfo::getName, UserInfo::getAvatar)
+                .in(UserInfo::getId, ids);
+
+        List<UserInfo> userInfos = userInfoMapper.selectList(queryWrapper);
+
+        return userInfos.stream().map(
+                userInfo -> new EmployeeInfoVo(publicFileUrlResolver.resolveSingleUrl(userInfo.getAvatar()), userInfo.getNickname(), userInfo.getName())
+        ).toList();
+    }
+
 
     private boolean setUserRoleByUserType(Long userId) {
         LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();

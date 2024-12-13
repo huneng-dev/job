@@ -2,7 +2,11 @@ package cn.hjf.job.company.controller;
 
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.company.service.CompanyEmployeeService;
+import cn.hjf.job.model.entity.company.CompanyEmployee;
 import cn.hjf.job.model.request.company.AddEmployeeToCompanyRequest;
+import cn.hjf.job.model.vo.base.PageVo;
+import cn.hjf.job.model.vo.company.CompanyEmployeeVo;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -63,6 +67,26 @@ public class CompanyEmployeeController {
         } catch (RuntimeException e) {
             return Result.fail(e.getMessage());
         }
+    }
+
+    /**
+     * 获取公司员工分页
+     * @param page      第几页
+     * @param limit     每页多少
+     * @param principal 用户数据
+     * @return Result<PageVo < CompanyEmployeeVo>>
+     */
+    @GetMapping("/{page}/{limit}")
+    public Result<PageVo<CompanyEmployeeVo>> findCompanyEmployeePage(
+            @PathVariable(name = "page") Long page,
+            @PathVariable(name = "limit") Long limit,
+            Principal principal
+    ) {
+        Page<CompanyEmployee> companyEmployeePage = new Page<>(page, limit);
+
+        PageVo<CompanyEmployeeVo> companyEmployeePageVo = companyEmployeeService.findCompanyEmployeePage(companyEmployeePage, Long.parseLong(principal.getName()));
+
+        return Result.ok(companyEmployeePageVo);
     }
 
 }
