@@ -22,10 +22,6 @@ private static final long serialVersionUID = 1L;
 @TableField("company_id")
 private Long companyId;
 
-@Schema(description = "部门id")
-@TableField("department_id")
-private Long departmentId;
-
 @Schema(description = "创建人id")
 @TableField("creator_id")
 private Long creatorId;

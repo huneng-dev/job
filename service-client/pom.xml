@@ -15,6 +15,7 @@
     <modules>
         <module>service-user-client</module>
         <module>service-auth-client</module>
+        <module>service-company-client</module>
     </modules>
 
     <properties>

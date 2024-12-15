@@ -71,6 +71,7 @@ public class CompanyEmployeeController {
 
     /**
      * 获取公司员工分页
+     *
      * @param page      第几页
      * @param limit     每页多少
      * @param principal 用户数据
@@ -89,4 +90,17 @@ public class CompanyEmployeeController {
         return Result.ok(companyEmployeePageVo);
     }
 
+
+    /**
+     * 获取当前用户的公司 id
+     *
+     * @param principal 用户信息
+     * @return 公司 id
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN_RECRUITER')")
+    @GetMapping("/company/id")
+    public Result<Long> findCompanyIdByUserId(Principal principal) {
+        Long companyId = companyEmployeeService.findCompanyIdByUserId(Long.parseLong(principal.getName()));
+        return Result.ok(companyId);
+    }
 }

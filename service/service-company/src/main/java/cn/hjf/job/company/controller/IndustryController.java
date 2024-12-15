@@ -6,6 +6,7 @@ import cn.hjf.job.model.entity.company.CompanyIndustry;
 import cn.hjf.job.model.vo.base.PageVo;
 import cn.hjf.job.model.vo.company.IndustryVo;
 import cn.hjf.job.model.vo.company.ParentIndustryVo;
+import cn.hjf.job.model.vo.company.SubIndustriesVo;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
@@ -57,5 +58,17 @@ public class IndustryController {
     public Result<List<ParentIndustryVo>> findParentIndustryAll() {
         List<ParentIndustryVo> parentIndustryAll = companyIndustryService.getParentIndustryAll();
         return Result.ok(parentIndustryAll);
+    }
+
+    /**
+     * 根据父行业 id 获取 子行业
+     *
+     * @param id 父行业
+     * @return 子行业列表
+     */
+    @GetMapping("/sub/{id}")
+    public Result<List<SubIndustriesVo>> findSubIndustryByParentId(@PathVariable(name = "id") Long id) {
+        List<SubIndustriesVo> subIndustriesFromRedisOrDb = companyIndustryService.getSubIndustriesFromRedisOrDb(id);
+        return Result.ok(subIndustriesFromRedisOrDb);
     }
 }

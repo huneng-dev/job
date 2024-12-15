@@ -5,7 +5,6 @@
         <!-- 通用查询映射结果 -->
         <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.position.PositionInfo">
                     <result column="company_id" property="companyId" />
-                    <result column="department_id" property="departmentId" />
                     <result column="creator_id" property="creatorId" />
                     <result column="responsible_id" property="responsibleId" />
                     <result column="address_id" property="addressId" />
@@ -25,7 +24,7 @@
 
         <!-- 通用查询结果列 -->
         <sql id="columns">
-                company_id, department_id, creator_id, responsible_id, address_id, position_type_id, position_name, position_description, position_type, education_requirement, experience_requirement, internship_duration, daily_work_hours, weekly_work_days, min_salary, max_salary, status
+                company_id, creator_id, responsible_id, address_id, position_type_id, position_name, position_description, position_type, education_requirement, experience_requirement, internship_duration, daily_work_hours, weekly_work_days, min_salary, max_salary, status
         </sql>
 
 </mapper>
