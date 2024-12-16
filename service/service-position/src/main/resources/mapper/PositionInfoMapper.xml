@@ -20,11 +20,15 @@
                     <result column="min_salary" property="minSalary" />
                     <result column="max_salary" property="maxSalary" />
                     <result column="status" property="status" />
+                    <result column="watch_count" property="watchCount" />
+                    <result column="communication_count" property="communicationCount" />
+                    <result column="favorite_count" property="favoriteCount" />
         </resultMap>
 
         <!-- 通用查询结果列 -->
         <sql id="columns">
-                company_id, creator_id, responsible_id, address_id, position_type_id, position_name, position_description, position_type, education_requirement, experience_requirement, internship_duration, daily_work_hours, weekly_work_days, min_salary, max_salary, status
+            company_id
+            , creator_id, responsible_id, address_id, position_type_id, position_name, position_description, position_type, education_requirement, experience_requirement, internship_duration, daily_work_hours, weekly_work_days, min_salary, max_salary, status,watch_count,communication_count,favorite_count
         </sql>
 
 </mapper>

@@ -2,7 +2,9 @@ package cn.hjf.job.company.client;
 
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.company.config.FeignRequestInterceptor;
+import cn.hjf.job.model.vo.company.CompanyIdAndIsAdmin;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.security.Principal;
@@ -17,4 +19,7 @@ public interface CompanyEmployeeFeignClient {
      */
     @GetMapping("/employee/company/id")
     public Result<Long> findCompanyIdByUserId();
+
+    @GetMapping("/employee/companyId-IsAdmin")
+    public Result<CompanyIdAndIsAdmin> findCompanyIdAndIsAdminByUserId();
 }

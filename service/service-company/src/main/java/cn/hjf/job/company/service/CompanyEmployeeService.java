@@ -3,6 +3,7 @@ package cn.hjf.job.company.service;
 import cn.hjf.job.model.entity.company.CompanyEmployee;
 import cn.hjf.job.model.vo.base.PageVo;
 import cn.hjf.job.model.vo.company.CompanyEmployeeVo;
+import cn.hjf.job.model.vo.company.CompanyIdAndIsAdmin;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -58,4 +59,13 @@ public interface CompanyEmployeeService extends IService<CompanyEmployee> {
      * @return PageVo<CompanyEmployeeVo>
      */
     PageVo<CompanyEmployeeVo> findCompanyEmployeePage(Page<CompanyEmployee> companyEmployeePage, Long userId);
+
+    /**
+     * 获取公司id与是否是管理员
+     *
+     * @param userId 用户id
+     * @return CompanyIdAndIsAdmin
+     */
+    CompanyIdAndIsAdmin findCompanyIdAndIsAdminByUserId(Long userId);
+
 }

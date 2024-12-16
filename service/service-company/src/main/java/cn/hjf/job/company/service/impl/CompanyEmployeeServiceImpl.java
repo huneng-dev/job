@@ -10,6 +10,7 @@ import cn.hjf.job.company.service.CompanyTitleService;
 import cn.hjf.job.model.entity.company.CompanyEmployee;
 import cn.hjf.job.model.vo.base.PageVo;
 import cn.hjf.job.model.vo.company.CompanyEmployeeVo;
+import cn.hjf.job.model.vo.company.CompanyIdAndIsAdmin;
 import cn.hjf.job.model.vo.user.EmployeeInfoVo;
 import cn.hjf.job.user.client.UserInfoFeignClient;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -202,6 +203,18 @@ public class CompanyEmployeeServiceImpl extends ServiceImpl<CompanyEmployeeMappe
         companyEmployeeVoPage.setPages(page.getPages());
         companyEmployeeVoPage.setLimit(page.getSize());
         return companyEmployeeVoPage;
+    }
+
+    @Override
+    public CompanyIdAndIsAdmin findCompanyIdAndIsAdminByUserId(Long userId) {
+        LambdaQueryWrapper<CompanyEmployee> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(CompanyEmployee::getCompanyId, CompanyEmployee::getIsAdmin)
+                .eq(CompanyEmployee::getUserId, userId);
+        CompanyEmployee companyEmployee = companyEmployeeMapper.selectOne(queryWrapper);
+        return new CompanyIdAndIsAdmin(
+                companyEmployee.getCompanyId(),
+                companyEmployee.getIsAdmin()
+        );
     }
 
     // 提取出增加用户尝试次数的方法

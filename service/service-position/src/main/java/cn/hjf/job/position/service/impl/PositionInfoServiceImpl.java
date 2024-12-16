@@ -5,13 +5,20 @@ import cn.hjf.job.company.client.CompanyEmployeeFeignClient;
 import cn.hjf.job.model.document.position.PositionDescriptionDoc;
 import cn.hjf.job.model.entity.position.PositionInfo;
 import cn.hjf.job.model.form.position.PositionInfoForm;
+import cn.hjf.job.model.vo.base.PageVo;
+import cn.hjf.job.model.vo.company.CompanyIdAndIsAdmin;
+import cn.hjf.job.model.vo.position.RecruiterBasePositionInfoVo;
 import cn.hjf.job.position.mapper.PositionInfoMapper;
 import cn.hjf.job.position.repository.PositionDescriptionRepository;
 import cn.hjf.job.position.service.PositionInfoService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -64,5 +71,80 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         int insert = positionInfoMapper.insert(positionInfo);
 
         return insert == 1;
+    }
+
+    @Override
+    public PageVo<RecruiterBasePositionInfoVo> findRecruiterBasePositionInfoByUserId(
+            Page<PositionInfo> positionInfoPage,
+            String positionName,
+            Integer status,
+            Long userId
+    ) {
+        // 查询当前用户是否是管理员 管理员查询全部职位,非管理员查询的自己创建的
+        Result<CompanyIdAndIsAdmin> companyIdAndIsAdminByUserId = companyEmployeeFeignClient.findCompanyIdAndIsAdminByUserId();
+        CompanyIdAndIsAdmin companyIdAndIsAdmin = companyIdAndIsAdminByUserId.getData();
+        Long companyId = companyIdAndIsAdmin.getCompanyId();
+        Integer isAdmin = companyIdAndIsAdmin.getIsAdmin();
+
+        LambdaQueryWrapper<PositionInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(
+                        PositionInfo::getId,
+                        PositionInfo::getPositionName,
+                        PositionInfo::getEducationRequirement,
+                        PositionInfo::getExperienceRequirement,
+                        PositionInfo::getMinSalary,
+                        PositionInfo::getMaxSalary,
+                        PositionInfo::getStatus,
+                        PositionInfo::getWatchCount,
+                        PositionInfo::getCommunicationCount,
+                        PositionInfo::getFavoriteCount
+                )
+                .eq(PositionInfo::getCompanyId, companyId)
+                .orderByDesc(PositionInfo::getId);
+
+
+        // 设置状态 0 标识没有状态查询全部
+        if (!status.equals(0)) {
+            queryWrapper.eq(PositionInfo::getStatus, status);
+        }
+
+        // 如果不是管理员就设置 创建人 id
+        if (isAdmin.equals(0)) {
+            queryWrapper.eq(PositionInfo::getCreatorId, userId);
+        }
+
+        // 设置模糊查询
+        if (!positionName.isEmpty()) {
+            queryWrapper.like(PositionInfo::getPositionName, positionName);
+        }
+
+
+        // 分页查询
+        Page<PositionInfo> selectPage = positionInfoMapper.selectPage(positionInfoPage, queryWrapper);
+
+        List<PositionInfo> records = selectPage.getRecords();
+
+        List<RecruiterBasePositionInfoVo> recruiterBasePositionInfoVos =
+                records.stream().map(
+                        positionInfo -> new RecruiterBasePositionInfoVo(
+                                positionInfo.getId(),
+                                positionInfo.getPositionName(),
+                                positionInfo.getEducationRequirement(),
+                                positionInfo.getExperienceRequirement(),
+                                positionInfo.getMinSalary(),
+                                positionInfo.getMaxSalary(),
+                                positionInfo.getStatus(),
+                                positionInfo.getWatchCount(),
+                                positionInfo.getCommunicationCount(),
+                                positionInfo.getFavoriteCount()
+                        )).toList();
+
+        PageVo<RecruiterBasePositionInfoVo> recruiterBasePositionInfoVoPageVo = new PageVo<>();
+        recruiterBasePositionInfoVoPageVo.setRecords(recruiterBasePositionInfoVos);
+        recruiterBasePositionInfoVoPageVo.setLimit(selectPage.getSize());
+        recruiterBasePositionInfoVoPageVo.setPages(selectPage.getPages());
+        recruiterBasePositionInfoVoPageVo.setPage(selectPage.getCurrent());
+        recruiterBasePositionInfoVoPageVo.setTotal(selectPage.getTotal());
+        return recruiterBasePositionInfoVoPageVo;
     }
 }

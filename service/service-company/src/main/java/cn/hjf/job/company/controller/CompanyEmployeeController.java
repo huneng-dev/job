@@ -6,6 +6,7 @@ import cn.hjf.job.model.entity.company.CompanyEmployee;
 import cn.hjf.job.model.request.company.AddEmployeeToCompanyRequest;
 import cn.hjf.job.model.vo.base.PageVo;
 import cn.hjf.job.model.vo.company.CompanyEmployeeVo;
+import cn.hjf.job.model.vo.company.CompanyIdAndIsAdmin;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -102,5 +103,12 @@ public class CompanyEmployeeController {
     public Result<Long> findCompanyIdByUserId(Principal principal) {
         Long companyId = companyEmployeeService.findCompanyIdByUserId(Long.parseLong(principal.getName()));
         return Result.ok(companyId);
+    }
+
+    @GetMapping("/companyId-IsAdmin")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
+    public Result<CompanyIdAndIsAdmin> findCompanyIdAndIsAdminByUserId(Principal principal) {
+        CompanyIdAndIsAdmin companyIdAndIsAdmin = companyEmployeeService.findCompanyIdAndIsAdminByUserId(Long.parseLong(principal.getName()));
+        return Result.ok(companyIdAndIsAdmin);
     }
 }
