@@ -64,7 +64,7 @@ public class CompanyAddressServiceImpl extends ServiceImpl<CompanyAddressMapper,
                 CompanyAddress::getCity,
                 CompanyAddress::getDistrict,
                 CompanyAddress::getAddress
-        ).eq(CompanyAddress::getCompanyId, companyId);
+        ).eq(CompanyAddress::getCompanyId, companyId).orderByDesc(CompanyAddress::getId);
 
         List<CompanyAddress> companyAddresses = companyAddressMapper.selectList(queryWrapper);
         if (companyAddresses == null) throw new RuntimeException();
@@ -78,5 +78,17 @@ public class CompanyAddressServiceImpl extends ServiceImpl<CompanyAddressMapper,
                         companyAddress.getAddress()
                 )
         ).toList();
+    }
+
+    @Override
+    public boolean deleteCompanyAddressById(Long addressId, Long userId) {
+        // 查询当前用户的公司 id
+        Long companyId = companyEmployeeService.findCompanyIdByUserId(userId);
+
+        // 删除地址
+        LambdaQueryWrapper<CompanyAddress> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CompanyAddress::getId, addressId).eq(CompanyAddress::getCompanyId, companyId);
+        int delete = companyAddressMapper.delete(queryWrapper);
+        return delete == 1;
     }
 }

@@ -7,6 +7,8 @@ import cn.hjf.job.model.form.company.AddressInfoForm;
 import cn.hjf.job.model.vo.company.AddressInfoVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
+import org.apache.ibatis.annotations.Delete;
+import org.springframework.boot.actuate.web.exchanges.HttpExchange;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,6 +63,26 @@ public class AddressController {
             return Result.ok(allCompanyAddress);
         } catch (Exception e) {
             return Result.fail();
+        }
+    }
+
+    /**
+     * 删除公司地址
+     *
+     * @param addressId 地址 id
+     * @return 是否成功
+     */
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
+    @DeleteMapping("delete")
+    public Result<String> deleteCompanyAddressById(@RequestParam Long addressId,Principal principal) {
+        try {
+            boolean b = companyAddressService.deleteCompanyAddressById(addressId, Long.parseLong(principal.getName()));
+            if (b) {
+                return Result.ok("删除成功");
+            }
+            return Result.fail("删除失败");
+        } catch (Exception e) {
+            return Result.fail("失败:" + e.getMessage());
         }
     }
 
