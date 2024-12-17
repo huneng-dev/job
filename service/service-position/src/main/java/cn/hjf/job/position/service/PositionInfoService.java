@@ -41,5 +41,4 @@ public interface PositionInfoService extends IService<PositionInfo> {
             Integer status,
             Long userId
     );
-
 }

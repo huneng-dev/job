@@ -36,7 +36,7 @@ public class AddressController {
      * @return Result<String>
      */
     @PostMapping("/add")
-    @PreAuthorize("hasRole('ROLE_ADMIN_RECRUITER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
     public Result<String> add(@RequestBody AddressInfoForm addressInfoForm, Principal principal) {
         try {
             boolean isSuccess = companyAddressService.add(addressInfoForm, Long.parseLong(principal.getName()));
