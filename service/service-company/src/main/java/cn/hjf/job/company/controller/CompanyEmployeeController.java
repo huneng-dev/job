@@ -56,11 +56,7 @@ public class CompanyEmployeeController {
     public Result<String> addEmployeeToCompany(@RequestBody AddEmployeeToCompanyRequest addEmployeeToCompanyRequest, Principal principal) {
 
         try {
-            boolean isSuccess = companyEmployeeService.addEmployeeToCompany(
-                    Long.parseLong(principal.getName()),
-                    addEmployeeToCompanyRequest.getCompanyId(),
-                    addEmployeeToCompanyRequest.getVerificationCode()
-            );
+            boolean isSuccess = companyEmployeeService.addEmployeeToCompany(Long.parseLong(principal.getName()), addEmployeeToCompanyRequest.getCompanyId(), addEmployeeToCompanyRequest.getVerificationCode());
             if (!isSuccess) {
                 return Result.fail("无法加入");
             }
@@ -79,11 +75,7 @@ public class CompanyEmployeeController {
      * @return Result<PageVo < CompanyEmployeeVo>>
      */
     @GetMapping("/{page}/{limit}")
-    public Result<PageVo<CompanyEmployeeVo>> findCompanyEmployeePage(
-            @PathVariable(name = "page") Long page,
-            @PathVariable(name = "limit") Long limit,
-            Principal principal
-    ) {
+    public Result<PageVo<CompanyEmployeeVo>> findCompanyEmployeePage(@PathVariable(name = "page") Long page, @PathVariable(name = "limit") Long limit, Principal principal) {
         Page<CompanyEmployee> companyEmployeePage = new Page<>(page, limit);
 
         PageVo<CompanyEmployeeVo> companyEmployeePageVo = companyEmployeeService.findCompanyEmployeePage(companyEmployeePage, Long.parseLong(principal.getName()));
@@ -91,6 +83,22 @@ public class CompanyEmployeeController {
         return Result.ok(companyEmployeePageVo);
     }
 
+    /**
+     * 获取员工信息 (同公司)
+     *
+     * @param targetId  目标用户 id
+     * @param principal 用户
+     * @return Result<CompanyEmployeeVo>
+     */
+    @GetMapping("/{targetId}")
+    public Result<CompanyEmployeeVo> findCompanyEmployeeById(@PathVariable(name = "targetId") Long targetId, Principal principal) {
+        try {
+            CompanyEmployeeVo companyEmployeeVo = companyEmployeeService.findCompanyEmployeeById(targetId, Long.parseLong(principal.getName()));
+            return Result.ok(companyEmployeeVo);
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
 
     /**
      * 获取当前用户的公司 id

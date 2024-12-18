@@ -19,5 +19,4 @@ public class EmployeeInfoVo {
 
     @Schema(description = "姓名")
     private String name;
-
 }

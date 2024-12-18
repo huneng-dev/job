@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,4 +28,10 @@ public class AddressInfoVo {
 
     @Schema(description = "详细地址")
     private String address;
+
+    @Schema(description = "经度")
+    private BigDecimal longitude;
+
+    @Schema(description = "维度")
+    private BigDecimal latitude;
 }

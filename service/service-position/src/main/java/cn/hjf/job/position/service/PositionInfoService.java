@@ -4,6 +4,7 @@ import cn.hjf.job.model.entity.position.PositionInfo;
 import cn.hjf.job.model.form.position.PositionInfoForm;
 import cn.hjf.job.model.vo.base.PageVo;
 import cn.hjf.job.model.vo.position.RecruiterBasePositionInfoVo;
+import cn.hjf.job.model.vo.position.RecruiterPositionInfoVo;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -41,4 +42,13 @@ public interface PositionInfoService extends IService<PositionInfo> {
             Integer status,
             Long userId
     );
+
+    /**
+     * 根据职位id和用户id获取职位详情
+     *
+     * @param positionId 职位id
+     * @param userId     用户id
+     * @return RecruiterPositionInfoVo
+     */
+    RecruiterPositionInfoVo getRecruiterPositionInfoVoById(Long positionId, Long userId);
 }

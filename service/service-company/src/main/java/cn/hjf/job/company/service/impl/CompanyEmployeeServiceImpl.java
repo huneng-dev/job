@@ -217,6 +217,38 @@ public class CompanyEmployeeServiceImpl extends ServiceImpl<CompanyEmployeeMappe
         );
     }
 
+    @Override
+    public CompanyEmployeeVo findCompanyEmployeeById(Long targetId, Long userId) {
+        Long companyId = findCompanyIdByUserId(userId);
+        LambdaQueryWrapper<CompanyEmployee> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        // 查询参数 {userId,titleId} , 排除当前公司的管理员
+        lambdaQueryWrapper.select(CompanyEmployee::getUserId, CompanyEmployee::getTitleId)
+                .eq(CompanyEmployee::getCompanyId, companyId)
+                .eq(CompanyEmployee::getUserId, targetId);
+
+        CompanyEmployee companyEmployee = companyEmployeeMapper.selectOne(lambdaQueryWrapper);
+
+        CompanyEmployeeVo companyEmployeeVo = new CompanyEmployeeVo();
+        companyEmployeeVo.setId(companyEmployee.getUserId());
+
+        if (companyEmployee.getTitleId() == null) {
+            companyEmployeeVo.setTitle("专员");
+        } else {
+            String title = companyTitleService.findTitleNameById(companyEmployee.getTitleId());
+            companyEmployeeVo.setTitle(title);
+        }
+        List<Long> userIds = new ArrayList<>();
+        userIds.add(targetId);
+        Result<List<EmployeeInfoVo>> companyEmployeeResult = userInfoFeignClient.findCompanyEmployeeByUserIds(userIds, keyProperties.getKey());
+        EmployeeInfoVo employeeInfoVo = companyEmployeeResult.getData().get(0);
+
+        companyEmployeeVo.setUserName(employeeInfoVo.getUserName());
+        companyEmployeeVo.setName(employeeInfoVo.getName());
+        companyEmployeeVo.setAvatar(employeeInfoVo.getAvatar());
+
+        return companyEmployeeVo;
+    }
+
     // 提取出增加用户尝试次数的方法
     private void incrementUserAttempts(Long userId, int userNum) {
         redisTemplate.opsForValue().set(

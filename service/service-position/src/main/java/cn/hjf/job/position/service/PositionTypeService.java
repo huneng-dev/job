@@ -25,4 +25,12 @@ public interface PositionTypeService extends IService<PositionType> {
      * @return Map<Long, List < PositionTypeVo>>
      */
     public Map<Long, List<PositionTypeVo>> queryPositionTypeByIndustryId(List<Long> ids);
+
+    /**
+     * 根据职位类型 id,查询职位类型描述
+     *
+     * @param id 职位 id
+     * @return 职位 type
+     */
+    String getPositionTypeDescByPositionId(Long id);
 }

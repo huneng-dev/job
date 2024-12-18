@@ -2,13 +2,9 @@ package cn.hjf.job.company.controller;
 
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.company.service.CompanyAddressService;
-import cn.hjf.job.model.entity.company.CompanyAddress;
 import cn.hjf.job.model.form.company.AddressInfoForm;
 import cn.hjf.job.model.vo.company.AddressInfoVo;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
-import org.apache.ibatis.annotations.Delete;
-import org.springframework.boot.actuate.web.exchanges.HttpExchange;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,7 +70,7 @@ public class AddressController {
      */
     @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
     @DeleteMapping("delete")
-    public Result<String> deleteCompanyAddressById(@RequestParam Long addressId,Principal principal) {
+    public Result<String> deleteCompanyAddressById(@RequestParam Long addressId, Principal principal) {
         try {
             boolean b = companyAddressService.deleteCompanyAddressById(addressId, Long.parseLong(principal.getName()));
             if (b) {
@@ -86,4 +82,15 @@ public class AddressController {
         }
     }
 
+    /**
+     * 获取公司地址
+     *
+     * @param addressId 获取地址
+     * @return Result<AddressInfoVo>
+     */
+    @GetMapping("/{addressId}")
+    public Result<AddressInfoVo> getAddressById(@PathVariable(name = "addressId") Long addressId) {
+        AddressInfoVo addressById = companyAddressService.getAddressById(addressId);
+        return Result.ok(addressById);
+    }
 }

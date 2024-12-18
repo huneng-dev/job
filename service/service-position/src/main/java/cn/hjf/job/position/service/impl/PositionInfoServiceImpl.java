@@ -1,16 +1,21 @@
 package cn.hjf.job.position.service.impl;
 
 import cn.hjf.job.common.result.Result;
+import cn.hjf.job.company.client.CompanyAddressFeignClient;
 import cn.hjf.job.company.client.CompanyEmployeeFeignClient;
 import cn.hjf.job.model.document.position.PositionDescriptionDoc;
 import cn.hjf.job.model.entity.position.PositionInfo;
 import cn.hjf.job.model.form.position.PositionInfoForm;
 import cn.hjf.job.model.vo.base.PageVo;
+import cn.hjf.job.model.vo.company.AddressInfoVo;
+import cn.hjf.job.model.vo.company.CompanyEmployeeVo;
 import cn.hjf.job.model.vo.company.CompanyIdAndIsAdmin;
 import cn.hjf.job.model.vo.position.RecruiterBasePositionInfoVo;
+import cn.hjf.job.model.vo.position.RecruiterPositionInfoVo;
 import cn.hjf.job.position.mapper.PositionInfoMapper;
 import cn.hjf.job.position.repository.PositionDescriptionRepository;
 import cn.hjf.job.position.service.PositionInfoService;
+import cn.hjf.job.position.service.PositionTypeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -19,6 +24,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>
@@ -36,6 +42,12 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
     @Resource
     private CompanyEmployeeFeignClient companyEmployeeFeignClient;
+
+    @Resource
+    private CompanyAddressFeignClient companyAddressFeignClient;
+
+    @Resource(name = "positionTypeServiceImpl")
+    private PositionTypeService positionTypeService;
 
     @Resource
     private PositionDescriptionRepository positionDescriptionRepository;
@@ -74,12 +86,7 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
     }
 
     @Override
-    public PageVo<RecruiterBasePositionInfoVo> findRecruiterBasePositionInfoByUserId(
-            Page<PositionInfo> positionInfoPage,
-            String positionName,
-            Integer status,
-            Long userId
-    ) {
+    public PageVo<RecruiterBasePositionInfoVo> findRecruiterBasePositionInfoByUserId(Page<PositionInfo> positionInfoPage, String positionName, Integer status, Long userId) {
         // 查询当前用户是否是管理员 管理员查询全部职位,非管理员查询的自己创建的
         Result<CompanyIdAndIsAdmin> companyIdAndIsAdminByUserId = companyEmployeeFeignClient.findCompanyIdAndIsAdminByUserId();
         CompanyIdAndIsAdmin companyIdAndIsAdmin = companyIdAndIsAdminByUserId.getData();
@@ -87,20 +94,7 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         Integer isAdmin = companyIdAndIsAdmin.getIsAdmin();
 
         LambdaQueryWrapper<PositionInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.select(
-                        PositionInfo::getId,
-                        PositionInfo::getPositionName,
-                        PositionInfo::getEducationRequirement,
-                        PositionInfo::getExperienceRequirement,
-                        PositionInfo::getMinSalary,
-                        PositionInfo::getMaxSalary,
-                        PositionInfo::getStatus,
-                        PositionInfo::getWatchCount,
-                        PositionInfo::getCommunicationCount,
-                        PositionInfo::getFavoriteCount
-                )
-                .eq(PositionInfo::getCompanyId, companyId)
-                .orderByDesc(PositionInfo::getId);
+        queryWrapper.select(PositionInfo::getId, PositionInfo::getPositionName, PositionInfo::getEducationRequirement, PositionInfo::getExperienceRequirement, PositionInfo::getMinSalary, PositionInfo::getMaxSalary, PositionInfo::getStatus, PositionInfo::getWatchCount, PositionInfo::getCommunicationCount, PositionInfo::getFavoriteCount).eq(PositionInfo::getCompanyId, companyId).orderByDesc(PositionInfo::getId);
 
 
         // 设置状态 0 标识没有状态查询全部
@@ -124,20 +118,7 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
         List<PositionInfo> records = selectPage.getRecords();
 
-        List<RecruiterBasePositionInfoVo> recruiterBasePositionInfoVos =
-                records.stream().map(
-                        positionInfo -> new RecruiterBasePositionInfoVo(
-                                positionInfo.getId(),
-                                positionInfo.getPositionName(),
-                                positionInfo.getEducationRequirement(),
-                                positionInfo.getExperienceRequirement(),
-                                positionInfo.getMinSalary(),
-                                positionInfo.getMaxSalary(),
-                                positionInfo.getStatus(),
-                                positionInfo.getWatchCount(),
-                                positionInfo.getCommunicationCount(),
-                                positionInfo.getFavoriteCount()
-                        )).toList();
+        List<RecruiterBasePositionInfoVo> recruiterBasePositionInfoVos = records.stream().map(positionInfo -> new RecruiterBasePositionInfoVo(positionInfo.getId(), positionInfo.getPositionName(), positionInfo.getEducationRequirement(), positionInfo.getExperienceRequirement(), positionInfo.getMinSalary(), positionInfo.getMaxSalary(), positionInfo.getStatus(), positionInfo.getWatchCount(), positionInfo.getCommunicationCount(), positionInfo.getFavoriteCount())).toList();
 
         PageVo<RecruiterBasePositionInfoVo> recruiterBasePositionInfoVoPageVo = new PageVo<>();
         recruiterBasePositionInfoVoPageVo.setRecords(recruiterBasePositionInfoVos);
@@ -146,5 +127,58 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         recruiterBasePositionInfoVoPageVo.setPage(selectPage.getCurrent());
         recruiterBasePositionInfoVoPageVo.setTotal(selectPage.getTotal());
         return recruiterBasePositionInfoVoPageVo;
+    }
+
+    @Override
+    public RecruiterPositionInfoVo getRecruiterPositionInfoVoById(Long positionId, Long userId) {
+        // 获取公司id
+        Result<Long> result = companyEmployeeFeignClient.findCompanyIdByUserId();
+
+        Long companyId = result.getData();
+
+        LambdaQueryWrapper<PositionInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PositionInfo::getId, positionId).eq(PositionInfo::getCompanyId, companyId);
+
+        // 职位信息
+        PositionInfo positionInfo = positionInfoMapper.selectOne(queryWrapper);
+        // 结果职位信息
+        RecruiterPositionInfoVo recruiterPositionInfoVo = new RecruiterPositionInfoVo();
+        recruiterPositionInfoVo.setId(positionId);
+
+        // 获取创建人与负责人信息
+        Result<CompanyEmployeeVo> creatorResult = companyEmployeeFeignClient.findCompanyEmployeeById(positionInfo.getCreatorId());
+        Result<CompanyEmployeeVo> responsibleResult = companyEmployeeFeignClient.findCompanyEmployeeById(positionInfo.getResponsibleId());
+        recruiterPositionInfoVo.setCreator(creatorResult.getData());
+        recruiterPositionInfoVo.setResponsible(responsibleResult.getData());
+
+        // 获取地址
+        Result<AddressInfoVo> addressInfoVoResult = companyAddressFeignClient.getAddressById(positionInfo.getAddressId());
+        recruiterPositionInfoVo.setAddress(addressInfoVoResult.getData());
+
+        // 获取职位类型描述
+        String positionTypeDesc = positionTypeService.getPositionTypeDescByPositionId(positionInfo.getPositionTypeId());
+        recruiterPositionInfoVo.setPositionTypeDesc(positionTypeDesc);
+
+        // 设置职位名称
+        recruiterPositionInfoVo.setPositionName(positionInfo.getPositionName());
+
+        // 设置职位描述
+        Optional<PositionDescriptionDoc> optional = positionDescriptionRepository.findById(positionInfo.getPositionDescription());
+        optional.ifPresent(positionDescriptionDoc -> recruiterPositionInfoVo.setPositionDescription(positionDescriptionDoc.getDescription()));
+
+        // 设置 职位类型,
+        recruiterPositionInfoVo.setPositionType(positionInfo.getPositionType());
+        recruiterPositionInfoVo.setEducationRequirement(positionInfo.getEducationRequirement());
+        recruiterPositionInfoVo.setExperienceRequirement(positionInfo.getExperienceRequirement());
+        recruiterPositionInfoVo.setDailyWorkHours(positionInfo.getDailyWorkHours());
+        recruiterPositionInfoVo.setWeeklyWorkDays(positionInfo.getWeeklyWorkDays());
+        recruiterPositionInfoVo.setMinSalary(positionInfo.getMinSalary());
+        recruiterPositionInfoVo.setMaxSalary(positionInfo.getMaxSalary());
+        recruiterPositionInfoVo.setStatus(positionInfo.getStatus());
+        recruiterPositionInfoVo.setWatchCount(positionInfo.getWatchCount());
+        recruiterPositionInfoVo.setCommunicationCount(positionInfo.getCommunicationCount());
+        recruiterPositionInfoVo.setFavoriteCount(positionInfo.getFavoriteCount());
+
+        return recruiterPositionInfoVo;
     }
 }

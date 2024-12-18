@@ -3,6 +3,7 @@ package cn.hjf.job.company.service.impl;
 import cn.hjf.job.company.mapper.CompanyAddressMapper;
 import cn.hjf.job.company.service.CompanyAddressService;
 import cn.hjf.job.company.service.CompanyEmployeeService;
+import cn.hjf.job.model.entity.base.BaseEntity;
 import cn.hjf.job.model.entity.company.CompanyAddress;
 import cn.hjf.job.model.form.company.AddressInfoForm;
 import cn.hjf.job.model.vo.company.AddressInfoVo;
@@ -63,7 +64,9 @@ public class CompanyAddressServiceImpl extends ServiceImpl<CompanyAddressMapper,
                 CompanyAddress::getProvince,
                 CompanyAddress::getCity,
                 CompanyAddress::getDistrict,
-                CompanyAddress::getAddress
+                CompanyAddress::getAddress,
+                CompanyAddress::getLongitude,
+                CompanyAddress::getLatitude
         ).eq(CompanyAddress::getCompanyId, companyId).orderByDesc(CompanyAddress::getId);
 
         List<CompanyAddress> companyAddresses = companyAddressMapper.selectList(queryWrapper);
@@ -75,7 +78,9 @@ public class CompanyAddressServiceImpl extends ServiceImpl<CompanyAddressMapper,
                         companyAddress.getProvince(),
                         companyAddress.getCity(),
                         companyAddress.getDistrict(),
-                        companyAddress.getAddress()
+                        companyAddress.getAddress(),
+                        companyAddress.getLongitude(),
+                        companyAddress.getLatitude()
                 )
         ).toList();
     }
@@ -90,5 +95,14 @@ public class CompanyAddressServiceImpl extends ServiceImpl<CompanyAddressMapper,
         queryWrapper.eq(CompanyAddress::getId, addressId).eq(CompanyAddress::getCompanyId, companyId);
         int delete = companyAddressMapper.delete(queryWrapper);
         return delete == 1;
+    }
+
+    @Override
+    public AddressInfoVo getAddressById(Long addressId) {
+        // 获取地址
+        CompanyAddress companyAddress = companyAddressMapper.selectById(addressId);
+        AddressInfoVo addressInfoVo = new AddressInfoVo();
+        BeanUtils.copyProperties(companyAddress, addressInfoVo);
+        return addressInfoVo;
     }
 }

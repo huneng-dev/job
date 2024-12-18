@@ -96,6 +96,12 @@ public class PositionTypeServiceImpl extends ServiceImpl<PositionTypeMapper, Pos
         return resultMap;
     }
 
+    @Override
+    public String getPositionTypeDescByPositionId(Long id) {
+        PositionType positionType = positionTypeMapper.selectById(id);
+        return positionType.getTypeName();
+    }
+
     // 从数据库中查询未命中的数据
     private Map<Long, List<PositionTypeVo>> queryPositionTypeFromDatabase(List<Long> missingIds) {
         // 查询没有命中的职位列表

@@ -23,4 +23,6 @@ public interface CompanyAddressService extends IService<CompanyAddress> {
 
     boolean deleteCompanyAddressById(Long addressId, Long userId);
 
+    AddressInfoVo getAddressById(Long addressId);
+
 }

@@ -5,6 +5,7 @@ import cn.hjf.job.model.entity.position.PositionInfo;
 import cn.hjf.job.model.form.position.PositionInfoForm;
 import cn.hjf.job.model.vo.base.PageVo;
 import cn.hjf.job.model.vo.position.RecruiterBasePositionInfoVo;
+import cn.hjf.job.model.vo.position.RecruiterPositionInfoVo;
 import cn.hjf.job.position.service.PositionInfoService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
@@ -76,4 +77,22 @@ public class PositionInfoController {
 
         return Result.ok(recruiterBasePositionInfo);
     }
+
+    /**
+     * 获取招聘端职位详情
+     *
+     * @param positionId 职位id
+     * @param principal  用户信息
+     * @return Result<RecruiterPositionInfoVo>
+     */
+    @GetMapping("/{positionId}")
+    public Result<RecruiterPositionInfoVo> getRecruiterPositionInfoVoById(@PathVariable(name = "positionId") Long positionId, Principal principal) {
+        try {
+            RecruiterPositionInfoVo recruiterPositionInfoVo = positionInfoService.getRecruiterPositionInfoVoById(positionId, Long.parseLong(principal.getName()));
+            return Result.ok(recruiterPositionInfoVo);
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
 }
