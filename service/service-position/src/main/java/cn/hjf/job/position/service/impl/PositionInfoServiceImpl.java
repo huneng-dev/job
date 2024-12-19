@@ -17,6 +17,7 @@ import cn.hjf.job.position.repository.PositionDescriptionRepository;
 import cn.hjf.job.position.service.PositionInfoService;
 import cn.hjf.job.position.service.PositionTypeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
@@ -24,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -181,4 +183,118 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
         return recruiterPositionInfoVo;
     }
+
+
+    @Override
+    public boolean setPositionStatusToOpen(Long positionId, Long userId) {
+        // 获取用户的 公司id 和 是否是管理员
+        Result<CompanyIdAndIsAdmin> companyIdAndIsAdminByUserId = companyEmployeeFeignClient.findCompanyIdAndIsAdminByUserId();
+        CompanyIdAndIsAdmin data = companyIdAndIsAdminByUserId.getData();
+        if (data == null) {
+            throw new IllegalStateException("用户数据查询失败");
+        }
+        Long companyId = data.getCompanyId();
+        Integer isAdmin = data.getIsAdmin();
+
+        // 如果是管理员,可以操控全部职位，如果不是只能操控自己
+        LambdaUpdateWrapper<PositionInfo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(PositionInfo::getStatus, 4)
+                .eq(PositionInfo::getId, positionId)
+                .eq(PositionInfo::getCompanyId, companyId)
+                .eq(PositionInfo::getStatus, 3);
+
+        // 不是管理员只能操控自己的创建或负责的职位
+        if (Objects.equals(isAdmin, 0)) {
+            updateWrapper.and(wrapper -> wrapper.eq(PositionInfo::getCreatorId, userId)
+                    .or().eq(PositionInfo::getResponsibleId, userId));
+        }
+
+        int isSuccess = positionInfoMapper.update(updateWrapper);
+
+        return isSuccess == 1;
+    }
+
+    @Override
+    public boolean setPositionStatusToNoOpen(Long positionId, Long userId) {
+        // 获取用户的 公司id 和 是否是管理员
+        Result<CompanyIdAndIsAdmin> companyIdAndIsAdminByUserId = companyEmployeeFeignClient.findCompanyIdAndIsAdminByUserId();
+        CompanyIdAndIsAdmin data = companyIdAndIsAdminByUserId.getData();
+        if (data == null) {
+            throw new IllegalStateException("用户数据查询失败");
+        }
+        Long companyId = data.getCompanyId();
+        Integer isAdmin = data.getIsAdmin();
+
+        // 如果是管理员,可以操控全部职位，如果不是只能操控自己
+        LambdaUpdateWrapper<PositionInfo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(PositionInfo::getStatus, 3)
+                .eq(PositionInfo::getId, positionId)
+                .eq(PositionInfo::getCompanyId, companyId)
+                .eq(PositionInfo::getStatus, 4);
+
+        // 不是管理员只能操控自己的创建或负责的职位
+        if (Objects.equals(isAdmin, 0)) {
+            updateWrapper.and(wrapper -> wrapper.eq(PositionInfo::getCreatorId, userId)
+                    .or().eq(PositionInfo::getResponsibleId, userId));
+        }
+
+        int isSuccess = positionInfoMapper.update(updateWrapper);
+        return isSuccess == 1;
+    }
+
+    @Override
+    public boolean setPositionStatusToClose(Long positionId, Long userId) {
+        // 获取用户的 公司id 和 是否是管理员
+        Result<CompanyIdAndIsAdmin> companyIdAndIsAdminByUserId = companyEmployeeFeignClient.findCompanyIdAndIsAdminByUserId();
+        CompanyIdAndIsAdmin data = companyIdAndIsAdminByUserId.getData();
+        if (data == null) {
+            throw new IllegalStateException("用户数据查询失败");
+        }
+        Long companyId = data.getCompanyId();
+        Integer isAdmin = data.getIsAdmin();
+
+        // 如果是管理员,可以操控全部职位，如果不是只能操控自己
+        LambdaUpdateWrapper<PositionInfo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(PositionInfo::getStatus, 5)
+                .eq(PositionInfo::getId, positionId)
+                .eq(PositionInfo::getCompanyId, companyId)
+                .in(PositionInfo::getStatus, 3, 4);
+
+        // 不是管理员只能操控自己的创建或负责的职位
+        if (Objects.equals(isAdmin, 0)) {
+            updateWrapper.and(wrapper -> wrapper.eq(PositionInfo::getCreatorId, userId)
+                    .or().eq(PositionInfo::getResponsibleId, userId));
+        }
+
+        int isSuccess = positionInfoMapper.update(updateWrapper);
+        return isSuccess == 1;
+    }
+
+    @Override
+    public boolean deletePositionById(Long positionId, Long userId) {
+        // 获取用户的 公司id 和 是否是管理员
+        Result<CompanyIdAndIsAdmin> companyIdAndIsAdminByUserId = companyEmployeeFeignClient.findCompanyIdAndIsAdminByUserId();
+        CompanyIdAndIsAdmin data = companyIdAndIsAdminByUserId.getData();
+        if (data == null) {
+            throw new IllegalStateException("用户数据查询失败");
+        }
+        Long companyId = data.getCompanyId();
+        Integer isAdmin = data.getIsAdmin();
+
+        // 如果是管理员,可以操控全部职位，如果不是只能操控自己
+        LambdaQueryWrapper<PositionInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PositionInfo::getId, positionId)
+                .eq(PositionInfo::getCompanyId, companyId);
+
+        // 不是管理员只能操控自己的创建或负责的职位
+        if (Objects.equals(isAdmin, 0)) {
+            queryWrapper.and(wrapper -> wrapper.
+                    eq(PositionInfo::getCreatorId, userId).or().eq(PositionInfo::getResponsibleId, userId));
+        }
+
+        int isSuccess = positionInfoMapper.delete(queryWrapper);
+        return isSuccess == 1;
+    }
+
+
 }

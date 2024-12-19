@@ -55,7 +55,7 @@ public class RecruiterPositionInfoVo {
     @Schema(description = "最高薪资，单位为k")
     private Integer maxSalary;
 
-    @Schema(description = "状态 0 未公开 ，1 招聘中 ，2 停招")
+    @Schema(description = "状态 -1: 审核失败，0: 未审核，1: 审核中，2: 已审核，3: 待开放，4: 开放中，5: 已关闭 ")
     private Integer status;
 
     @Schema(description = "查看数量")

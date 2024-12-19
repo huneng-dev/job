@@ -36,12 +36,7 @@ public interface PositionInfoService extends IService<PositionInfo> {
      * @param userId       用户 id
      * @return PageVo<RecruiterBasePositionInfoVo>
      */
-    PageVo<RecruiterBasePositionInfoVo> findRecruiterBasePositionInfoByUserId(
-            Page<PositionInfo> positionInfoPage,
-            String positionName,
-            Integer status,
-            Long userId
-    );
+    PageVo<RecruiterBasePositionInfoVo> findRecruiterBasePositionInfoByUserId(Page<PositionInfo> positionInfoPage, String positionName, Integer status, Long userId);
 
     /**
      * 根据职位id和用户id获取职位详情
@@ -51,4 +46,40 @@ public interface PositionInfoService extends IService<PositionInfo> {
      * @return RecruiterPositionInfoVo
      */
     RecruiterPositionInfoVo getRecruiterPositionInfoVoById(Long positionId, Long userId);
+
+    /**
+     * 设置职位状态为 “开放中”
+     *
+     * @param positionId 职位 id
+     * @param userId     用户 id
+     * @return 是否成功
+     */
+    boolean setPositionStatusToOpen(Long positionId, Long userId);
+
+    /**
+     * 设置职位状为 “待开放”
+     *
+     * @param positionId 职位 id
+     * @param userId     用户 id
+     * @return 是否成功
+     */
+    boolean setPositionStatusToNoOpen(Long positionId, Long userId);
+
+    /**
+     * 设置职位为已关闭
+     *
+     * @param positionId 职位 id
+     * @param userId     用户 id
+     * @return 是否成功
+     */
+    boolean setPositionStatusToClose(Long positionId, Long userId);
+
+    /**
+     * 删除职位
+     *
+     * @param positionId 职位 id
+     * @param userId     用户 id
+     * @return 受否成功
+     */
+    boolean deletePositionById(Long positionId, Long userId);
 }

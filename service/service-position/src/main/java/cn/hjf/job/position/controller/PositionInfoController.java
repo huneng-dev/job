@@ -64,13 +64,7 @@ public class PositionInfoController {
      */
     @GetMapping("/recruiter/base/{page}/{limit}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
-    public Result<PageVo<RecruiterBasePositionInfoVo>> findRecruiterBasePositionInfoByUserId(
-            @RequestParam String positionName,
-            @RequestParam Integer status,
-            @PathVariable(name = "page") Integer page,
-            @PathVariable(name = "limit") Integer limit,
-            Principal principal
-    ) {
+    public Result<PageVo<RecruiterBasePositionInfoVo>> findRecruiterBasePositionInfoByUserId(@RequestParam String positionName, @RequestParam Integer status, @PathVariable(name = "page") Integer page, @PathVariable(name = "limit") Integer limit, Principal principal) {
         Page<PositionInfo> positionInfoPage = new Page<>(page, limit);
 
         PageVo<RecruiterBasePositionInfoVo> recruiterBasePositionInfo = positionInfoService.findRecruiterBasePositionInfoByUserId(positionInfoPage, positionName, status, Long.parseLong(principal.getName()));
@@ -86,6 +80,7 @@ public class PositionInfoController {
      * @return Result<RecruiterPositionInfoVo>
      */
     @GetMapping("/{positionId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
     public Result<RecruiterPositionInfoVo> getRecruiterPositionInfoVoById(@PathVariable(name = "positionId") Long positionId, Principal principal) {
         try {
             RecruiterPositionInfoVo recruiterPositionInfoVo = positionInfoService.getRecruiterPositionInfoVoById(positionId, Long.parseLong(principal.getName()));
@@ -95,4 +90,75 @@ public class PositionInfoController {
         }
     }
 
+    /**
+     * 设置职位为开放状态
+     *
+     * @param positionId 职位 id
+     * @param principal  用户信息
+     * @return Result<String>
+     */
+    @PatchMapping("/status/open/{positionId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
+    public Result<String> setPositionStatusToOpen(@PathVariable(name = "positionId") Long positionId, Principal principal) {
+        try {
+            boolean isSuccess = positionInfoService.setPositionStatusToOpen(positionId, Long.parseLong(principal.getName()));
+            return isSuccess ? Result.ok("成功") : Result.fail("失败");
+        } catch (Exception e) {
+            return Result.fail("失败:" + e.getMessage());
+        }
+    }
+
+    /**
+     * 设置职位状态为待开放状态
+     *
+     * @param positionId 职位 id
+     * @param principal  用户信息
+     * @return Result<String>
+     */
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
+    @PatchMapping("/status/noOpen/{positionId}")
+    public Result<String> setPositionStatusToNoOpen(@PathVariable(name = "positionId") Long positionId, Principal principal) {
+        try {
+            boolean isSuccess = positionInfoService.setPositionStatusToNoOpen(positionId, Long.parseLong(principal.getName()));
+            return isSuccess ? Result.ok("成功") : Result.fail("失败");
+        } catch (Exception e) {
+            return Result.fail("失败:" + e.getMessage());
+        }
+    }
+
+    /**
+     * 设置职位状态为关闭状态状态
+     *
+     * @param positionId 职位 id
+     * @param principal  用户信息
+     * @return Result<String>
+     */
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
+    @PatchMapping("/status/close/{positionId}")
+    public Result<String> setPositionStatusToClose(@PathVariable(name = "positionId") Long positionId, Principal principal) {
+        try {
+            boolean isSuccess = positionInfoService.setPositionStatusToClose(positionId, Long.parseLong(principal.getName()));
+            return isSuccess ? Result.ok("成功") : Result.fail("失败");
+        } catch (Exception e) {
+            return Result.fail("失败:" + e.getMessage());
+        }
+    }
+
+    /**
+     * 删除职位
+     *
+     * @param positionId 职位 id
+     * @param principal  用户信息
+     * @return Result<String>
+     */
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
+    @DeleteMapping("/{positionId}")
+    public Result<String> deletePositionById(@PathVariable(name = "positionId") Long positionId, Principal principal) {
+        try {
+            boolean isSuccess = positionInfoService.deletePositionById(positionId, Long.parseLong(principal.getName()));
+            return isSuccess ? Result.ok("成功") : Result.fail("失败");
+        } catch (Exception e) {
+            return Result.fail("失败:" + e.getMessage());
+        }
+    }
 }
