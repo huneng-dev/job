@@ -39,4 +39,12 @@ public class MqConst {
     // 登录验证码的路由和队列
     public static final String ROUTING_PHONE_LOGIN = "job.phone.login"; // 登录路由
     public static final String QUEUE_PHONE_LOGIN = "job.phone.login"; // 登录队列
+
+    // ES 搜索 相关 交换机、路由、队列
+    public static final String EXCHANGE_ES = "job.es";
+
+    // 职位变化
+    public static final String ROUTING_ES_POSITION = "job.es.position";
+    public static final String QUEUE_ES_POSITION = "job.es.position";
+
 }

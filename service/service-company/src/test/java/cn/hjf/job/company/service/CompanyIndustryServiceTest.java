@@ -21,7 +21,7 @@ public class CompanyIndustryServiceTest {
 
     @Test
     public void validateCompanyInfoAndBusinessLicense() {
-        rabbitService.sendMessage(MqConst.EXCHANGE_COMPANY, MqConst.ROUTING_VALIDATE_COMPANY_BUSINESS_LICENSE, 39);
+        rabbitService.sendMessage(MqConst.EXCHANGE_COMPANY, MqConst.ROUTING_VALIDATE_COMPANY_BUSINESS_LICENSE, "kjhakjsjfdklajslk");
     }
 
 }

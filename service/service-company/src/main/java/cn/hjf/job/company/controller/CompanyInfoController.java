@@ -7,6 +7,7 @@ import cn.hjf.job.company.service.CompanySizeService;
 import cn.hjf.job.model.dto.company.CompanyIdAndNameDTO;
 import cn.hjf.job.model.dto.company.CompanyInfoQuery;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
+import cn.hjf.job.model.vo.company.CompanyInfoEsVo;
 import cn.hjf.job.model.vo.company.CompanySizeVo;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -96,5 +97,17 @@ public class CompanyInfoController {
         } catch (RuntimeException e) {
             return Result.fail("保存失败: " + e.getCause().getMessage());
         }
+    }
+
+    /**
+     * 获取公司信息 (ES 存储)
+     *
+     * @param id 公司 id
+     * @return Result<CompanyInfoEsVo>
+     */
+    @GetMapping("/es/{id}")
+    public Result<CompanyInfoEsVo> getCompanyInfoEsById(@PathVariable(name = "id") Long id) {
+        CompanyInfoEsVo companyInfoEsById = companyInfoService.getCompanyInfoEsById(id);
+        return Result.ok(companyInfoEsById);
     }
 }

@@ -54,5 +54,4 @@ public class RedisConstant {
             2, "recruiter:"
     );
 
-
 }

@@ -23,6 +23,7 @@ import cn.hjf.job.model.form.company.CompanyBusinessLicenseForm;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
 import cn.hjf.job.model.form.company.CompanyInfoForm;
 import cn.hjf.job.model.request.auth.UserRoleRequest;
+import cn.hjf.job.model.vo.company.CompanyInfoEsVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -167,6 +168,14 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
         int update = companyInfoMapper.update(lambdaUpdateWrapper);
 
         return update == 1;
+    }
+
+    @Override
+    public CompanyInfoEsVo getCompanyInfoEsById(Long id) {
+        CompanyInfo companyInfo = companyInfoMapper.selectById(id);
+        CompanyInfoEsVo companyInfoEsVo = new CompanyInfoEsVo();
+        BeanUtils.copyProperties(companyInfo, companyInfoEsVo);
+        return companyInfoEsVo;
     }
 
 

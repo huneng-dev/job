@@ -4,6 +4,7 @@ import cn.hjf.job.model.dto.company.CompanyIdAndNameDTO;
 import cn.hjf.job.model.entity.company.CompanyInfo;
 import cn.hjf.job.model.dto.company.CompanyInfoQuery;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
+import cn.hjf.job.model.vo.company.CompanyInfoEsVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -50,5 +51,13 @@ public interface CompanyInfoService extends IService<CompanyInfo> {
      * @return 是否成功
      */
     boolean setCompanyStatus(Long companyId, Integer status);
+
+    /**
+     * 获取公司信息 (ES 存储)
+     *
+     * @param id 公司 id
+     * @return CompanyInfoEsVo
+     */
+    CompanyInfoEsVo getCompanyInfoEsById(Long id);
 
 }

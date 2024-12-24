@@ -1,5 +1,8 @@
 package cn.hjf.job.position.service.impl;
 
+import cn.hjf.job.common.es.entity.BaseEsInfo;
+import cn.hjf.job.common.rabbit.constant.MqConst;
+import cn.hjf.job.common.rabbit.service.RabbitService;
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.company.client.CompanyAddressFeignClient;
 import cn.hjf.job.company.client.CompanyEmployeeFeignClient;
@@ -53,6 +56,9 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
     @Resource
     private PositionDescriptionRepository positionDescriptionRepository;
+
+    @Resource
+    private RabbitService rabbitService;
 
     @Override
     public boolean create(PositionInfoForm positionInfoForm, Long userId) {
@@ -211,6 +217,12 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
         int isSuccess = positionInfoMapper.update(updateWrapper);
 
+        BaseEsInfo<PositionInfo> positionInfoBaseEsInfo = new BaseEsInfo<>();
+        positionInfoBaseEsInfo.setOp("u");
+        PositionInfo positionInfo = new PositionInfo();
+        positionInfo.setId(positionId);
+        positionInfoBaseEsInfo.setData(positionInfo);
+        rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_POSITION, positionInfoBaseEsInfo);
         return isSuccess == 1;
     }
 
@@ -239,6 +251,13 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         }
 
         int isSuccess = positionInfoMapper.update(updateWrapper);
+
+        BaseEsInfo<PositionInfo> positionInfoBaseEsInfo = new BaseEsInfo<>();
+        positionInfoBaseEsInfo.setOp("d");
+        PositionInfo positionInfo = new PositionInfo();
+        positionInfo.setId(positionId);
+        positionInfoBaseEsInfo.setData(positionInfo);
+        rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_POSITION, positionInfoBaseEsInfo);
         return isSuccess == 1;
     }
 
@@ -267,6 +286,12 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         }
 
         int isSuccess = positionInfoMapper.update(updateWrapper);
+        BaseEsInfo<PositionInfo> positionInfoBaseEsInfo = new BaseEsInfo<>();
+        positionInfoBaseEsInfo.setOp("d");
+        PositionInfo positionInfo = new PositionInfo();
+        positionInfo.setId(positionId);
+        positionInfoBaseEsInfo.setData(positionInfo);
+        rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_POSITION, positionInfoBaseEsInfo);
         return isSuccess == 1;
     }
 
@@ -293,6 +318,13 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         }
 
         int isSuccess = positionInfoMapper.delete(queryWrapper);
+
+        BaseEsInfo<PositionInfo> positionInfoBaseEsInfo = new BaseEsInfo<>();
+        positionInfoBaseEsInfo.setOp("d");
+        PositionInfo positionInfo = new PositionInfo();
+        positionInfo.setId(positionId);
+        positionInfoBaseEsInfo.setData(positionInfo);
+        rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_POSITION, positionInfoBaseEsInfo);
         return isSuccess == 1;
     }
 
