@@ -39,7 +39,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
+import org.springframework.data.elasticsearch.core.AggregationsContainer;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
 
@@ -438,7 +440,6 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
         /*
          * 如果 lat、lon (必须) 和 distance (非必须,默认值:50km)
-         *
          */
         Double lat = candidatePositionPageParam.getLat(); // 维度
         Double lon = candidatePositionPageParam.getLon(); // 经度
@@ -470,7 +471,7 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
             builder.withSearchAfter(Arrays.asList(score, updateTime));
         }
 
-
+        // 设置查询
         NativeQuery query = builder
                 .withQuery(q -> q.bool(bool.build()))
                 .withSort(Sort.by(  // 查询排序
@@ -479,15 +480,46 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
                 ))
                 .withPageable(PageRequest.of(0, limit))
                 .build();
-        // 提取最后一条数据的记录留作分页查询
-        SearchHits<PositionInfoES> positionInfoESSearchHits = elasticsearchOperations.search(query, PositionInfoES.class);
-        System.err.println(positionInfoESSearchHits);
-        positionInfoESSearchHits.forEach(positionInfoESSearchHit -> {
-            System.out.println(positionInfoESSearchHit.getContent().getUpdateTime().toInstant());
-            System.out.println("------------>>>" + positionInfoESSearchHit);
-        });
 
-        return null;
+        // 搜索结果
+        SearchHits<PositionInfoES> positionInfoESSearchHits = elasticsearchOperations.search(query, PositionInfoES.class);
+
+        PagePositionEsVo<CandidateBasePositionInfoVo> candidateBasePositionInfoVoPagePositionEsVo = new PagePositionEsVo<>();
+
+        // 设置总记录条数
+        candidateBasePositionInfoVoPagePositionEsVo.setTotal(positionInfoESSearchHits.getTotalHits());
+
+        // 获取 searchHit 列表
+        List<SearchHit<PositionInfoES>> searchHits = positionInfoESSearchHits.getSearchHits();
+        if (!searchHits.isEmpty()) {
+            // 获取最后一条记录
+            SearchHit<PositionInfoES> lastHit = searchHits.get(searchHits.size() - 1);
+
+            // 设置 sortValues 结果
+            candidateBasePositionInfoVoPagePositionEsVo.setScore((Double) lastHit.getSortValues().get(0));
+            candidateBasePositionInfoVoPagePositionEsVo.setUpdateTime((Long) lastHit.getSortValues().get(1));
+        }
+
+        List<CandidateBasePositionInfoVo> candidateBasePositionInfoVoList = searchHits.stream().map(positionInfoESSearchHit -> {
+            PositionInfoES positionInfoES = positionInfoESSearchHit.getContent();
+            return new CandidateBasePositionInfoVo(
+                    positionInfoES.getId(),
+                    positionInfoES.getPositionName(),
+                    positionInfoES.getCompanyName(),
+                    positionInfoES.getPositionTypeId(),
+                    positionInfoES.getPositionType(),
+                    positionInfoES.getExperienceRequirement(),
+                    positionInfoES.getEducationRequirement(),
+                    positionInfoES.getMinSalary(),
+                    positionInfoES.getMaxSalary(),
+                    positionInfoES.getDistrict(),
+                    positionInfoES.getLocation(),
+                    positionInfoES.getCompanySizeId()
+            );
+        }).toList();
+
+        candidateBasePositionInfoVoPagePositionEsVo.setRecords(candidateBasePositionInfoVoList);
+        return candidateBasePositionInfoVoPagePositionEsVo;
     }
 
 }

@@ -178,7 +178,7 @@ public class PositionInfoController {
             @PathVariable Integer limit,
             CandidatePositionPageParam candidatePositionPageParam
     ) {
-        positionInfoService.searchCandidateBasePositionInfo(limit, candidatePositionPageParam);
-        return null;
+        PagePositionEsVo<CandidateBasePositionInfoVo> candidateBasePositionInfoVoPagePositionEsVo = positionInfoService.searchCandidateBasePositionInfo(limit, candidatePositionPageParam);
+        return Result.ok(candidateBasePositionInfoVoPagePositionEsVo);
     }
 }
