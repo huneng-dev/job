@@ -9,7 +9,9 @@ import java.util.List;
 /**
  * 分页结果包装
  *
- * @author itcast
+ * @author hjf
+ * @version 1.0
+ * @description
  */
 @Data
 @Schema(description = "分页数据消息体")

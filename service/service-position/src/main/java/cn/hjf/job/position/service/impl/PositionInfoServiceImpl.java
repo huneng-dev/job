@@ -8,25 +8,42 @@ import cn.hjf.job.company.client.CompanyAddressFeignClient;
 import cn.hjf.job.company.client.CompanyEmployeeFeignClient;
 import cn.hjf.job.model.document.position.PositionDescriptionDoc;
 import cn.hjf.job.model.entity.position.PositionInfo;
+import cn.hjf.job.model.es.position.PositionInfoES;
 import cn.hjf.job.model.form.position.PositionInfoForm;
+import cn.hjf.job.model.request.position.CandidatePositionPageParam;
+import cn.hjf.job.model.vo.base.PagePositionEsVo;
 import cn.hjf.job.model.vo.base.PageVo;
 import cn.hjf.job.model.vo.company.AddressInfoVo;
 import cn.hjf.job.model.vo.company.CompanyEmployeeVo;
 import cn.hjf.job.model.vo.company.CompanyIdAndIsAdmin;
+import cn.hjf.job.model.vo.position.CandidateBasePositionInfoVo;
 import cn.hjf.job.model.vo.position.RecruiterBasePositionInfoVo;
 import cn.hjf.job.model.vo.position.RecruiterPositionInfoVo;
 import cn.hjf.job.position.mapper.PositionInfoMapper;
 import cn.hjf.job.position.repository.PositionDescriptionRepository;
 import cn.hjf.job.position.service.PositionInfoService;
 import cn.hjf.job.position.service.PositionTypeService;
+import co.elastic.clients.elasticsearch._types.LatLonGeoLocation;
+import co.elastic.clients.elasticsearch._types.SortOptionsBuilders;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
+import co.elastic.clients.json.JsonData;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,6 +76,9 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
     @Resource
     private RabbitService rabbitService;
+
+    @Resource
+    private ElasticsearchOperations elasticsearchOperations;
 
     @Override
     public boolean create(PositionInfoForm positionInfoForm, Long userId) {
@@ -328,5 +348,146 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         return isSuccess == 1;
     }
 
+    @Override
+    public PagePositionEsVo<CandidateBasePositionInfoVo> searchCandidateBasePositionInfo(Integer limit, CandidatePositionPageParam candidatePositionPageParam) {
+        // 设置查询参数
+        NativeQueryBuilder builder = NativeQuery.builder();
+        BoolQuery.Builder bool = QueryBuilders.bool();
+
+        // 如果 搜索关键词存在 设置 positionName,positionDescription,companyName
+        String search = candidatePositionPageParam.getSearch();
+        if (search != null && !search.isEmpty()) {
+            MultiMatchQuery query = QueryBuilders.multiMatch()
+                    .query(search)
+                    .fields(Arrays.asList("positionName^2", "positionDescription", "companyName^6"))
+                    .type(TextQueryType.BestFields)
+                    .operator(Operator.Or)
+                    .fuzziness("AUTO")
+                    .build();
+            bool.must(q -> q.multiMatch(query));
+        }
+
+        // 如果 职位类型 id 存在 设置 positionTypeId
+        Long positionTypeId = candidatePositionPageParam.getPositionTypeId();
+        if (positionTypeId != null) {
+            TermQuery query = QueryBuilders.term()
+                    .field("positionTypeId")
+                    .value(positionTypeId)
+                    .build();
+
+            bool.filter(q -> q.term(query));
+        }
+
+        // 如果 求职类型 存在 设置 positionType
+        Integer positionType = candidatePositionPageParam.getPositionType();
+        if (positionType != null) {
+            TermQuery query = QueryBuilders.term()
+                    .field("positionType")
+                    .value(positionType)
+                    .build();
+            bool.filter(q -> q.term(query));
+        }
+
+        // 如果 经验要求 存在 设置 experienceRequirement
+        Integer experienceRequirement = candidatePositionPageParam.getExperienceRequirement();
+        if (experienceRequirement != null) {
+            TermQuery query = QueryBuilders.term()
+                    .field("experienceRequirement")
+                    .value(experienceRequirement)
+                    .build();
+            bool.filter(q -> q.term(query));
+        }
+
+        // 如果 学历要求 存在 设置 educationRequirement
+        Integer educationRequirement = candidatePositionPageParam.getEducationRequirement();
+        if (educationRequirement != null) {
+            TermQuery query = QueryBuilders.term()
+                    .field("educationRequirement")
+                    .value(educationRequirement)
+                    .build();
+            bool.filter(q -> q.term(query));
+        }
+
+        // 如果 地区 存在 设置 district
+        String district = candidatePositionPageParam.getDistrict();
+        if (district != null && !district.isEmpty()) {
+            TermQuery query = QueryBuilders.term()
+                    .field("district")
+                    .value(district)
+                    .build();
+            bool.filter(q -> q.term(query));
+        }
+
+        /*
+         * 如果 minSalary,maxSalary 存在 (任意一个也能处理)
+         * min = 12 , max = 20     : 12 - 20
+         * min = null , max = 20   : 0  - 20
+         * min = 12 , max = null   : 12 - 999
+         */
+        Integer minSalary = candidatePositionPageParam.getMinSalary();
+        Integer maxSalary = candidatePositionPageParam.getMaxSalary();
+        if (minSalary != null || maxSalary != null) {
+            // TODO 完成 null 值 替换
+            Query minSalaryQuery = QueryBuilders.range(q -> q.field("minSalary").lte(JsonData.of(maxSalary)));
+            Query maxSalaryQuery = QueryBuilders.range(q -> q.field("maxSalary").gte(JsonData.of(minSalary)));
+
+            BoolQuery boolSalaryQuery = QueryBuilders.bool().must(minSalaryQuery).must(maxSalaryQuery).build();
+            bool.filter(q -> q.bool(boolSalaryQuery));
+        }
+
+
+        /*
+         * 如果 lat、lon (必须) 和 distance (非必须,默认值:50km)
+         *
+         */
+        Double lat = candidatePositionPageParam.getLat(); // 维度
+        Double lon = candidatePositionPageParam.getLon(); // 经度
+        Integer distance = candidatePositionPageParam.getDistance();
+        if (lat != null && lon != null) {
+            GeoDistanceQuery location = QueryBuilders.geoDistance()
+                    .field("location")
+                    .distance((distance != null ? distance : 50) + "km")
+                    .location(
+                            g -> g.latlon(LatLonGeoLocation.of(l -> l.lat(lat).lon(lon)))
+                    ).build();
+            bool.filter(q -> q.geoDistance(location));
+        }
+
+        // 如果 公司规模 存在 设置 companySizeId
+        Integer companySizeId = candidatePositionPageParam.getCompanySizeId();
+        if (companySizeId != null) {
+            TermQuery query = QueryBuilders.term()
+                    .field("companySizeId")
+                    .value(companySizeId)
+                    .build();
+            bool.filter(q -> q.term(query));
+        }
+
+        // 如果有 分页 信息 设置 limit , search_after
+        Double score = candidatePositionPageParam.getScore();
+        Long updateTime = candidatePositionPageParam.getUpdateTime();
+        if (score != null && updateTime != null) {
+            builder.withSearchAfter(Arrays.asList(score, updateTime));
+        }
+
+
+        NativeQuery query = builder
+                .withQuery(q -> q.bool(bool.build()))
+                .withSort(Sort.by(  // 查询排序
+                        Sort.Order.desc("_score"),
+                        Sort.Order.desc("updateTime")
+                ))
+                .withPageable(PageRequest.of(0, limit))
+                .build();
+        // 提取最后一条数据的记录留作分页查询
+        SearchHits<PositionInfoES> positionInfoESSearchHits = elasticsearchOperations.search(query, PositionInfoES.class);
+        System.err.println(positionInfoESSearchHits);
+        positionInfoESSearchHits.forEach(positionInfoESSearchHit -> {
+            System.out.println(positionInfoESSearchHit.getContent().getUpdateTime().toInstant());
+            System.out.println("------------>>>" + positionInfoESSearchHit);
+        });
+
+        return null;
+    }
 
 }

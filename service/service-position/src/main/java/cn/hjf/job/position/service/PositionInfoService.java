@@ -2,7 +2,10 @@ package cn.hjf.job.position.service;
 
 import cn.hjf.job.model.entity.position.PositionInfo;
 import cn.hjf.job.model.form.position.PositionInfoForm;
+import cn.hjf.job.model.request.position.CandidatePositionPageParam;
+import cn.hjf.job.model.vo.base.PagePositionEsVo;
 import cn.hjf.job.model.vo.base.PageVo;
+import cn.hjf.job.model.vo.position.CandidateBasePositionInfoVo;
 import cn.hjf.job.model.vo.position.RecruiterBasePositionInfoVo;
 import cn.hjf.job.model.vo.position.RecruiterPositionInfoVo;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -82,4 +85,12 @@ public interface PositionInfoService extends IService<PositionInfo> {
      * @return 受否成功
      */
     boolean deletePositionById(Long positionId, Long userId);
+
+    /**
+     * 搜索应聘端基本职业信息
+     *
+     * @return PagePositionEsVo<CandidateBasePositionInfoVo>
+     */
+    PagePositionEsVo<CandidateBasePositionInfoVo> searchCandidateBasePositionInfo(Integer limit, CandidatePositionPageParam candidatePositionPageParam);
+
 }

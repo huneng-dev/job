@@ -3,7 +3,10 @@ package cn.hjf.job.position.controller;
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.model.entity.position.PositionInfo;
 import cn.hjf.job.model.form.position.PositionInfoForm;
+import cn.hjf.job.model.request.position.CandidatePositionPageParam;
+import cn.hjf.job.model.vo.base.PagePositionEsVo;
 import cn.hjf.job.model.vo.base.PageVo;
+import cn.hjf.job.model.vo.position.CandidateBasePositionInfoVo;
 import cn.hjf.job.model.vo.position.RecruiterBasePositionInfoVo;
 import cn.hjf.job.model.vo.position.RecruiterPositionInfoVo;
 import cn.hjf.job.position.service.PositionInfoService;
@@ -160,5 +163,22 @@ public class PositionInfoController {
         } catch (Exception e) {
             return Result.fail("失败:" + e.getMessage());
         }
+    }
+
+
+    /**
+     * 应聘端基本职位信息分页
+     *
+     * @param limit                      每页多少
+     * @param candidatePositionPageParam 应聘端职位分页参数
+     * @return Result<PagePositionEsVo < CandidateBasePositionInfoVo>>
+     */
+    @GetMapping("/candidate/base/{limit}")
+    public Result<PagePositionEsVo<CandidateBasePositionInfoVo>> searchCandidateBasePositionInfo(
+            @PathVariable Integer limit,
+            CandidatePositionPageParam candidatePositionPageParam
+    ) {
+        positionInfoService.searchCandidateBasePositionInfo(limit, candidatePositionPageParam);
+        return null;
     }
 }
