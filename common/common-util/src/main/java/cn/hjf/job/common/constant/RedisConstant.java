@@ -54,4 +54,21 @@ public class RedisConstant {
             2, "recruiter:"
     );
 
+    // 应聘端职位信息
+    public static final String POSITION_INFO_CANDIDATE = "position:candidate:";
+
+    // 应聘端职位信息缓存时间 (一天 单位秒)
+    public static final int POSITION_INFO_CANDIDATE_TIME_OUT = 60 * 60 * 24;
+
+    // 公司信息缓存
+    public static final String COMPANY_INFO = "company:info:";
+
+    // 公司信息缓存时间 (一天 单位秒)
+    public static final int COMPANY_INFO_TIME_OUT = 60 * 60 * 24;
+
+    // 公司地址信息缓存
+    public static final String COMPANY_ADDRESS = "company:address:";
+
+    // 公司地址缓存时间 (一天 单位秒)
+    public static final int COMPANY_ADDRESS_TIME_OUT = 60 * 60 * 24;
 }

@@ -427,7 +427,10 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         /*  由于无法实现人脸核身,
             所以直接设置当前用户认证状态为已认证
          */
+        String maskName = maskName(userIdCardInfoForm.getName(), userIdCardInfoForm.getGender());
+        userInfo.setNickname(maskName);
         userInfo.setAuthStatus(2);
+
         int i = userInfoMapper.updateById(userInfo);
 
         // TODO 根据用户的类型设置设置 普通角色
@@ -506,6 +509,26 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             return phone.substring(0, 3) + "****" + phone.substring(7);
         }
         return phone;
+    }
+
+    // 根据性别和姓名生成掩码后的名字
+    public String maskName(String name, Integer gender) {
+        // 判断性别并生成相应的称呼
+        String title = "先生";  // 默认值为 "先生"
+        if (gender != null) {
+            if (gender == 2) {
+                title = "女士";  // 如果是女，返回 "女士"
+            }
+        }
+
+        // 只保留姓，名字掩码
+        if (name == null || name.isEmpty()) {
+            return "";  // 如果名字为空，返回空字符串
+        }
+
+        String maskedName = name.charAt(0) + ""; // 只保留第一个字
+
+        return maskedName + title;  // 返回带称谓的掩码姓名
     }
 
 }

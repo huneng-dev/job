@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "ES分页实体")
+@Schema(description = "职位ES分页实体")
 public class PagePositionEsVo<T> implements Serializable {
 
     @Schema(description = "得分")

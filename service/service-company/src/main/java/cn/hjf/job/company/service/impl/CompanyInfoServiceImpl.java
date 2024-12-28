@@ -1,6 +1,7 @@
 package cn.hjf.job.company.service.impl;
 
 import cn.hjf.job.auth.client.UserRoleFeignClient;
+import cn.hjf.job.common.constant.RedisConstant;
 import cn.hjf.job.common.constant.UserRoleConstant;
 import cn.hjf.job.common.minio.resolver.PublicFileUrlResolver;
 import cn.hjf.job.common.rabbit.constant.MqConst;
@@ -24,15 +25,18 @@ import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
 import cn.hjf.job.model.form.company.CompanyInfoForm;
 import cn.hjf.job.model.request.auth.UserRoleRequest;
 import cn.hjf.job.model.vo.company.CompanyInfoEsVo;
+import cn.hjf.job.model.vo.company.CompanyInfoVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -74,6 +78,10 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
 
     @Resource
     private KeyProperties keyProperties;
+
+    @Resource
+    private RedisTemplate<String, CompanyInfo> redisTemplate;
+
 
     @Override
     public CompanyInfoQuery findCompanyInfoByUserId(Long userId) {
@@ -172,10 +180,44 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
 
     @Override
     public CompanyInfoEsVo getCompanyInfoEsById(Long id) {
-        CompanyInfo companyInfo = companyInfoMapper.selectById(id);
+        CompanyInfoVo companyInfoById = getCompanyInfoById(id);
         CompanyInfoEsVo companyInfoEsVo = new CompanyInfoEsVo();
-        BeanUtils.copyProperties(companyInfo, companyInfoEsVo);
+        BeanUtils.copyProperties(companyInfoById, companyInfoEsVo);
         return companyInfoEsVo;
+    }
+
+    @Override
+    public CompanyInfoVo getCompanyInfoById(Long id) {
+        // 从 Redis 缓存中查询 命中 就返回
+        String redisKey = RedisConstant.COMPANY_INFO + id;
+        CompanyInfo companyInfo = null;
+        companyInfo = redisTemplate.opsForValue().get(redisKey);
+
+        if (companyInfo == null) { // 没有命中缓存从 Mysql 中查询
+            LambdaQueryWrapper<CompanyInfo> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(CompanyInfo::getId, id)
+                    .eq(CompanyInfo::getStatus, 3);
+            companyInfo = companyInfoMapper.selectOne(queryWrapper);
+
+            redisTemplate.opsForValue().set(
+                    redisKey,
+                    companyInfo,
+                    RedisConstant.COMPANY_INFO_TIME_OUT,
+                    TimeUnit.SECONDS
+            );
+        }
+
+        if (companyInfo == null) return null;
+
+        CompanyInfoVo companyInfoVo = new CompanyInfoVo();
+
+        BeanUtils.copyProperties(companyInfo, companyInfoVo);
+
+        String rawLogo = publicFileUrlResolver.resolveSingleUrl(companyInfo.getCompanyLogo());
+
+        companyInfoVo.setCompanyLogo(rawLogo);
+
+        return companyInfoVo;
     }
 
 

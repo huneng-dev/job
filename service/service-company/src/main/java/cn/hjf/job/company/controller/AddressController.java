@@ -88,7 +88,7 @@ public class AddressController {
      * @param addressId 获取地址
      * @return Result<AddressInfoVo>
      */
-    @GetMapping("/{addressId}")
+    @GetMapping("/base/{addressId}")
     public Result<AddressInfoVo> getAddressById(@PathVariable(name = "addressId") Long addressId) {
         AddressInfoVo addressById = companyAddressService.getAddressById(addressId);
         return Result.ok(addressById);

@@ -1,6 +1,7 @@
 package cn.hjf.job.company.controller;
 
 import cn.hjf.job.common.result.Result;
+import cn.hjf.job.company.config.KeyProperties;
 import cn.hjf.job.company.service.CompanyEmployeeService;
 import cn.hjf.job.model.entity.company.CompanyEmployee;
 import cn.hjf.job.model.request.company.AddEmployeeToCompanyRequest;
@@ -13,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Objects;
 
 /**
  * 人员管理
@@ -27,6 +29,9 @@ public class CompanyEmployeeController {
 
     @Resource(name = "companyEmployeeServiceImpl")
     private CompanyEmployeeService companyEmployeeService;
+
+    @Resource
+    private KeyProperties keyProperties;
 
     /**
      * 获取加入公司的验证码
@@ -118,5 +123,21 @@ public class CompanyEmployeeController {
     public Result<CompanyIdAndIsAdmin> findCompanyIdAndIsAdminByUserId(Principal principal) {
         CompanyIdAndIsAdmin companyIdAndIsAdmin = companyEmployeeService.findCompanyIdAndIsAdminByUserId(Long.parseLong(principal.getName()));
         return Result.ok(companyIdAndIsAdmin);
+    }
+
+    /**
+     * 获取职位的负责人信息 (外部可调)
+     *
+     * @param id  用户 id
+     * @param key 密钥
+     * @return Result<CompanyEmployee>
+     */
+    @GetMapping("/candidate/{id}")
+    public Result<CompanyEmployeeVo> getCompanyEmployeeById(@PathVariable(name = "id") Long id, @RequestParam String key) {
+        if (!Objects.equals(key, keyProperties.getKey())) {
+            return Result.fail();
+        }
+        CompanyEmployeeVo companyEmployeeById = companyEmployeeService.getCompanyEmployeeById(id);
+        return Result.ok(companyEmployeeById);
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
-public class RunCompanyApplication {
+public class    RunCompanyApplication {
     public static void main(String[] args) {
         SpringApplication.run(RunCompanyApplication.class,args);
     }

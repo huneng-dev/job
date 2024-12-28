@@ -1,11 +1,13 @@
 package cn.hjf.job.position.service.impl;
 
+import cn.hjf.job.common.constant.RedisConstant;
 import cn.hjf.job.common.es.entity.BaseEsInfo;
 import cn.hjf.job.common.rabbit.constant.MqConst;
 import cn.hjf.job.common.rabbit.service.RabbitService;
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.company.client.CompanyAddressFeignClient;
 import cn.hjf.job.company.client.CompanyEmployeeFeignClient;
+import cn.hjf.job.company.client.CompanyInfoFeignClient;
 import cn.hjf.job.model.document.position.PositionDescriptionDoc;
 import cn.hjf.job.model.entity.position.PositionInfo;
 import cn.hjf.job.model.es.position.PositionInfoES;
@@ -16,16 +18,17 @@ import cn.hjf.job.model.vo.base.PageVo;
 import cn.hjf.job.model.vo.company.AddressInfoVo;
 import cn.hjf.job.model.vo.company.CompanyEmployeeVo;
 import cn.hjf.job.model.vo.company.CompanyIdAndIsAdmin;
+import cn.hjf.job.model.vo.company.CompanyInfoVo;
 import cn.hjf.job.model.vo.position.CandidateBasePositionInfoVo;
+import cn.hjf.job.model.vo.position.CandidatePositionInfoVo;
 import cn.hjf.job.model.vo.position.RecruiterBasePositionInfoVo;
 import cn.hjf.job.model.vo.position.RecruiterPositionInfoVo;
+import cn.hjf.job.position.config.KeyProperties;
 import cn.hjf.job.position.mapper.PositionInfoMapper;
 import cn.hjf.job.position.repository.PositionDescriptionRepository;
 import cn.hjf.job.position.service.PositionInfoService;
 import cn.hjf.job.position.service.PositionTypeService;
 import co.elastic.clients.elasticsearch._types.LatLonGeoLocation;
-import co.elastic.clients.elasticsearch._types.SortOptionsBuilders;
-import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.json.JsonData;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -35,20 +38,20 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
-import org.springframework.data.elasticsearch.core.AggregationsContainer;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -81,6 +84,15 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
     @Resource
     private ElasticsearchOperations elasticsearchOperations;
+
+    @Resource
+    private RedisTemplate<String, PositionInfo> redisTemplate;
+
+    @Resource
+    private CompanyInfoFeignClient companyInfoFeignClient;
+
+    @Resource
+    private KeyProperties keyProperties;
 
     @Override
     public boolean create(PositionInfoForm positionInfoForm, Long userId) {
@@ -211,7 +223,6 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
         return recruiterPositionInfoVo;
     }
-
 
     @Override
     public boolean setPositionStatusToOpen(Long positionId, Long userId) {
@@ -361,7 +372,7 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         if (search != null && !search.isEmpty()) {
             MultiMatchQuery query = QueryBuilders.multiMatch()
                     .query(search)
-                    .fields(Arrays.asList("positionName^2", "positionDescription", "companyName^6"))
+                    .fields(Arrays.asList("companyName^6", "positionName^2", "positionDescription"))
                     .type(TextQueryType.BestFields)
                     .operator(Operator.Or)
                     .fuzziness("AUTO")
@@ -429,9 +440,8 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         Integer minSalary = candidatePositionPageParam.getMinSalary();
         Integer maxSalary = candidatePositionPageParam.getMaxSalary();
         if (minSalary != null || maxSalary != null) {
-            // TODO 完成 null 值 替换
-            Query minSalaryQuery = QueryBuilders.range(q -> q.field("minSalary").lte(JsonData.of(maxSalary)));
-            Query maxSalaryQuery = QueryBuilders.range(q -> q.field("maxSalary").gte(JsonData.of(minSalary)));
+            Query minSalaryQuery = QueryBuilders.range(q -> q.field("minSalary").lte(maxSalary != null ? JsonData.of(maxSalary) : JsonData.of(999)));
+            Query maxSalaryQuery = QueryBuilders.range(q -> q.field("maxSalary").gte(minSalary != null ? JsonData.of(minSalary) : JsonData.of(0)));
 
             BoolQuery boolSalaryQuery = QueryBuilders.bool().must(minSalaryQuery).must(maxSalaryQuery).build();
             bool.filter(q -> q.bool(boolSalaryQuery));
@@ -522,4 +532,71 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         return candidateBasePositionInfoVoPagePositionEsVo;
     }
 
+    @Override
+    public CandidatePositionInfoVo getCandidatePositionInfoById(Long id) {
+        // 1.职位信息 2. 公司信息 3.职位负责人信息 4.地址信息
+        // 获取职位信息
+        CandidatePositionInfoVo candidatePositionInfoVo = new CandidatePositionInfoVo();
+        PositionInfo positionInfo = getPositionInfoById(id);
+        if (positionInfo == null) {
+            throw new RuntimeException("查询不到职位信息");
+        }
+        BeanUtils.copyProperties(positionInfo, candidatePositionInfoVo);
+
+        // 获取 公司信息
+        Result<CompanyInfoVo> companyInfoVoResult = companyInfoFeignClient.getCompanyInfoVo(positionInfo.getCompanyId());
+        if (!Objects.equals(companyInfoVoResult.getCode(), 200)) throw new RuntimeException("查询不到职位公司信息");
+        candidatePositionInfoVo.setCompanyInfoVo(companyInfoVoResult.getData());
+
+        // 获取 公司地址
+        Result<AddressInfoVo> addressInfoVoResult = companyAddressFeignClient.getAddressById(positionInfo.getAddressId());
+        if (!Objects.equals(addressInfoVoResult.getCode(), 200)) throw new RuntimeException("查询不到地址信息");
+        candidatePositionInfoVo.setAddress(addressInfoVoResult.getData());
+
+        // 获取 职位负责人信息
+        Result<CompanyEmployeeVo> companyEmployeeVoResult = companyEmployeeFeignClient.getCompanyEmployeeById(positionInfo.getResponsibleId(), keyProperties.getKey());
+        if (!Objects.equals(companyEmployeeVoResult.getCode(), 200)) throw new RuntimeException("职位负责人获取失败");
+        candidatePositionInfoVo.setResponsible(companyEmployeeVoResult.getData());
+
+        return candidatePositionInfoVo;
+    }
+
+    /**
+     * 获取职位信息
+     *
+     * @param id 职位 id
+     * @return PositionInfo
+     */
+    private PositionInfo getPositionInfoById(Long id) {
+        String redisKey = RedisConstant.POSITION_INFO_CANDIDATE + id;
+        PositionInfo positionInfo = null;
+        positionInfo = redisTemplate.opsForValue().get(redisKey);
+        // 未命中从 Mysql 查询
+        if (positionInfo == null) {
+            // 查询条件 职位 id , status = 4
+            LambdaQueryWrapper<PositionInfo> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(PositionInfo::getId, id)
+                    .eq(PositionInfo::getStatus, 4);
+
+            positionInfo = positionInfoMapper.selectOne(queryWrapper);
+
+            // 保存到 redis
+            redisTemplate.opsForValue().set(
+                    redisKey,
+                    positionInfo,
+                    RedisConstant.POSITION_INFO_CANDIDATE_TIME_OUT,
+                    TimeUnit.SECONDS
+            );
+        }
+
+        if (positionInfo == null) return null;
+        // 查询 MongoDB 中的 职位描述
+        Optional<PositionDescriptionDoc> optional = positionDescriptionRepository.findById(positionInfo.getPositionDescription());
+        String valPositionDesc = null;
+        valPositionDesc = optional.map(PositionDescriptionDoc::getDescription).orElse("职位详情获取失败");
+        positionInfo.setPositionDescription(valPositionDesc);
+
+        // 返回结果
+        return positionInfo;
+    }
 }

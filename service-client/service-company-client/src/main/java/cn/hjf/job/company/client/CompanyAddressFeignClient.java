@@ -16,6 +16,6 @@ public interface CompanyAddressFeignClient {
      * @param addressId 获取地址
      * @return Result<AddressInfoVo>
      */
-    @GetMapping("/address/{addressId}")
+    @GetMapping("/address/base/{addressId}")
     Result<AddressInfoVo> getAddressById(@PathVariable(name = "addressId") Long addressId);
 }

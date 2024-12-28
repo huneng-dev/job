@@ -7,6 +7,7 @@ import cn.hjf.job.model.request.position.CandidatePositionPageParam;
 import cn.hjf.job.model.vo.base.PagePositionEsVo;
 import cn.hjf.job.model.vo.base.PageVo;
 import cn.hjf.job.model.vo.position.CandidateBasePositionInfoVo;
+import cn.hjf.job.model.vo.position.CandidatePositionInfoVo;
 import cn.hjf.job.model.vo.position.RecruiterBasePositionInfoVo;
 import cn.hjf.job.model.vo.position.RecruiterPositionInfoVo;
 import cn.hjf.job.position.service.PositionInfoService;
@@ -165,7 +166,6 @@ public class PositionInfoController {
         }
     }
 
-
     /**
      * 应聘端基本职位信息分页
      *
@@ -180,5 +180,21 @@ public class PositionInfoController {
     ) {
         PagePositionEsVo<CandidateBasePositionInfoVo> candidateBasePositionInfoVoPagePositionEsVo = positionInfoService.searchCandidateBasePositionInfo(limit, candidatePositionPageParam);
         return Result.ok(candidateBasePositionInfoVoPagePositionEsVo);
+    }
+
+    /**
+     * 获取应聘端职位详情
+     *
+     * @param id 职位 id
+     * @return Result<CandidatePositionInfoVo>
+     */
+    @GetMapping("/candidate/detail/{id}")
+    public Result<CandidatePositionInfoVo> getCandidatePositionInfoById(@PathVariable(name = "id") Long id) {
+        try {
+            CandidatePositionInfoVo positionInfoVo = positionInfoService.getCandidatePositionInfoById(id);
+            return Result.ok(positionInfoVo);
+        } catch (Exception e) {
+            return Result.fail(null);
+        }
     }
 }

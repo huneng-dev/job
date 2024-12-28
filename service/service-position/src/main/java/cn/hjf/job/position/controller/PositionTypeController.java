@@ -22,7 +22,6 @@ public class PositionTypeController {
     @Resource
     private PositionTypeService positionTypeService;
 
-
     /**
      * 获取职位类型
      *
@@ -30,8 +29,20 @@ public class PositionTypeController {
      * @return 职位类型
      */
     @GetMapping("/find-position-type")
-    public Result<Map<Long, List<PositionTypeVo>>> findPositionTypesByIndustriesId(@RequestParam  List<Long> industriesIds) {
+    public Result<Map<Long, List<PositionTypeVo>>> findPositionTypesByIndustriesId(@RequestParam List<Long> industriesIds) {
         Map<Long, List<PositionTypeVo>> longListMap = positionTypeService.queryPositionTypeByIndustryId(industriesIds);
         return Result.ok(longListMap);
+    }
+
+    /**
+     * 根据职位类型 id 获取描述
+     *
+     * @param id 职位类型 id
+     * @return Result<String>
+     */
+    @GetMapping("/{id}")
+    public Result<String> getPositionTypeById(@PathVariable(name = "id") Long id) {
+        String positionTypeDescByPositionId = positionTypeService.getPositionTypeDescByPositionId(id);
+        return Result.ok(positionTypeDescByPositionId);
     }
 }

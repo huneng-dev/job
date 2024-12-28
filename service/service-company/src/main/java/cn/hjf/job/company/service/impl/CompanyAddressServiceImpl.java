@@ -1,5 +1,6 @@
 package cn.hjf.job.company.service.impl;
 
+import cn.hjf.job.common.constant.RedisConstant;
 import cn.hjf.job.company.mapper.CompanyAddressMapper;
 import cn.hjf.job.company.service.CompanyAddressService;
 import cn.hjf.job.company.service.CompanyEmployeeService;
@@ -11,9 +12,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -31,6 +34,9 @@ public class CompanyAddressServiceImpl extends ServiceImpl<CompanyAddressMapper,
 
     @Resource
     private CompanyAddressMapper companyAddressMapper;
+
+    @Resource
+    private RedisTemplate<String, CompanyAddress> redisTemplate;
 
     @Override
     public boolean add(AddressInfoForm addressInfoForm, Long userId) {
@@ -99,8 +105,22 @@ public class CompanyAddressServiceImpl extends ServiceImpl<CompanyAddressMapper,
 
     @Override
     public AddressInfoVo getAddressById(Long addressId) {
-        // 获取地址
-        CompanyAddress companyAddress = companyAddressMapper.selectById(addressId);
+        // 从 Redis 缓存中获取地址
+        String redisKey = RedisConstant.COMPANY_ADDRESS + addressId;
+        CompanyAddress companyAddress = null;
+        companyAddress = redisTemplate.opsForValue().get(redisKey);
+
+        if (companyAddress == null) { // 没有命中从 Mysql 中查询
+            companyAddress = companyAddressMapper.selectById(addressId);
+
+            redisTemplate.opsForValue().set(
+                    redisKey,
+                    companyAddress,
+                    RedisConstant.COMPANY_ADDRESS_TIME_OUT,
+                    TimeUnit.SECONDS
+            );
+        }
+
         AddressInfoVo addressInfoVo = new AddressInfoVo();
         BeanUtils.copyProperties(companyAddress, addressInfoVo);
         return addressInfoVo;
