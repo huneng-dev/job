@@ -263,7 +263,7 @@ public class CompanyEmployeeServiceImpl extends ServiceImpl<CompanyEmployeeMappe
         CompanyEmployeeVo companyEmployeeVo = new CompanyEmployeeVo();
         companyEmployeeVo.setId(id);
 
-        if (companyEmployee.getTitleId() == null) {
+        if (companyEmployee == null) {
             companyEmployeeVo.setTitle("专员");
         } else {
             String title = companyTitleService.findTitleNameById(companyEmployee.getTitleId());

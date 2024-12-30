@@ -20,6 +20,6 @@ public class CompanyInfoVo {
     private String companyLogo;
 
     @Schema(description = "公司规模 id")
-    private Integer CompanySizeId;
+    private Integer companySizeId;
 
 }

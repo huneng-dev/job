@@ -18,7 +18,7 @@ public class CandidatePositionInfoVo {
     private Long id;
 
     @Schema(description = "职位类型")
-    private String positionTypeDesc;
+    private Long positionTypeId;
 
     @Schema(description = "职位名称")
     private String positionName;
