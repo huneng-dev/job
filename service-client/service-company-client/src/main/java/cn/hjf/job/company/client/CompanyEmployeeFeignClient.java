@@ -46,4 +46,12 @@ public interface CompanyEmployeeFeignClient {
      */
     @GetMapping("/employee/candidate/{id}")
     public Result<CompanyEmployeeVo> getCompanyEmployeeById(@PathVariable(name = "id") Long id, @RequestParam String key);
+
+    /**
+     * 获取用户职称描述
+     *
+     * @return 职位名称
+     */
+    @GetMapping("/employee/title")
+    Result<String> getEmployeeTitleDesc();
 }

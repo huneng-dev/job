@@ -146,7 +146,7 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
         // 如果不是管理员就设置 创建人 id
         if (isAdmin.equals(0)) {
-            queryWrapper.eq(PositionInfo::getCreatorId, userId);
+            queryWrapper.eq(PositionInfo::getResponsibleId, userId);
         }
 
         // 设置模糊查询

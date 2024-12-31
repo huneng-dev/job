@@ -7,6 +7,7 @@ import cn.hjf.job.model.dto.user.UserInfoStatus;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.EmployeeInfoVo;
+import cn.hjf.job.model.vo.user.RecruiterUserInfoVo;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -111,4 +112,30 @@ public interface UserInfoService extends IService<UserInfo> {
      * @return List<EmployeeInfoVo>
      */
     List<EmployeeInfoVo> findCompanyEmployeeByUserIds(List<Long> ids);
+
+    /**
+     * 获取招聘端用户信息
+     *
+     * @param id 用户id
+     * @return RecruiterUserInfoVo
+     */
+    RecruiterUserInfoVo getRecruiterUserInfo(Long id);
+
+    /**
+     * 保存用户头像
+     *
+     * @param id        用户id
+     * @param avatarUrl 用户头像 url
+     * @return 是否成功
+     */
+    boolean saveUserAvatar(Long id, String avatarUrl);
+
+    /**
+     * 绑定邮箱
+     *
+     * @param bindEmailForm 邮箱表单
+     * @param id            用户id
+     * @return 是否成功
+     */
+    boolean bindEmail(BindEmailForm bindEmailForm, Long id);
 }

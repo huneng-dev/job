@@ -2,6 +2,7 @@ package cn.hjf.job.user.controller;
 
 import cn.hjf.job.common.minio.resolver.PublicFileUrlResolver;
 import cn.hjf.job.common.result.Result;
+import cn.hjf.job.model.form.user.BindEmailForm;
 import cn.hjf.job.model.form.user.EmailRegisterInfoForm;
 import cn.hjf.job.model.form.user.PhoneRegisterInfoForm;
 import cn.hjf.job.model.dto.user.UserInfoPasswordStatus;
@@ -11,6 +12,7 @@ import cn.hjf.job.model.form.user.UserIdCardInfoForm;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.EmployeeInfoVo;
+import cn.hjf.job.model.vo.user.RecruiterUserInfoVo;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import cn.hjf.job.user.config.KeyProperties;
 import cn.hjf.job.user.service.UserInfoService;
@@ -286,5 +288,57 @@ public class UserInfoController {
         }
         List<EmployeeInfoVo> companyEmployeeByUserIds = userInfoService.findCompanyEmployeeByUserIds(userIds);
         return Result.ok(companyEmployeeByUserIds);
+    }
+
+
+    /**
+     * 获取招聘端用户信息
+     *
+     * @param principal 用户信息
+     * @return Result<RecruiterUserInfoVo>
+     */
+    @GetMapping("/recruiter/user")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
+    public Result<RecruiterUserInfoVo> getRecruiterUserInfo(Principal principal) {
+        try {
+            RecruiterUserInfoVo recruiterUserInfo = userInfoService.getRecruiterUserInfo(Long.parseLong(principal.getName()));
+            return Result.ok(recruiterUserInfo);
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+
+    /**
+     * 保存用户头像
+     *
+     * @param principal 用户信息
+     * @return Result<String>
+     */
+    @PutMapping("/avatar")
+    public Result<String> saveUserAvatar(@RequestParam String avatarUrl, Principal principal) {
+        try {
+            boolean isSuccess = userInfoService.saveUserAvatar(Long.parseLong(principal.getName()), avatarUrl);
+            return isSuccess ? Result.ok("成功") : Result.fail("失败");
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 绑定邮箱
+     *
+     * @param bindEmailForm 绑定邮箱表单
+     * @param principal     用户信息
+     * @return Result<String>
+     */
+    @PostMapping("/bind/email")
+    public Result<String> bindEmail(@Valid @RequestBody BindEmailForm bindEmailForm, Principal principal) {
+        try {
+            boolean isSuccess = userInfoService.bindEmail(bindEmailForm, Long.parseLong(principal.getName()));
+            return isSuccess ? Result.ok("绑定成功") : Result.fail("绑定失败");
+        } catch (Exception e) {
+            return Result.fail(e.getCause().getMessage());
+        }
     }
 }

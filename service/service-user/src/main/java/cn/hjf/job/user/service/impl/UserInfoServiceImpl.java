@@ -7,6 +7,7 @@ import cn.hjf.job.common.constant.UserRoleConstant;
 import cn.hjf.job.common.constant.UserTypeConstant;
 import cn.hjf.job.common.minio.resolver.PublicFileUrlResolver;
 import cn.hjf.job.common.result.Result;
+import cn.hjf.job.company.client.CompanyEmployeeFeignClient;
 import cn.hjf.job.model.entity.company.CompanyInfo;
 import cn.hjf.job.model.entity.user.UserInfo;
 import cn.hjf.job.model.form.user.*;
@@ -17,6 +18,7 @@ import cn.hjf.job.model.request.auth.UserRoleRequest;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.EmployeeInfoVo;
+import cn.hjf.job.model.vo.user.RecruiterUserInfoVo;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import cn.hjf.job.user.config.KeyProperties;
 import cn.hjf.job.user.exception.EmailAlreadyRegisteredException;
@@ -26,6 +28,7 @@ import cn.hjf.job.user.mapper.UserInfoMapper;
 import cn.hjf.job.user.service.UserInfoService;
 import cn.hjf.job.user.utils.UsernameGenerator;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nimbusds.jose.util.IntegerUtils;
 import io.seata.spring.annotation.GlobalTransactional;
@@ -74,6 +77,9 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
     @Resource
     private PublicFileUrlResolver publicFileUrlResolver;
+
+    @Resource
+    private CompanyEmployeeFeignClient companyEmployeeFeignClient;
 
     @Override
     public UserInfoVo getUserInfo(Long id) {
@@ -442,14 +448,79 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     public List<EmployeeInfoVo> findCompanyEmployeeByUserIds(List<Long> ids) {
         LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.select(UserInfo::getNickname, UserInfo::getName, UserInfo::getAvatar)
-                .in(UserInfo::getId, ids);
+        queryWrapper.select(UserInfo::getNickname, UserInfo::getName, UserInfo::getAvatar).in(UserInfo::getId, ids);
 
         List<UserInfo> userInfos = userInfoMapper.selectList(queryWrapper);
 
-        return userInfos.stream().map(
-                userInfo -> new EmployeeInfoVo(publicFileUrlResolver.resolveSingleUrl(userInfo.getAvatar()), userInfo.getNickname(), userInfo.getName())
-        ).toList();
+        return userInfos.stream().map(userInfo -> new EmployeeInfoVo(publicFileUrlResolver.resolveSingleUrl(userInfo.getAvatar()), userInfo.getNickname(), userInfo.getName())).toList();
+    }
+
+    @Override
+    public RecruiterUserInfoVo getRecruiterUserInfo(Long id) {
+        LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        userInfoLambdaQueryWrapper.select(UserInfo::getNickname, UserInfo::getName, UserInfo::getPhone, UserInfo::getEmail, UserInfo::getAvatar).eq(UserInfo::getId, id);
+
+        UserInfo userInfo = userInfoMapper.selectOne(userInfoLambdaQueryWrapper);
+
+        String avatarUrl = publicFileUrlResolver.resolveSingleUrl(userInfo.getAvatar());
+
+        RecruiterUserInfoVo recruiterUserInfoVo = new RecruiterUserInfoVo();
+
+        BeanUtils.copyProperties(userInfo, recruiterUserInfoVo);
+        recruiterUserInfoVo.setAvatar(avatarUrl);
+
+        Result<String> employeeTitleResult = companyEmployeeFeignClient.getEmployeeTitleDesc();
+        if (Objects.equals(employeeTitleResult.getCode(), 200)) {
+            recruiterUserInfoVo.setTitleName(employeeTitleResult.getData());
+        } else {
+            throw new RuntimeException("获取用户职称失败");
+        }
+        return recruiterUserInfoVo;
+    }
+
+    @Override
+    public boolean saveUserAvatar(Long id, String avatarUrl) {
+        LambdaUpdateWrapper<UserInfo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(UserInfo::getAvatar, avatarUrl).eq(UserInfo::getId, id);
+        int update = userInfoMapper.update(updateWrapper);
+        return update == 1;
+    }
+
+    @Override
+    public boolean bindEmail(BindEmailForm bindEmailForm, Long id) { // 最好使用 分布式锁
+
+        // 校验验证码
+        String rawCode = redisTemplate.opsForValue().get(RedisConstant.EMAIL_REGISTER_CODE + bindEmailForm.getEmail());
+        if (rawCode == null || rawCode.isEmpty()) {
+            throw new VerificationCodeException("验证码已过期");
+        }
+        // 判断验证码是否正确
+        if (!rawCode.equals(bindEmailForm.getValidateCode())) {
+            throw new VerificationCodeException("验证码不正确");
+        }
+        // 验证成功后立即删除验证码
+        redisTemplate.delete(RedisConstant.EMAIL_REGISTER_CODE + bindEmailForm.getEmail());
+        // 获取当前用户绑定的邮箱和用户类型
+        LambdaQueryWrapper<UserInfo> emailQueryWrapper = new LambdaQueryWrapper<>();
+        emailQueryWrapper.select(UserInfo::getEmail, UserInfo::getType).eq(UserInfo::getId, id);
+        UserInfo emailInfo = userInfoMapper.selectOne(emailQueryWrapper);
+        if (!emailInfo.getEmail().isEmpty()) {
+            throw new EmailAlreadyRegisteredException("账户以绑定邮箱");
+        }
+        // 判断 当前邮箱是否被其他人绑定(查询范围只包含同类型 如: 招聘者,应聘者)
+        LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(UserInfo::getEmail).eq(UserInfo::getEmail, bindEmailForm.getEmail()).eq(UserInfo::getType, emailInfo.getType());
+        UserInfo userInfo = userInfoMapper.selectOne(queryWrapper);
+        if (userInfo != null) {
+            throw new EmailAlreadyRegisteredException("邮箱已被绑定");
+        }
+        // 通过全部判断 执行绑定
+        LambdaUpdateWrapper<UserInfo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(UserInfo::getEmail, bindEmailForm.getEmail())
+                .eq(UserInfo::getId, id);
+
+        int update = userInfoMapper.update(updateWrapper);
+        return update == 1;
     }
 
 

@@ -85,4 +85,12 @@ public interface CompanyEmployeeService extends IService<CompanyEmployee> {
      */
     CompanyEmployeeVo getCompanyEmployeeById(Long id);
 
+    /**
+     * 获取用户职称描述
+     *
+     * @param id 用户 id
+     * @return String
+     */
+    String getEmployeeTitleDesc(Long id);
+
 }

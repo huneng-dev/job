@@ -111,7 +111,7 @@ public class CompanyEmployeeController {
      * @param principal 用户信息
      * @return 公司 id
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN_RECRUITER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
     @GetMapping("/company/id")
     public Result<Long> findCompanyIdByUserId(Principal principal) {
         Long companyId = companyEmployeeService.findCompanyIdByUserId(Long.parseLong(principal.getName()));
@@ -139,5 +139,23 @@ public class CompanyEmployeeController {
         }
         CompanyEmployeeVo companyEmployeeById = companyEmployeeService.getCompanyEmployeeById(id);
         return Result.ok(companyEmployeeById);
+    }
+
+
+    /**
+     * 获取用户职称描述
+     *
+     * @param principal 用户信息
+     * @return 职位名称
+     */
+    @GetMapping("/title")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
+    public Result<String> getEmployeeTitleDesc(Principal principal) {
+        try {
+            String employeeTitleDesc = companyEmployeeService.getEmployeeTitleDesc(Long.parseLong(principal.getName()));
+            return Result.ok(employeeTitleDesc);
+        } catch (Exception e) {
+            return Result.fail();
+        }
     }
 }

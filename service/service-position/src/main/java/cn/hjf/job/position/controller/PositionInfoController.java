@@ -42,7 +42,7 @@ public class PositionInfoController {
      * @return 信息
      */
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ROLE_ADMIN_RECRUITER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN_RECRUITER','ROLE_EMPLOYEE_RECRUITER')")
     public Result<String> create(@RequestBody PositionInfoForm positionInfoForm, Principal principal) {
         try {
             boolean b = positionInfoService.create(positionInfoForm, Long.parseLong(principal.getName()));

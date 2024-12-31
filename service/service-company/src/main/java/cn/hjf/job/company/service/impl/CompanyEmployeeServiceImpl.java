@@ -282,6 +282,22 @@ public class CompanyEmployeeServiceImpl extends ServiceImpl<CompanyEmployeeMappe
         return companyEmployeeVo;
     }
 
+    @Override
+    public String getEmployeeTitleDesc(Long id) {
+        LambdaQueryWrapper<CompanyEmployee> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        // 查询参数
+        lambdaQueryWrapper.select(CompanyEmployee::getTitleId)
+                .eq(CompanyEmployee::getUserId, id);
+
+        CompanyEmployee companyEmployee = companyEmployeeMapper.selectOne(lambdaQueryWrapper);
+
+        if (companyEmployee == null) {
+            return "专员";
+        } else {
+            return companyTitleService.findTitleNameById(companyEmployee.getTitleId());
+        }
+    }
+
     // 提取出增加用户尝试次数的方法
     private void incrementUserAttempts(Long userId, int userNum) {
         redisTemplate.opsForValue().set(
