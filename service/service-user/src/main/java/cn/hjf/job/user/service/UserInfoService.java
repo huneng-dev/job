@@ -138,4 +138,13 @@ public interface UserInfoService extends IService<UserInfo> {
      * @return 是否成功
      */
     boolean bindEmail(BindEmailForm bindEmailForm, Long id);
+
+    /**
+     * 绑定手机号
+     *
+     * @param bindPhoneForm 手机号表单
+     * @param id            用户 d
+     * @return 是否成功
+     */
+    boolean bindPhone(BindPhoneForm bindPhoneForm, Long id);
 }

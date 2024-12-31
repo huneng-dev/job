@@ -2,13 +2,10 @@ package cn.hjf.job.user.controller;
 
 import cn.hjf.job.common.minio.resolver.PublicFileUrlResolver;
 import cn.hjf.job.common.result.Result;
-import cn.hjf.job.model.form.user.BindEmailForm;
-import cn.hjf.job.model.form.user.EmailRegisterInfoForm;
-import cn.hjf.job.model.form.user.PhoneRegisterInfoForm;
+import cn.hjf.job.model.form.user.*;
 import cn.hjf.job.model.dto.user.UserInfoPasswordStatus;
 import cn.hjf.job.model.dto.user.UserInfoQuery;
 import cn.hjf.job.model.dto.user.UserInfoStatus;
-import cn.hjf.job.model.form.user.UserIdCardInfoForm;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.EmployeeInfoVo;
@@ -336,6 +333,24 @@ public class UserInfoController {
     public Result<String> bindEmail(@Valid @RequestBody BindEmailForm bindEmailForm, Principal principal) {
         try {
             boolean isSuccess = userInfoService.bindEmail(bindEmailForm, Long.parseLong(principal.getName()));
+            return isSuccess ? Result.ok("绑定成功") : Result.fail("绑定失败");
+        } catch (Exception e) {
+            return Result.fail(e.getCause().getMessage());
+        }
+    }
+
+
+    /**
+     * 绑定手机号
+     *
+     * @param bindPhoneForm 绑定手机号表单
+     * @param principal     用户信息
+     * @return Result<String>
+     */
+    @PostMapping("/bind/phone")
+    public Result<String> bindPhone(@Valid @RequestBody BindPhoneForm bindPhoneForm, Principal principal) {
+        try {
+            boolean isSuccess = userInfoService.bindPhone(bindPhoneForm, Long.parseLong(principal.getName()));
             return isSuccess ? Result.ok("绑定成功") : Result.fail("绑定失败");
         } catch (Exception e) {
             return Result.fail(e.getCause().getMessage());

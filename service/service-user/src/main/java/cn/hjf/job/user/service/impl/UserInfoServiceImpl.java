@@ -504,7 +504,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         LambdaQueryWrapper<UserInfo> emailQueryWrapper = new LambdaQueryWrapper<>();
         emailQueryWrapper.select(UserInfo::getEmail, UserInfo::getType).eq(UserInfo::getId, id);
         UserInfo emailInfo = userInfoMapper.selectOne(emailQueryWrapper);
-        if (!emailInfo.getEmail().isEmpty()) {
+        if (emailInfo.getEmail() != null && !emailInfo.getEmail().isEmpty()) {
             throw new EmailAlreadyRegisteredException("账户以绑定邮箱");
         }
         // 判断 当前邮箱是否被其他人绑定(查询范围只包含同类型 如: 招聘者,应聘者)
@@ -517,6 +517,45 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         // 通过全部判断 执行绑定
         LambdaUpdateWrapper<UserInfo> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.set(UserInfo::getEmail, bindEmailForm.getEmail())
+                .eq(UserInfo::getId, id);
+
+        int update = userInfoMapper.update(updateWrapper);
+        return update == 1;
+    }
+
+    @Override
+    public boolean bindPhone(BindPhoneForm bindPhoneForm, Long id) {
+        // 校验验证码
+        String rawCode = redisTemplate.opsForValue().get(RedisConstant.PHONE_REGISTER_CODE + bindPhoneForm.getPhone());
+        if (rawCode == null || rawCode.isEmpty()) {
+            throw new VerificationCodeException("验证码已过期");
+        }
+        // 判断验证码是否正确
+        if (!rawCode.equals(bindPhoneForm.getValidateCode())) {
+            throw new VerificationCodeException("验证码不正确");
+        }
+        // 验证成功后立即删除验证码
+        redisTemplate.delete(RedisConstant.PHONE_REGISTER_CODE + bindPhoneForm.getPhone());
+        // 获取当前用户绑定的手机号和用户类型
+        LambdaQueryWrapper<UserInfo> emailQueryWrapper = new LambdaQueryWrapper<>();
+        emailQueryWrapper.select(UserInfo::getPhone, UserInfo::getType).eq(UserInfo::getId, id);
+        UserInfo phoneInfo = userInfoMapper.selectOne(emailQueryWrapper);
+        if (phoneInfo.getPhone() != null && !phoneInfo.getPhone().isEmpty()) {
+            throw new EmailAlreadyRegisteredException("账户已绑定手机号");
+        }
+
+
+        // 判断 当前手机号是否被其他人绑定(查询范围只包含同类型 如: 招聘者,应聘者)
+        LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(UserInfo::getPhone).eq(UserInfo::getPhone, bindPhoneForm.getPhone()).eq(UserInfo::getType, phoneInfo.getType());
+        UserInfo userInfo = userInfoMapper.selectOne(queryWrapper);
+        if (userInfo != null) {
+            throw new EmailAlreadyRegisteredException("手机号已被绑定");
+        }
+
+        // 通过全部判断 执行绑定
+        LambdaUpdateWrapper<UserInfo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(UserInfo::getPhone, bindPhoneForm.getPhone())
                 .eq(UserInfo::getId, id);
 
         int update = userInfoMapper.update(updateWrapper);
