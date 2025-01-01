@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-                                                                                                                                                                                                                                                                                                                                                                                    /**
- * 
+
+/**
  * @author hjf
  * @date 2024-10-31
  */
@@ -16,7 +16,7 @@ import lombok.Data;
 public class CompanyBusinessLicense extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Schema(description = "公司id")
     @TableField("company_id")
     private Long companyId;
@@ -88,4 +88,4 @@ public class CompanyBusinessLicense extends BaseEntity {
     @Schema(description = "法人认证状态，0 代表未认证，1 代表认证中，2 代表认证通过，3 代表认证失败等。")
     @TableField("legal_person_auth_status")
     private Integer legalPersonAuthStatus;
-    }
+}

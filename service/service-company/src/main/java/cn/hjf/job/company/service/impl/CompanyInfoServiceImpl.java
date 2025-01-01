@@ -9,22 +9,22 @@ import cn.hjf.job.common.rabbit.service.RabbitService;
 import cn.hjf.job.company.config.KeyProperties;
 import cn.hjf.job.company.mapper.CompanyEmployeeMapper;
 import cn.hjf.job.company.mapper.CompanyInfoMapper;
+import cn.hjf.job.company.mapper.CompanySizeMapper;
 import cn.hjf.job.company.repository.CompanyDescriptionRepository;
-import cn.hjf.job.company.service.CompanyBusinessLicenseService;
-import cn.hjf.job.company.service.CompanyEmployeeService;
-import cn.hjf.job.company.service.CompanyInfoService;
-import cn.hjf.job.company.service.CompanyTitleService;
+import cn.hjf.job.company.service.*;
 import cn.hjf.job.model.document.company.CompanyDescriptionDoc;
 import cn.hjf.job.model.dto.company.CompanyIdAndNameDTO;
 import cn.hjf.job.model.entity.company.CompanyBusinessLicense;
 import cn.hjf.job.model.entity.company.CompanyEmployee;
 import cn.hjf.job.model.entity.company.CompanyInfo;
 import cn.hjf.job.model.dto.company.CompanyInfoQuery;
+import cn.hjf.job.model.entity.company.CompanySize;
 import cn.hjf.job.model.form.company.CompanyBusinessLicenseForm;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
 import cn.hjf.job.model.form.company.CompanyInfoForm;
 import cn.hjf.job.model.request.auth.UserRoleRequest;
 import cn.hjf.job.model.vo.company.CompanyInfoEsVo;
+import cn.hjf.job.model.vo.company.CompanyInfoRecruiterVo;
 import cn.hjf.job.model.vo.company.CompanyInfoVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -36,6 +36,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -82,6 +83,11 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
     @Resource
     private RedisTemplate<String, CompanyInfo> redisTemplate;
 
+    @Resource
+    private CompanySizeMapper companySizeMapper;
+
+    @Resource(name = "companyIndustryServiceImpl")
+    private CompanyIndustryService companyIndustryService;
 
     @Override
     public CompanyInfoQuery findCompanyInfoByUserId(Long userId) {
@@ -218,6 +224,35 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
         companyInfoVo.setCompanyLogo(rawLogo);
 
         return companyInfoVo;
+    }
+
+    @Override
+    public CompanyInfoRecruiterVo getCompanyInfoRecruiterVo(Long id) {
+        // 获取当前管理员的公司 id
+        Long companyId = companyEmployeeService.findCompanyIdByUserId(id);
+
+        CompanyInfo companyInfo = companyInfoMapper.selectById(companyId);
+
+        CompanyInfoRecruiterVo companyInfoRecruiterVo = new CompanyInfoRecruiterVo();
+        BeanUtils.copyProperties(companyInfo, companyInfoRecruiterVo);
+
+        // 设置公司 logo
+        String rawLogo = publicFileUrlResolver.resolveSingleUrl(companyInfo.getCompanyLogo());
+        companyInfoRecruiterVo.setCompanyLogo(rawLogo);
+
+        // 设置公司描述
+        Optional<CompanyDescriptionDoc> companyDescriptionDocResult = companyDescriptionRepository.findById(companyInfo.getCompanyDescription());
+        companyDescriptionDocResult.ifPresent(companyDescriptionDoc -> companyInfoRecruiterVo.setCompanyDescription(companyDescriptionDoc.getDescription()));
+
+        // 设置公司规模
+        CompanySize companySize = companySizeMapper.selectById(companyInfo.getCompanySizeId());
+        companyInfoRecruiterVo.setCompanySize(companySize.getSizeDescription());
+
+        // 设置公司行业
+        String industryDesc = companyIndustryService.getIndustryDesc(companyInfo.getIndustryId());
+        companyInfoRecruiterVo.setIndustry(industryDesc);
+
+        return companyInfoRecruiterVo;
     }
 
 

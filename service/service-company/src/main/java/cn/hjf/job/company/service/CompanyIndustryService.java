@@ -30,4 +30,12 @@ public interface CompanyIndustryService extends IService<CompanyIndustry> {
      * @return List<ParentIndustryVo>
      */
     public List<ParentIndustryVo> getParentIndustryAll();
+
+    /**
+     * 通过id获取行业描述
+     *
+     * @param id 行业 id
+     * @return String
+     */
+    String getIndustryDesc(Long id);
 }

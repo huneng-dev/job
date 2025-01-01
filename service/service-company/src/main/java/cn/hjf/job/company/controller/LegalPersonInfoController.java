@@ -74,4 +74,6 @@ public class LegalPersonInfoController {
 
         return Result.ok();
     }
+
+
 }

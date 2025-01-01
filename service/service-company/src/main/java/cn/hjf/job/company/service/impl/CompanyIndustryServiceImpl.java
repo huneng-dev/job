@@ -168,6 +168,12 @@ public class CompanyIndustryServiceImpl extends ServiceImpl<CompanyIndustryMappe
                 .toList();
     }
 
+    @Override
+    public String getIndustryDesc(Long id) {
+        CompanyIndustry companyIndustry = companyIndustryMapper.selectById(id);
+        return companyIndustry.getIndustryName();
+    }
+
 
     // 封装查询父行业及其子行业
     private List<IndustryVo> getIndustriesWithSubIndustries(List<IndustryVo> industryVos) {

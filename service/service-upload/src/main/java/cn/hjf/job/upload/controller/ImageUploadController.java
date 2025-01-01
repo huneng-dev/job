@@ -116,7 +116,6 @@ public class ImageUploadController {
         }
     }
 
-
     /**
      * 营业执照上传
      *
@@ -273,6 +272,45 @@ public class ImageUploadController {
             return Result.build(null, 422, e.getMessage());
         } catch (TencentCloudSDKException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 上传公司照片
+     *
+     * @param file 公司图片
+     * @return url
+     */
+    @PostMapping("/company/photo")
+    public Result<String> companyPhoto(@RequestPart("file") MultipartFile file) {
+        // 设置类型校验
+        List<String> IMAGE_MIME_TYPES = Arrays.asList("image/jpeg", "image/png");
+
+        // 设置文件大小限制，假设限制为 5MB
+        long maxFileSize = 5 * 1024 * 1024;
+
+        try {
+
+            // 校验文件
+            boolean validatorResult = FileTypeValidatorUtils.fileTypeValidator(file, IMAGE_MIME_TYPES);
+
+            if (!validatorResult) {
+                return Result.fail();
+            }
+
+            // 校验文件大小
+            if (file.getSize() > maxFileSize) {
+                return Result.fail("文件大小超过限制，最大为 5MB");
+            }
+
+            // 上传文件
+            String url = fileUploadService.upload(file, UploadPathConstant.COMPANY_PHOTO);
+
+            return Result.ok(url);
+        } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
+                 InvalidKeyException | NoSuchAlgorithmException | InvalidResponseException | XmlParserException |
+                 InternalException e) {
+            return Result.fail();
         }
     }
 

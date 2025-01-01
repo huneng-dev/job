@@ -7,9 +7,7 @@ import cn.hjf.job.company.service.CompanySizeService;
 import cn.hjf.job.model.dto.company.CompanyIdAndNameDTO;
 import cn.hjf.job.model.dto.company.CompanyInfoQuery;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
-import cn.hjf.job.model.vo.company.CompanyInfoEsVo;
-import cn.hjf.job.model.vo.company.CompanyInfoVo;
-import cn.hjf.job.model.vo.company.CompanySizeVo;
+import cn.hjf.job.model.vo.company.*;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -127,4 +125,23 @@ public class CompanyInfoController {
             return Result.fail();
         }
     }
+
+
+    /**
+     * 招聘端获取公司详细
+     *
+     * @param principal 用户信息
+     * @return Result<CompanyInfoRecruiterVo>
+     */
+    @GetMapping("/detail/recruiter")
+    @PreAuthorize("hasRole('ROLE_ADMIN_RECRUITER')")
+    public Result<CompanyInfoRecruiterVo> getCompanyInfoRecruiterVo(Principal principal) {
+        try {
+            CompanyInfoRecruiterVo companyInfoRecruiterVo = companyInfoService.getCompanyInfoRecruiterVo(Long.parseLong(principal.getName()));
+            return companyInfoRecruiterVo != null ? Result.ok(companyInfoRecruiterVo) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
 }

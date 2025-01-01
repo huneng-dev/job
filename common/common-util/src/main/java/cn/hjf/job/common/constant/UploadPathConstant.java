@@ -13,6 +13,11 @@ public class UploadPathConstant {
     public static final String COMPANY_LOGO = "company-logo";
 
     /**
+     * 公司照片前缀
+     */
+    public static final String COMPANY_PHOTO = "company-photo";
+
+    /**
      * 营业执照上传路径
      */
     public static final String BUSINESS_LICENSE = "business-license";

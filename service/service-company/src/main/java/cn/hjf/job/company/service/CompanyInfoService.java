@@ -5,6 +5,7 @@ import cn.hjf.job.model.entity.company.CompanyInfo;
 import cn.hjf.job.model.dto.company.CompanyInfoQuery;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
 import cn.hjf.job.model.vo.company.CompanyInfoEsVo;
+import cn.hjf.job.model.vo.company.CompanyInfoRecruiterVo;
 import cn.hjf.job.model.vo.company.CompanyInfoVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -68,5 +69,13 @@ public interface CompanyInfoService extends IService<CompanyInfo> {
      * @return CompanyInfoVo
      */
     CompanyInfoVo getCompanyInfoById(Long id);
+
+    /**
+     * 获取招聘端公司详情
+     *
+     * @param id 用户 id
+     * @return CompanyInfoRecruiterVo
+     */
+    CompanyInfoRecruiterVo getCompanyInfoRecruiterVo(Long id);
 
 }

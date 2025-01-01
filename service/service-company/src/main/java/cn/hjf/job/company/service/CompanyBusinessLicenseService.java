@@ -1,6 +1,7 @@
 package cn.hjf.job.company.service;
 
 import cn.hjf.job.model.entity.company.CompanyBusinessLicense;
+import cn.hjf.job.model.vo.company.CompanyBusinessLicenseRecruiterVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -46,4 +47,19 @@ public interface CompanyBusinessLicenseService extends IService<CompanyBusinessL
      */
     Long findBusinessLicenseIdByCompanyId(Long companyId);
 
+    /**
+     * 获取营业执照信息招聘端 (管理员)
+     *
+     * @param companyId 用户id
+     * @return CompanyBusinessLicenseRecruiterVo
+     */
+    CompanyBusinessLicenseRecruiterVo getCompanyBusinessLicenseRecruiterVo(Long companyId);
+
+    /**
+     * 获取营业执照照片
+     *
+     * @param companyId 公司 id
+     * @return String
+     */
+    String getBusinessLicenseUrl(Long companyId);
 }
