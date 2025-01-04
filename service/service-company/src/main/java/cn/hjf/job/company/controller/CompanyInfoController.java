@@ -77,7 +77,6 @@ public class CompanyInfoController {
         return Result.ok(companySizeAll);
     }
 
-
     /**
      * 保存公司信息和营业执照信息(注册公司流程)
      *
@@ -144,4 +143,19 @@ public class CompanyInfoController {
         }
     }
 
+    /**
+     * 获取公司详情 (公共)
+     *
+     * @param companyId 公司id
+     * @return Result<CompanyInfoCandidateVo>
+     */
+    @GetMapping("/detail/candidate")
+    public Result<CompanyInfoCandidateVo> getCompanyInfoCandidateVo(@RequestParam Long companyId) {
+        try {
+            CompanyInfoCandidateVo companyInfoCandidateVo = companyInfoService.getCompanyInfoCandidateVo(companyId);
+            return companyInfoCandidateVo != null ? Result.ok(companyInfoCandidateVo) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package cn.hjf.job.company.service;
 
 import cn.hjf.job.model.entity.company.CompanyAlbum;
+import cn.hjf.job.model.vo.company.PhotoVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public interface CompanyAlbumService extends IService<CompanyAlbum> {
      * @param companyId 公司 id
      * @return List<String>
      */
-    List<String> findRecruiterPhotos(Long companyId);
+    List<PhotoVo> findRecruiterPhotos(Long companyId);
 
     /**
      * 保存照片
@@ -31,8 +32,23 @@ public interface CompanyAlbumService extends IService<CompanyAlbum> {
      * @param path      路径
      * @return 是否成功
      */
-    boolean savePhoto(Long companyId, String path);
+    Long savePhoto(Long companyId, String path);
 
+    /**
+     * 删除照片
+     *
+     * @param companyId 公司 id
+     * @param photoId   照片 id
+     * @return 是否成功
+     */
+    boolean deletePhoto(Long companyId, Long photoId);
 
+    /**
+     * 根据公司 id 获取公司照片
+     *
+     * @param companyId 公司 id
+     * @return List<String>
+     */
+    List<String> findCandidatePhotos(Long companyId);
 
 }

@@ -103,4 +103,14 @@ public interface PositionInfoService extends IService<PositionInfo> {
      * @return CandidatePositionInfoVo
      */
     CandidatePositionInfoVo getCandidatePositionInfoById(Long id);
+
+
+    /**
+     * 获取职位数量
+     *
+     * @param companyId 公司 id
+     * @param status    职位状态,如果为 null 获取全部职位
+     * @return Long
+     */
+    Long getCompanyPositionCount(Long companyId, Integer status);
 }

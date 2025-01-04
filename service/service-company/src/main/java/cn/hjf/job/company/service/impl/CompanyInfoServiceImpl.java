@@ -23,6 +23,7 @@ import cn.hjf.job.model.form.company.CompanyBusinessLicenseForm;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
 import cn.hjf.job.model.form.company.CompanyInfoForm;
 import cn.hjf.job.model.request.auth.UserRoleRequest;
+import cn.hjf.job.model.vo.company.CompanyInfoCandidateVo;
 import cn.hjf.job.model.vo.company.CompanyInfoEsVo;
 import cn.hjf.job.model.vo.company.CompanyInfoRecruiterVo;
 import cn.hjf.job.model.vo.company.CompanyInfoVo;
@@ -253,6 +254,34 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
         companyInfoRecruiterVo.setIndustry(industryDesc);
 
         return companyInfoRecruiterVo;
+    }
+
+    @Override
+    public CompanyInfoCandidateVo getCompanyInfoCandidateVo(Long companyId) {
+
+        CompanyInfo companyInfo = companyInfoMapper.selectById(companyId);
+
+        CompanyInfoCandidateVo companyInfoCandidateVo = new CompanyInfoCandidateVo();
+
+        BeanUtils.copyProperties(companyInfo, companyInfoCandidateVo);
+
+        // 设置公司 logo
+        String rawLogo = publicFileUrlResolver.resolveSingleUrl(companyInfo.getCompanyLogo());
+        companyInfoCandidateVo.setCompanyLogo(rawLogo);
+
+        // 设置公司描述
+        Optional<CompanyDescriptionDoc> companyDescriptionDocResult = companyDescriptionRepository.findById(companyInfo.getCompanyDescription());
+        companyDescriptionDocResult.ifPresent(companyDescriptionDoc -> companyInfoCandidateVo.setCompanyDescription(companyDescriptionDoc.getDescription()));
+
+        // 设置公司规模
+        CompanySize companySize = companySizeMapper.selectById(companyInfo.getCompanySizeId());
+        companyInfoCandidateVo.setCompanySize(companySize.getSizeDescription());
+
+        // 设置公司行业
+        String industryDesc = companyIndustryService.getIndustryDesc(companyInfo.getIndustryId());
+        companyInfoCandidateVo.setIndustry(industryDesc);
+
+        return companyInfoCandidateVo;
     }
 
 

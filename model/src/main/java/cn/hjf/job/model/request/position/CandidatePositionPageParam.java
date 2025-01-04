@@ -14,6 +14,9 @@ public class CandidatePositionPageParam {
     @Schema(description = "搜索关键词")
     private String search;
 
+    @Schema(description = "公司 id")
+    private Long companyId;
+
     @Schema(description = "职位类型 id")
     private Long positionTypeId;
 

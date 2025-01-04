@@ -197,4 +197,18 @@ public class PositionInfoController {
             return Result.fail(null);
         }
     }
+
+    /**
+     * 获取公司全部开放的职位
+     *
+     * @param companyId 公司 id
+     * @return Result<Long>
+     */
+    @GetMapping("/count")
+    public Result<Long> getCompanyPositionCountByOpen(@RequestParam Long companyId) {
+
+        Long companyPositionCount = positionInfoService.getCompanyPositionCount(companyId, 4);
+
+        return Result.ok(companyPositionCount);
+    }
 }

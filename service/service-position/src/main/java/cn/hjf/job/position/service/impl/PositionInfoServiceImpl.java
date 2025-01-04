@@ -363,6 +363,7 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
     @Override
     public PagePositionEsVo<CandidateBasePositionInfoVo> searchCandidateBasePositionInfo(Integer limit, CandidatePositionPageParam candidatePositionPageParam) {
+
         // 设置查询参数
         NativeQueryBuilder builder = NativeQuery.builder();
         BoolQuery.Builder bool = QueryBuilders.bool();
@@ -378,6 +379,16 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
                     .fuzziness("AUTO")
                     .build();
             bool.must(q -> q.multiMatch(query));
+        }
+
+        Long companyId = candidatePositionPageParam.getCompanyId();
+        if (companyId != null) {
+            TermQuery query = QueryBuilders.term()
+                    .field("companyId")
+                    .value(companyId)
+                    .build();
+
+            bool.filter(q -> q.term(query));
         }
 
         // 如果 职位类型 id 存在 设置 positionTypeId
@@ -559,6 +570,19 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         candidatePositionInfoVo.setResponsible(companyEmployeeVoResult.getData());
 
         return candidatePositionInfoVo;
+    }
+
+    @Override
+    public Long getCompanyPositionCount(Long companyId, Integer status) {
+
+        LambdaQueryWrapper<PositionInfo> queryWrapper = new LambdaQueryWrapper<>();
+
+        queryWrapper.eq(PositionInfo::getCompanyId, companyId);
+
+        if (status != null) {
+            queryWrapper.eq(PositionInfo::getStatus, status);
+        }
+        return positionInfoMapper.selectCount(queryWrapper);
     }
 
     /**

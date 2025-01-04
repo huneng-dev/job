@@ -4,6 +4,7 @@ import cn.hjf.job.model.dto.company.CompanyIdAndNameDTO;
 import cn.hjf.job.model.entity.company.CompanyInfo;
 import cn.hjf.job.model.dto.company.CompanyInfoQuery;
 import cn.hjf.job.model.form.company.CompanyInfoAndBusinessLicenseForm;
+import cn.hjf.job.model.vo.company.CompanyInfoCandidateVo;
 import cn.hjf.job.model.vo.company.CompanyInfoEsVo;
 import cn.hjf.job.model.vo.company.CompanyInfoRecruiterVo;
 import cn.hjf.job.model.vo.company.CompanyInfoVo;
@@ -77,5 +78,13 @@ public interface CompanyInfoService extends IService<CompanyInfo> {
      * @return CompanyInfoRecruiterVo
      */
     CompanyInfoRecruiterVo getCompanyInfoRecruiterVo(Long id);
+
+    /**
+     * 获取应聘端公司详情
+     *
+     * @param companyId 公司 id
+     * @return CompanyInfoCandidateVo
+     */
+    CompanyInfoCandidateVo getCompanyInfoCandidateVo(Long companyId);
 
 }

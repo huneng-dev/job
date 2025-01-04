@@ -25,4 +25,6 @@ public interface CompanyAddressService extends IService<CompanyAddress> {
 
     AddressInfoVo getAddressById(Long addressId);
 
+    List<AddressInfoVo> getAddresses(Long companyId);
+
 }

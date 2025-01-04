@@ -128,6 +128,7 @@ public class PositionReceiver {
 
         positionInfoES.setLocation(new GeoPoint(addressInfoVoData.getLatitude().doubleValue(), addressInfoVoData.getLongitude().doubleValue()));
         positionInfoES.setId(positionInfoData.getId());
+        positionInfoES.setCompanyId(companyInfoEsVo.getId());
         return positionInfoES;
     }
 }

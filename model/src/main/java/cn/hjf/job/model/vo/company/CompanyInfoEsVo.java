@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Schema(description = "获取公司信息 by ES")
 public class CompanyInfoEsVo {
+
     @Schema(description = "公司 id")
     private Long id;
 

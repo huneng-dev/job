@@ -125,4 +125,18 @@ public class CompanyAddressServiceImpl extends ServiceImpl<CompanyAddressMapper,
         BeanUtils.copyProperties(companyAddress, addressInfoVo);
         return addressInfoVo;
     }
+
+    @Override
+    public List<AddressInfoVo> getAddresses(Long companyId) {
+        LambdaQueryWrapper<CompanyAddress> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CompanyAddress::getCompanyId, companyId);
+
+        List<CompanyAddress> companyAddresses = companyAddressMapper.selectList(queryWrapper);
+
+        return companyAddresses.stream().map(companyAddress -> {
+            AddressInfoVo addressInfoVo = new AddressInfoVo();
+            BeanUtils.copyProperties(companyAddress, addressInfoVo);
+            return addressInfoVo;
+        }).toList();
+    }
 }

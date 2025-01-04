@@ -93,4 +93,16 @@ public class AddressController {
         AddressInfoVo addressById = companyAddressService.getAddressById(addressId);
         return Result.ok(addressById);
     }
+
+    /**
+     * 获取公司的地址
+     *
+     * @param companyId 公司 id
+     * @return Result<List < AddressInfoVo>>
+     */
+    @GetMapping("/candidate/all")
+    public Result<List<AddressInfoVo>> getAddresses(@RequestParam Long companyId) {
+        List<AddressInfoVo> addresses = companyAddressService.getAddresses(companyId);
+        return Result.ok(addresses);
+    }
 }

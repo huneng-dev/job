@@ -25,6 +25,12 @@ public class PositionInfoES {
     private Long id;
 
     /**
+     * 公司 id
+     */
+    @Field(type = FieldType.Long)
+    private Long companyId;
+
+    /**
      * 职位名称
      */
     @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
