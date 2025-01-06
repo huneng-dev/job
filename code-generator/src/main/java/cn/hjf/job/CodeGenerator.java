@@ -13,14 +13,21 @@ import java.util.Collections;
 public class CodeGenerator {
     public static void main(String[] args) {
         // 数据库url
-        String url = "jdbc:mysql://localhost:3306/job_user?characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true";
+        String url = "jdbc:mysql://localhost:3306/job_resume?characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true";
         String username = "root";
         String password = "927733";
 
         // 需要生成代码的表名
 //        String[] tableNames = {"benefit_type","company_address","company_album","company_benefit","company_business_license","company_department","company_industry","company_info","company_size","legal_person_info"};
         String[] tableNames = {
-                "user_info"
+                "certification",
+                "education_background",
+                "honor_award",
+                "resume_info",
+                "project_experience",
+                "resume_favorite",
+                "resume_info",
+                "work_experience"
         };
         // 指定输出目录
         String outputDir = "D:/Java/job/code-generator/src/main/java";
@@ -29,7 +36,7 @@ public class CodeGenerator {
         String basePackageName = "cn.hjf.job";
 
         // 模块名 basePackageName + moduleName = cn.hjf.job.candidate
-        String moduleName = "user";
+        String moduleName = "resume";
 
         // mapperXml 文件输出目录
         String mapperXmlOutputPath = "D:/Java/job/code-generator/src/main/resources/mapper/" + moduleName;

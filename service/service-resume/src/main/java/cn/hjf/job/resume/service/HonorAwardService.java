@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author hjf
- * @since 2024-10-25
+ * @since 2025-01-07
  */
 public interface HonorAwardService extends IService<HonorAward> {
 

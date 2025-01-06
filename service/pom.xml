@@ -23,6 +23,7 @@
         <module>service-email</module>
         <module>service-sms</module>
         <module>service-upload</module>
+        <module>service-resume</module>
     </modules>
 
     <properties>

@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-                                                                                                                /**
- * 
+
+/**
  * @author hjf
  * @date 2024-10-25
  */
@@ -16,7 +16,7 @@ import lombok.Data;
 public class ResumeInfo extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Schema(description = "应聘者id")
     @TableField("candidate_id")
     private Long candidateId;
@@ -36,4 +36,8 @@ public class ResumeInfo extends BaseEntity {
     @Schema(description = "用户描述自己拥有的专业技能")
     @TableField("professional_skills")
     private String professionalSkills;
-    }
+
+    @Schema(description = "是否默认展示(0:否,1:是 )")
+    @TableField("is_default_display")
+    private Integer isDefaultDisplay;
+}

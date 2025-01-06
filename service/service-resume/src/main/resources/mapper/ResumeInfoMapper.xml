@@ -9,11 +9,12 @@
                     <result column="job_status" property="jobStatus" />
                     <result column="personal_advantages" property="personalAdvantages" />
                     <result column="professional_skills" property="professionalSkills" />
+                    <result column="is_default_display" property="isDefaultDisplay" />
         </resultMap>
 
         <!-- 通用查询结果列 -->
         <sql id="columns">
-                candidate_id, resume_name, job_status, personal_advantages, professional_skills
+                candidate_id, resume_name, job_status, personal_advantages, professional_skills, is_default_display
         </sql>
 
 </mapper>

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author hjf
- * @since 2024-10-25
+ * @since 2025-01-07
  */
 @Service
 public class ResumeFavoriteServiceImpl extends ServiceImpl<ResumeFavoriteMapper, ResumeFavorite> implements ResumeFavoriteService {
