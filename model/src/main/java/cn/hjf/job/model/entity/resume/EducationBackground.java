@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDate;
+
 /**
- * 
  * @author hjf
  * @date 2024-10-25
  */
@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class EducationBackground extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Schema(description = "简历id")
     @TableField("resume_id")
     private Long resumeId;
@@ -40,10 +40,10 @@ public class EducationBackground extends BaseEntity {
     private Integer isFullTime;
 
     @Schema(description = "开始时间")
-    @TableField("start_time")
-    private LocalDate startTime;
+    @TableField("start_year")
+    private Integer startYear;
 
     @Schema(description = "结束时间 （null 表示至今）")
-    @TableField("end_time")
-    private LocalDate endTime;
-    }
+    @TableField("end_year")
+    private Integer endYear;
+}

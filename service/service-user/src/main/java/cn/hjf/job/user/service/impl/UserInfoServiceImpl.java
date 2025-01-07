@@ -19,6 +19,7 @@ import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.EmployeeInfoVo;
 import cn.hjf.job.model.vo.user.RecruiterUserInfoVo;
+import cn.hjf.job.model.vo.user.UserInfoAllVo;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import cn.hjf.job.user.config.KeyProperties;
 import cn.hjf.job.user.exception.EmailAlreadyRegisteredException;
@@ -562,6 +563,20 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         return update == 1;
     }
 
+    @Override
+    public UserInfoAllVo getUserInfoAllVo(Long userId) {
+
+        UserInfo userInfo = userInfoMapper.selectById(userId);
+
+        maskUserInfo(userInfo);
+
+        UserInfoAllVo userInfoAllVo = new UserInfoAllVo();
+
+        BeanUtils.copyProperties(userInfo, userInfoAllVo);
+
+        return userInfoAllVo;
+    }
+
 
     private boolean setUserRoleByUserType(Long userId) {
         LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
@@ -595,6 +610,18 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             userInfoVo.setPhone(maskPhone(userInfoVo.getPhone()));
         }
         // TODO 后续自行扩展
+    }
+
+    private void maskUserInfo(UserInfo userInfo) {
+        if (userInfo.getEmail() != null) {
+            userInfo.setEmail(maskEmail(userInfo.getEmail()));
+        }
+
+        if (userInfo.getPhone() != null) {
+            userInfo.setPhone(maskPhone(userInfo.getPhone()));
+        }
+
+
     }
 
     //模糊邮箱

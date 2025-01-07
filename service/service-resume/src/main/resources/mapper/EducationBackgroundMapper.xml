@@ -9,13 +9,13 @@
                     <result column="major" property="major" />
                     <result column="education_level" property="educationLevel" />
                     <result column="is_full_time" property="isFullTime" />
-                    <result column="start_time" property="startTime" />
-                    <result column="end_time" property="endTime" />
+                    <result column="start_year" property="startYear" />
+                    <result column="end_year" property="endYear" />
         </resultMap>
 
         <!-- 通用查询结果列 -->
         <sql id="columns">
-                resume_id, school_name, major, education_level, is_full_time, start_time, end_time
+                resume_id, school_name, major, education_level, is_full_time, start_year, end_year
         </sql>
 
 </mapper>

@@ -8,6 +8,7 @@ import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.EmployeeInfoVo;
 import cn.hjf.job.model.vo.user.RecruiterUserInfoVo;
+import cn.hjf.job.model.vo.user.UserInfoAllVo;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -147,4 +148,12 @@ public interface UserInfoService extends IService<UserInfo> {
      * @return 是否成功
      */
     boolean bindPhone(BindPhoneForm bindPhoneForm, Long id);
+
+    /**
+     * 全部基础信息 (已掩盖)
+     *
+     * @param userId 用户 id
+     * @return 用户全部可见的基础信息
+     */
+    UserInfoAllVo getUserInfoAllVo(Long userId);
 }

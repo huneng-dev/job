@@ -20,14 +20,7 @@ public class CodeGenerator {
         // 需要生成代码的表名
 //        String[] tableNames = {"benefit_type","company_address","company_album","company_benefit","company_business_license","company_department","company_industry","company_info","company_size","legal_person_info"};
         String[] tableNames = {
-                "certification",
-                "education_background",
-                "honor_award",
-                "resume_info",
-                "project_experience",
-                "resume_favorite",
-                "resume_info",
-                "work_experience"
+                "job_expectation"
         };
         // 指定输出目录
         String outputDir = "D:/Java/job/code-generator/src/main/java";

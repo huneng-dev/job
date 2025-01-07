@@ -10,6 +10,7 @@ import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
 import cn.hjf.job.model.vo.user.EmployeeInfoVo;
 import cn.hjf.job.model.vo.user.RecruiterUserInfoVo;
+import cn.hjf.job.model.vo.user.UserInfoAllVo;
 import cn.hjf.job.model.vo.user.UserInfoVo;
 import cn.hjf.job.user.config.KeyProperties;
 import cn.hjf.job.user.service.UserInfoService;
@@ -357,5 +358,19 @@ public class UserInfoController {
         }
     }
 
-
+    /**
+     * 获取基本用户信息(简历)
+     *
+     * @param principal 用户信息
+     * @return Result<UserInfoAllVo>
+     */
+    @GetMapping("/all-info")
+    public Result<UserInfoAllVo> getUserInfoAllVo(Principal principal) {
+        try {
+            UserInfoAllVo userInfoAllVo = userInfoService.getUserInfoAllVo(Long.parseLong(principal.getName()));
+            return userInfoAllVo != null ? Result.ok(userInfoAllVo) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
 }
