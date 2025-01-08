@@ -1,8 +1,12 @@
 package cn.hjf.job.resume.service;
 
+import cn.hjf.job.model.dto.resume.ResumeInfoDto;
 import cn.hjf.job.model.entity.resume.ResumeInfo;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
+import cn.hjf.job.model.vo.resume.BaseResumeVo;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -23,5 +27,21 @@ public interface ResumeInfoService extends IService<ResumeInfo> {
      */
     Long createBaseResume(BaseResumeForm baseResumeForm, Long userId);
 
+    /**
+     * 查询用户全部的基本简历
+     *
+     * @param userId 用户 id
+     * @return List<BaseResumeVo>
+     */
+    List<BaseResumeVo> findBaseResumeList(Long userId);
+
+    /**
+     * 根据简历 id 查询简历详情
+     *
+     * @param resumeId 简历 id
+     * @param userId   用户 id
+     * @return ResumeInfoDto
+     */
+    ResumeInfoDto getResumeInfoById(Long resumeId, Long userId);
 
 }

@@ -34,4 +34,7 @@ public class JobExpectationForm {
 
     @Schema(description = "是否面议")
     private Integer isNegotiable;
+
+    @Schema(description = "工作类型")
+    private Integer jobType;
 }

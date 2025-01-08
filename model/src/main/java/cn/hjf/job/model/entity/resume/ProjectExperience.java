@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDate;
+
 /**
- * 
  * @author hjf
  * @date 2024-10-31
  */
@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class ProjectExperience extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Schema(description = "简历id")
     @TableField("resume_id")
     private Long resumeId;
@@ -46,4 +46,4 @@ public class ProjectExperience extends BaseEntity {
     @Schema(description = "项目链接")
     @TableField("project_url")
     private String projectUrl;
-    }
+}

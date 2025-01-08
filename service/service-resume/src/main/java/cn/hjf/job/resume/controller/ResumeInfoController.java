@@ -1,19 +1,20 @@
 package cn.hjf.job.resume.controller;
 
 import cn.hjf.job.common.result.Result;
+import cn.hjf.job.model.dto.resume.ResumeInfoDto;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
 import cn.hjf.job.model.form.resume.EducationBackgroundForm;
 import cn.hjf.job.model.form.resume.JobExpectationForm;
 import cn.hjf.job.model.form.resume.ResumeInfoForm;
+import cn.hjf.job.model.vo.resume.BaseResumeVo;
 import cn.hjf.job.resume.service.ResumeInfoService;
 import jakarta.annotation.Resource;
+import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 /**
  * 简历控制器
@@ -51,4 +52,56 @@ public class ResumeInfoController {
             return Result.fail();
         }
     }
+
+
+    /**
+     * 查询用户的全部职位
+     *
+     * @param principal 用户信息
+     * @return Result<List < BaseResumeVo>>
+     */
+    @GetMapping("/base/list")
+    public Result<List<BaseResumeVo>> findBaseResumeList(Principal principal) {
+        try {
+            long startTime = System.currentTimeMillis();  // 开始计时
+            List<BaseResumeVo> baseResumeVos = resumeInfoService.findBaseResumeList(Long.parseLong(principal.getName()));
+            long endTime = System.currentTimeMillis();  // 结束计时
+            System.out.println("Execution Time: " + (endTime - startTime) + " milliseconds");
+            return baseResumeVos != null ? Result.ok(baseResumeVos) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 获取简历信息
+     *
+     * @param resumeId  简历 id
+     * @param principal 用户信息
+     * @return Result<ResumeInfoDto>
+     */
+    @GetMapping("/info/{resumeId}")
+    public Result<ResumeInfoDto> getResumeById(@PathVariable(name = "resumeId") Long resumeId, Principal principal) {
+        try {
+            long startTime = System.currentTimeMillis();
+            ResumeInfoDto resumeInfoDto = resumeInfoService.getResumeInfoById(resumeId, Long.parseLong(principal.getName()));
+            long endTime = System.currentTimeMillis();
+            System.out.println("getResumeInfoById 耗时:" + (endTime - startTime));
+            return resumeInfoDto != null ? Result.ok(resumeInfoDto) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
