@@ -47,4 +47,8 @@ public class MqConst {
     public static final String ROUTING_ES_POSITION = "job.es.position";
     public static final String QUEUE_ES_POSITION = "job.es.position";
 
+    // 简历更新到 ES
+    public static final String ROUTING_ES_RESUME = "job.es.resume";
+    public static final String QUEUE_ES_RESUME = "job.es.resume";
+
 }

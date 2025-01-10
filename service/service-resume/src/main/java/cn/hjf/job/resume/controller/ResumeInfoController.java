@@ -7,6 +7,9 @@ import cn.hjf.job.model.form.resume.EducationBackgroundForm;
 import cn.hjf.job.model.form.resume.JobExpectationForm;
 import cn.hjf.job.model.form.resume.ResumeInfoForm;
 import cn.hjf.job.model.vo.resume.BaseResumeVo;
+import cn.hjf.job.model.vo.resume.EducationBackgroundVo;
+import cn.hjf.job.model.vo.resume.JobExpectationVo;
+import cn.hjf.job.model.vo.resume.ResumeVo;
 import cn.hjf.job.resume.service.ResumeInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.method.P;
@@ -41,10 +44,7 @@ public class ResumeInfoController {
      */
     @PostMapping("/create/base")
     @PreAuthorize("hasRole('ROLE_USER_CANDIDATE')")
-    public Result<Long> createBaseResume(
-            @RequestBody BaseResumeForm baseResumeForm,
-            Principal principal
-    ) {
+    public Result<Long> createBaseResume(@RequestBody BaseResumeForm baseResumeForm, Principal principal) {
         try {
             Long resumeId = resumeInfoService.createBaseResume(baseResumeForm, Long.parseLong(principal.getName()));
             return resumeId != null ? Result.ok(resumeId) : Result.fail();
@@ -88,6 +88,57 @@ public class ResumeInfoController {
             long endTime = System.currentTimeMillis();
             System.out.println("getResumeInfoById 耗时:" + (endTime - startTime));
             return resumeInfoDto != null ? Result.ok(resumeInfoDto) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 更新 resume
+     *
+     * @param resumeVo  简历基本信息
+     * @param principal 用户信息
+     * @return 简历 id
+     */
+    @PutMapping("/resumeInfo")
+    public Result<Long> updateResumeInfo(@RequestBody ResumeVo resumeVo, Principal principal) {
+        try {
+            Long id = resumeInfoService.updateResumeInfo(resumeVo, Long.parseLong(principal.getName()));
+            return id != null ? Result.ok(id) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 更新 教育背景
+     *
+     * @param educationBackgroundVo 教育背景
+     * @param principal             用户信息
+     * @return 主键 id
+     */
+    @PutMapping("/educationBackground")
+    public Result<Long> updateEducationBackground(@RequestBody EducationBackgroundVo educationBackgroundVo, Principal principal) {
+        try {
+            Long id = resumeInfoService.updateEducationBackground(educationBackgroundVo, Long.parseLong(principal.getName()));
+            return id != null ? Result.ok(id) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 更新工作期望
+     *
+     * @param jobExpectationVo 工作期望
+     * @param principal        用户信息
+     * @return 主键 id
+     */
+    @PutMapping("/jobExpectationVo")
+    public Result<Long> updateJobExpectation(@RequestBody JobExpectationVo jobExpectationVo, Principal principal) {
+        try {
+            Long id = resumeInfoService.updateJobExpectation(jobExpectationVo, Long.parseLong(principal.getName()));
+            return id != null ? Result.ok(id) : Result.fail();
         } catch (Exception e) {
             return Result.fail();
         }

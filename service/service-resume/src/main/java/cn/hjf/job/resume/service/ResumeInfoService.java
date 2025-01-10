@@ -4,6 +4,9 @@ import cn.hjf.job.model.dto.resume.ResumeInfoDto;
 import cn.hjf.job.model.entity.resume.ResumeInfo;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
 import cn.hjf.job.model.vo.resume.BaseResumeVo;
+import cn.hjf.job.model.vo.resume.EducationBackgroundVo;
+import cn.hjf.job.model.vo.resume.JobExpectationVo;
+import cn.hjf.job.model.vo.resume.ResumeVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -44,4 +47,35 @@ public interface ResumeInfoService extends IService<ResumeInfo> {
      */
     ResumeInfoDto getResumeInfoById(Long resumeId, Long userId);
 
+    /**
+     * 更新 resumeInfo
+     *
+     * @param resumeVo 简历
+     * @param userId   用户 id
+     * @return 主键 id
+     */
+    Long updateResumeInfo(ResumeVo resumeVo, Long userId);
+
+    Long updateEducationBackground(EducationBackgroundVo educationBackgroundVo, Long userId);
+
+    Long updateJobExpectation(JobExpectationVo jobExpectationVo, Long userId);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

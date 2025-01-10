@@ -31,5 +31,4 @@ public class ResumeVo {
 
     @Schema(description = "是否默认展示(0:否,1:是 )")
     private Integer isDefaultDisplay;
-
 }

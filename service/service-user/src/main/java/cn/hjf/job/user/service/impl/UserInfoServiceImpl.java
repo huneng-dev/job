@@ -574,6 +574,10 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
         BeanUtils.copyProperties(userInfo, userInfoAllVo);
 
+        String url = publicFileUrlResolver.resolveSingleUrl(userInfo.getAvatar());
+
+        userInfoAllVo.setAvatar(url);
+
         return userInfoAllVo;
     }
 

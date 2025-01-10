@@ -1,5 +1,7 @@
 package cn.hjf.job.resume.service.impl;
 
+import cn.hjf.job.common.rabbit.constant.MqConst;
+import cn.hjf.job.common.rabbit.service.RabbitService;
 import cn.hjf.job.model.dto.resume.ResumeInfoDto;
 import cn.hjf.job.model.entity.resume.*;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
@@ -17,6 +19,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,6 +54,9 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
 
     @Resource
     private CertificationMapper certificationMapper;
+
+    @Resource
+    private RabbitService rabbitService;
 
 
     @Override
@@ -112,6 +118,11 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
 
             resumeInfoMapper.update(resumeInfoLambdaUpdateWrapper); // 如果出异常也会正常回滚
         }
+
+        if (resumeCount == 0 || baseResumeForm.getResumeInfoForm().getIsDefaultDisplay().equals(1)) {
+            rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfo);
+        }
+
         return resumeInfo.getId();
     }
 
@@ -123,7 +134,7 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         resumeInfoLambdaQueryWrapper.eq(ResumeInfo::getCandidateId, userId);
         List<ResumeInfo> resumeInfos = resumeInfoMapper.selectList(resumeInfoLambdaQueryWrapper);
 
-        List<BaseResumeVo> baseResumeVos = new ArrayList<>(resumeInfos.size());
+        List<BaseResumeVo> baseResumeVos = new ArrayList<>();
 
         List<Long> resumeIds = new ArrayList<>(resumeInfos.size());
 
@@ -251,6 +262,63 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         resumeInfoDto.setCertificationVos(certificationVos);
 
         return resumeInfoDto;
+    }
+
+    @Override
+    public Long updateResumeInfo(ResumeVo resumeVo, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(resumeVo.getId(), userId);
+        if (resumeInfo == null) return null;
+
+        LambdaUpdateWrapper<ResumeInfo> resumeInfoLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        resumeInfoLambdaUpdateWrapper.set(ResumeInfo::getResumeName, resumeVo.getResumeName()).set(ResumeInfo::getJobStatus, resumeVo.getJobStatus()).set(ResumeInfo::getPersonalAdvantages, resumeVo.getPersonalAdvantages()).set(ResumeInfo::getProfessionalSkills, resumeVo.getProfessionalSkills()).eq(ResumeInfo::getId, resumeInfo.getId());
+
+        resumeInfoMapper.update(resumeInfoLambdaUpdateWrapper);
+
+        // 如果当前是 ’默认显示‘ 就发送 MQ 消息告知存储到 ES 以供招聘端检索
+        // 整体性更新简历到 ES
+        rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfo);
+        return resumeVo.getId();
+    }
+
+    @Override
+    public Long updateEducationBackground(EducationBackgroundVo educationBackgroundVo, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(educationBackgroundVo.getResumeId(), userId);
+        if (resumeInfo == null) return null;
+
+        LambdaUpdateWrapper<EducationBackground> educationBackgroundVoLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        educationBackgroundVoLambdaUpdateWrapper.set(EducationBackground::getSchoolName, educationBackgroundVo.getSchoolName()).set(EducationBackground::getMajor, educationBackgroundVo.getMajor()).set(EducationBackground::getEducationLevel, educationBackgroundVo.getEducationLevel()).set(EducationBackground::getIsFullTime, educationBackgroundVo.getIsFullTime()).set(EducationBackground::getStartYear, educationBackgroundVo.getStartYear()).set(EducationBackground::getEndYear, educationBackgroundVo.getEndYear()).eq(EducationBackground::getId, educationBackgroundVo.getId());
+
+        educationBackgroundMapper.update(educationBackgroundVoLambdaUpdateWrapper);
+
+        rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfo);
+
+        return educationBackgroundVo.getId();
+    }
+
+    @Override
+    public Long updateJobExpectation(JobExpectationVo jobExpectationVo, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(jobExpectationVo.getResumeId(), userId);
+        if (resumeInfo == null) return null;
+
+        LambdaUpdateWrapper<JobExpectation> jobExpectationLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        jobExpectationLambdaUpdateWrapper.set(JobExpectation::getJobType, jobExpectationVo.getJobType())
+                .set(JobExpectation::getSalaryMax, jobExpectationVo.getSalaryMax())
+                .set(JobExpectation::getSalaryMin, jobExpectationVo.getSalaryMin())
+                .set(JobExpectation::getIsNegotiable, jobExpectationVo.getIsNegotiable())
+                .eq(JobExpectation::getId, jobExpectationVo.getId());
+
+        jobExpectationMapper.update(jobExpectationLambdaUpdateWrapper);
+
+        rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfo);
+
+        return jobExpectationVo.getId();
+    }
+
+
+    private ResumeInfo getResumeInfo(@NotNull Long resumeId, @NotNull Long userId) {
+        LambdaQueryWrapper<ResumeInfo> resumeInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        resumeInfoLambdaQueryWrapper.eq(ResumeInfo::getId, resumeId).eq(ResumeInfo::getCandidateId, userId);
+        return resumeInfoMapper.selectOne(resumeInfoLambdaQueryWrapper);
     }
 
     @NotNull
