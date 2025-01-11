@@ -214,6 +214,76 @@ public class ResumeInfoController {
         }
     }
 
+    /**
+     * 添加荣誉奖励
+     *
+     * @param honorAwardVo 荣誉奖励
+     * @param principal    用户信息
+     * @return 主键 id
+     */
+    @PostMapping("/honorAward")
+    public Result<Long> addHonorAward(@RequestBody HonorAwardVo honorAwardVo, Principal principal) {
+        try {
+            Long id = resumeInfoService.addHonorAward(honorAwardVo, Long.parseLong(principal.getName()));
+            return id != null ? Result.ok(id) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 删除荣誉奖励
+     *
+     * @param resumeId  奖励 id
+     * @param honorId   荣誉奖励 id
+     * @param principal 用户信息
+     * @return 是否成功
+     */
+    @DeleteMapping("/honorAward")
+    public Result<String> deleteHonorAward(@RequestParam Long resumeId, @RequestParam Long honorId, Principal principal) {
+        try {
+            Boolean isSuccess = resumeInfoService.deleteHonorAward(resumeId, honorId, Long.parseLong(principal.getName()));
+            return isSuccess ? Result.ok("删除成功") : Result.fail("删除失败");
+        } catch (Exception e) {
+            return Result.fail("删除失败");
+        }
+    }
+
+    /**
+     * 添加证书
+     *
+     * @param certificationVo 证书
+     * @param principal       用户信息
+     * @return 主键 id
+     */
+    @PostMapping("/certification")
+    public Result<Long> addCertification(@RequestBody CertificationVo certificationVo, Principal principal) {
+        try {
+            Long id = resumeInfoService.addCertification(certificationVo, Long.parseLong(principal.getName()));
+            return id != null ? Result.ok(id) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 删除证书
+     *
+     * @param resumeId        简历 id
+     * @param certificationId 证书 id
+     * @param principal       用户信息
+     * @return 是否成功
+     */
+    @DeleteMapping("/certification")
+    public Result<String> deleteCertification(@RequestParam Long resumeId, @RequestParam Long certificationId, Principal principal) {
+        try {
+            Boolean isSuccess = resumeInfoService.deleteCertification(resumeId, certificationId, Long.parseLong(principal.getName()));
+            return isSuccess ? Result.ok("删除成功") : Result.fail("删除失败");
+        } catch (Exception e) {
+            return Result.fail("删除失败");
+        }
+    }
+
 }
 
 

@@ -66,6 +66,14 @@ public interface ResumeInfoService extends IService<ResumeInfo> {
     Long addWorkExperience(WorkExperienceVo workExperienceVo, Long userId);
 
     Boolean deleteWorkExperience(Long resumeId, @NotNull Long workId, Long userId);
+
+    Long addHonorAward(HonorAwardVo honorAwardVo, Long userId);
+
+    Boolean deleteHonorAward(Long resumeId, @NotNull Long honorId, Long userId);
+
+    Long addCertification(CertificationVo certificationVo, Long userId);
+
+    Boolean deleteCertification(Long resumeId, Long certificationId, Long userId);
 }
 
 

@@ -411,6 +411,60 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         return delete == 1;
     }
 
+    @Override
+    public Long addHonorAward(HonorAwardVo honorAwardVo, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(honorAwardVo.getResumeId(), userId);
+        if (resumeInfo == null) return null;
+
+        HonorAward honorAward = new HonorAward();
+        BeanUtils.copyProperties(honorAwardVo, honorAward);
+        honorAward.setId(null);
+        int insert = honorAwardMapper.insert(honorAward);
+
+        return insert == 1 ? honorAward.getId() : null;
+    }
+
+    @Override
+    public Boolean deleteHonorAward(Long resumeId, @NotNull Long honorId, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(resumeId, userId);
+        if (resumeInfo == null) return null;
+
+        LambdaQueryWrapper<HonorAward> honorAwardLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        honorAwardLambdaQueryWrapper.eq(HonorAward::getId, honorId)
+                .eq(HonorAward::getResumeId, resumeId);
+
+        int delete = honorAwardMapper.delete(honorAwardLambdaQueryWrapper);
+
+        return delete == 1;
+    }
+
+    @Override
+    public Long addCertification(CertificationVo certificationVo, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(certificationVo.getResumeId(), userId);
+        if (resumeInfo == null) return null;
+
+        Certification certification = new Certification();
+        BeanUtils.copyProperties(certificationVo, certification);
+        certification.setId(null);
+
+        int insert = certificationMapper.insert(certification);
+
+        return certification.getId();
+    }
+
+    @Override
+    public Boolean deleteCertification(Long resumeId, Long certificationId, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(resumeId, userId);
+        if (resumeInfo == null) return null;
+        LambdaQueryWrapper<Certification> certificationLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        certificationLambdaQueryWrapper.eq(Certification::getId, certificationId)
+                .eq(Certification::getResumeId, resumeId);
+
+        int delete = certificationMapper.delete(certificationLambdaQueryWrapper);
+
+        return delete == 1;
+    }
+
     private ResumeInfo getResumeInfo(@NotNull Long resumeId, @NotNull Long userId) {
         LambdaQueryWrapper<ResumeInfo> resumeInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
         resumeInfoLambdaQueryWrapper.eq(ResumeInfo::getId, resumeId).eq(ResumeInfo::getCandidateId, userId);
@@ -420,9 +474,9 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
     @NotNull
     private static List<BaseProjectExperienceVo> getBaseProjectExperienceVos(List<ProjectExperience> projectExperiences, Long resumeId) {
         List<BaseProjectExperienceVo> baseProjectExperienceVos = new ArrayList<>();
-        for (int x = 0; x < projectExperiences.size(); x++) {
-            if (Objects.equals(projectExperiences.get(x).getResumeId(), resumeId)) {
-                BaseProjectExperienceVo baseProjectExperienceVo = new BaseProjectExperienceVo(projectExperiences.get(x).getId(), projectExperiences.get(x).getProjectName(), projectExperiences.get(x).getRole());
+        for (ProjectExperience projectExperience : projectExperiences) {
+            if (Objects.equals(projectExperience.getResumeId(), resumeId)) {
+                BaseProjectExperienceVo baseProjectExperienceVo = new BaseProjectExperienceVo(projectExperience.getId(), projectExperience.getProjectName(), projectExperience.getRole());
                 baseProjectExperienceVos.add(baseProjectExperienceVo);
             }
         }
