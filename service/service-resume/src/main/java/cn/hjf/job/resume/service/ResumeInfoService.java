@@ -1,13 +1,12 @@
 package cn.hjf.job.resume.service;
 
 import cn.hjf.job.model.dto.resume.ResumeInfoDto;
+import cn.hjf.job.model.entity.resume.ProjectExperience;
 import cn.hjf.job.model.entity.resume.ResumeInfo;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
-import cn.hjf.job.model.vo.resume.BaseResumeVo;
-import cn.hjf.job.model.vo.resume.EducationBackgroundVo;
-import cn.hjf.job.model.vo.resume.JobExpectationVo;
-import cn.hjf.job.model.vo.resume.ResumeVo;
+import cn.hjf.job.model.vo.resume.*;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -59,6 +58,14 @@ public interface ResumeInfoService extends IService<ResumeInfo> {
     Long updateEducationBackground(EducationBackgroundVo educationBackgroundVo, Long userId);
 
     Long updateJobExpectation(JobExpectationVo jobExpectationVo, Long userId);
+
+    Long addProjectExperience(ProjectExperienceVo projectExperienceVo, Long userId);
+
+    Boolean deleteProjectExperience(Long resumeId, @NotNull Long projectId, Long userId);
+
+    Long addWorkExperience(WorkExperienceVo workExperienceVo, Long userId);
+
+    Boolean deleteWorkExperience(Long resumeId, @NotNull Long workId, Long userId);
 }
 
 

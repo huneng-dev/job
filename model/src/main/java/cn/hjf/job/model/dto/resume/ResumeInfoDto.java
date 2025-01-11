@@ -27,5 +27,4 @@ public class ResumeInfoDto {
     private List<HonorAwardVo> honorAwardVos;
 
     private List<CertificationVo> certificationVos;
-
 }

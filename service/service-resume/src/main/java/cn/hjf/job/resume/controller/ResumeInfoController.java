@@ -2,14 +2,12 @@ package cn.hjf.job.resume.controller;
 
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.model.dto.resume.ResumeInfoDto;
+import cn.hjf.job.model.entity.resume.ProjectExperience;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
 import cn.hjf.job.model.form.resume.EducationBackgroundForm;
 import cn.hjf.job.model.form.resume.JobExpectationForm;
 import cn.hjf.job.model.form.resume.ResumeInfoForm;
-import cn.hjf.job.model.vo.resume.BaseResumeVo;
-import cn.hjf.job.model.vo.resume.EducationBackgroundVo;
-import cn.hjf.job.model.vo.resume.JobExpectationVo;
-import cn.hjf.job.model.vo.resume.ResumeVo;
+import cn.hjf.job.model.vo.resume.*;
 import cn.hjf.job.resume.service.ResumeInfoService;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.method.P;
@@ -143,6 +141,79 @@ public class ResumeInfoController {
             return Result.fail();
         }
     }
+
+    /**
+     * 添加 项目经验
+     *
+     * @param projectExperienceVo 项目经验
+     * @param principal           用户信息
+     * @return 主键 id
+     */
+    @PostMapping("/projectExperience")
+    public Result<Long> addProjectExperience(@RequestBody ProjectExperienceVo projectExperienceVo, Principal principal) {
+        try {
+            Long id = resumeInfoService.addProjectExperience(projectExperienceVo, Long.parseLong(principal.getName()));
+            return id != null ? Result.ok(id) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+
+    /**
+     * 删除 项目经验
+     *
+     * @param resumeId  简历 id
+     * @param projectId 项目 id
+     * @param principal 用户信息
+     * @return 是否成功
+     */
+    @DeleteMapping("/projectExperience")
+    public Result<String> deleteProjectExperience(@RequestParam Long resumeId, @RequestParam Long projectId, Principal principal) {
+        try {
+            Boolean isSuccess = resumeInfoService.deleteProjectExperience(resumeId, projectId, Long.parseLong(principal.getName()));
+            return isSuccess ? Result.ok("删除成功") : Result.fail("删除失败");
+        } catch (Exception e) {
+            return Result.fail("删除失败");
+        }
+    }
+
+
+    /**
+     * 添加工作经验
+     *
+     * @param workExperienceVo 工作经验
+     * @param principal        用户信息
+     * @return 主键
+     */
+    @PostMapping("/workExperience")
+    public Result<Long> addWorkExperience(@RequestBody WorkExperienceVo workExperienceVo, Principal principal) {
+        try {
+            Long id = resumeInfoService.addWorkExperience(workExperienceVo, Long.parseLong(principal.getName()));
+            return id != null ? Result.ok(id) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 删除工作经历
+     *
+     * @param resumeId  简历 id
+     * @param workId    工作经历 id
+     * @param principal 用户信息
+     * @return 是否成功
+     */
+    @DeleteMapping("/workExperience")
+    public Result<String> deleteWorkExperience(@RequestParam Long resumeId, @RequestParam Long workId, Principal principal) {
+        try {
+            Boolean isSuccess = resumeInfoService.deleteWorkExperience(resumeId, workId, Long.parseLong(principal.getName()));
+            return isSuccess ? Result.ok("删除成功") : Result.fail("删除失败");
+        } catch (Exception e) {
+            return Result.fail("删除失败");
+        }
+    }
+
 }
 
 

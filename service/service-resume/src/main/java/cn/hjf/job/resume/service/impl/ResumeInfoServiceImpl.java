@@ -2,11 +2,15 @@ package cn.hjf.job.resume.service.impl;
 
 import cn.hjf.job.common.rabbit.constant.MqConst;
 import cn.hjf.job.common.rabbit.service.RabbitService;
+import cn.hjf.job.model.document.resume.ProjectDescriptionDoc;
+import cn.hjf.job.model.document.resume.WorkDescriptionDoc;
 import cn.hjf.job.model.dto.resume.ResumeInfoDto;
 import cn.hjf.job.model.entity.resume.*;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
 import cn.hjf.job.model.vo.resume.*;
 import cn.hjf.job.resume.mapper.*;
+import cn.hjf.job.resume.repository.ProjectDescriptionRepository;
+import cn.hjf.job.resume.repository.WorkDescriptionRepository;
 import cn.hjf.job.resume.service.ResumeInfoService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -57,6 +61,12 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
 
     @Resource
     private RabbitService rabbitService;
+
+    @Resource
+    private ProjectDescriptionRepository projectDescriptionRepository;
+
+    @Resource
+    private WorkDescriptionRepository workDescriptionRepository;
 
 
     @Override
@@ -134,11 +144,9 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         resumeInfoLambdaQueryWrapper.eq(ResumeInfo::getCandidateId, userId);
         List<ResumeInfo> resumeInfos = resumeInfoMapper.selectList(resumeInfoLambdaQueryWrapper);
 
-        List<BaseResumeVo> baseResumeVos = new ArrayList<>();
-
         List<Long> resumeIds = new ArrayList<>(resumeInfos.size());
 
-        baseResumeVos = resumeInfos.stream().map(resumeInfo -> {
+        List<BaseResumeVo> baseResumeVos = resumeInfos.stream().map(resumeInfo -> {
             BaseResumeVo baseResumeVo = new BaseResumeVo();
             baseResumeVo.setId(resumeInfo.getId());
             resumeIds.add(resumeInfo.getId());
@@ -165,7 +173,7 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
 
             // 如果有项目就进行匹配
             if (projectExperiences != null && !projectExperiences.isEmpty()) {
-                List<BaseProjectExperienceVo> baseProjectExperienceVos = getBaseProjectExperienceVos(projectExperiences, baseResumeVos);
+                List<BaseProjectExperienceVo> baseProjectExperienceVos = getBaseProjectExperienceVos(projectExperiences, baseResumeVos.get(i).getId());
                 baseResumeVos.get(i).setBaseProjectExperienceVoList(baseProjectExperienceVos);
             }
         }
@@ -214,11 +222,27 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         projectExperienceLambdaQueryWrapper.eq(ProjectExperience::getResumeId, resumeId);
         List<ProjectExperience> projectExperiences = projectExperienceMapper.selectList(projectExperienceLambdaQueryWrapper);
 
+        List<String> projectDescriptions = new ArrayList<>(projectExperiences.size());
+
         List<ProjectExperienceVo> projectExperienceVos = projectExperiences.stream().map(projectExperience -> {
             ProjectExperienceVo projectExperienceVo = new ProjectExperienceVo();
             BeanUtils.copyProperties(projectExperience, projectExperienceVo);
+            projectDescriptions.add(projectExperience.getProjectDescription());
             return projectExperienceVo;
         }).toList();
+
+        List<ProjectDescriptionDoc> descriptionDocs = projectDescriptionRepository.findAllById(projectDescriptions);
+
+        // 将对应的项目描述设置到 ProjectExperience 对象
+        projectExperienceVos.forEach(projectExperience -> {
+            // 查找对应的项目描述文档
+            for (ProjectDescriptionDoc descriptionDoc : descriptionDocs) {
+                if (descriptionDoc.getId().equals(projectExperience.getProjectDescription())) {
+                    projectExperience.setProjectDescription(descriptionDoc.getDescription()); // 设置项目描述
+                    break;
+                }
+            }
+        });
 
         resumeInfoDto.setProjectExperienceVos(projectExperienceVos);
 
@@ -227,11 +251,26 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         workExperienceLambdaQueryWrapper.eq(WorkExperience::getResumeId, resumeId);
         List<WorkExperience> workExperiences = workExperienceMapper.selectList(workExperienceLambdaQueryWrapper);
 
+        List<String> workDescriptions = new ArrayList<>(workExperiences.size());
+
         List<WorkExperienceVo> workExperienceVos = workExperiences.stream().map(workExperience -> {
             WorkExperienceVo workExperienceVo = new WorkExperienceVo();
             BeanUtils.copyProperties(workExperience, workExperienceVo);
+            workDescriptions.add(workExperience.getJobDescription());
             return workExperienceVo;
         }).toList();
+
+        List<WorkDescriptionDoc> workDescriptionDocs = workDescriptionRepository.findAllById(workDescriptions);
+
+        workExperienceVos.forEach(workExperienceVo -> {
+            // 查找对应的项目描述文档
+            for (WorkDescriptionDoc descriptionDoc : workDescriptionDocs) {
+                if (descriptionDoc.getId().equals(workExperienceVo.getJobDescription())) {
+                    workExperienceVo.setJobDescription(descriptionDoc.getDescription()); // 设置项目描述
+                    break;
+                }
+            }
+        });
 
         resumeInfoDto.setWorkExperienceVos(workExperienceVos);
 
@@ -301,11 +340,7 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         if (resumeInfo == null) return null;
 
         LambdaUpdateWrapper<JobExpectation> jobExpectationLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
-        jobExpectationLambdaUpdateWrapper.set(JobExpectation::getJobType, jobExpectationVo.getJobType())
-                .set(JobExpectation::getSalaryMax, jobExpectationVo.getSalaryMax())
-                .set(JobExpectation::getSalaryMin, jobExpectationVo.getSalaryMin())
-                .set(JobExpectation::getIsNegotiable, jobExpectationVo.getIsNegotiable())
-                .eq(JobExpectation::getId, jobExpectationVo.getId());
+        jobExpectationLambdaUpdateWrapper.set(JobExpectation::getJobType, jobExpectationVo.getJobType()).set(JobExpectation::getSalaryMax, jobExpectationVo.getSalaryMax()).set(JobExpectation::getSalaryMin, jobExpectationVo.getSalaryMin()).set(JobExpectation::getIsNegotiable, jobExpectationVo.getIsNegotiable()).eq(JobExpectation::getId, jobExpectationVo.getId());
 
         jobExpectationMapper.update(jobExpectationLambdaUpdateWrapper);
 
@@ -314,6 +349,67 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         return jobExpectationVo.getId();
     }
 
+    @Override
+    public Long addProjectExperience(ProjectExperienceVo projectExperienceVo, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(projectExperienceVo.getResumeId(), userId);
+        if (resumeInfo == null) return null;
+
+        // 将项目描述保存到 mongoDB
+        ProjectDescriptionDoc projectDescriptionDoc = new ProjectDescriptionDoc();
+        projectDescriptionDoc.setDescription(projectExperienceVo.getProjectDescription());
+        ProjectDescriptionDoc saveProjectDescriptionDoc = projectDescriptionRepository.save(projectDescriptionDoc);
+
+        ProjectExperience projectExperience = new ProjectExperience();
+        BeanUtils.copyProperties(projectExperienceVo, projectExperience);
+        projectExperience.setId(null);
+        projectExperience.setProjectDescription(saveProjectDescriptionDoc.getId());
+
+        int insert = projectExperienceMapper.insert(projectExperience);
+
+        return insert == 1 ? projectExperience.getId() : null;
+    }
+
+    @Override
+    public Boolean deleteProjectExperience(Long resumeId, @NotNull Long projectId, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(resumeId, userId);
+        if (resumeInfo == null) return null;
+        LambdaQueryWrapper<ProjectExperience> projectExperienceLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        projectExperienceLambdaQueryWrapper.eq(ProjectExperience::getId, projectId)
+                .eq(ProjectExperience::getResumeId, resumeId);
+        int i = projectExperienceMapper.delete(projectExperienceLambdaQueryWrapper);
+        return i == 1;
+    }
+
+    @Override
+    public Long addWorkExperience(WorkExperienceVo workExperienceVo, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(workExperienceVo.getResumeId(), userId);
+        if (resumeInfo == null) return null;
+
+        WorkDescriptionDoc workDescriptionDoc = new WorkDescriptionDoc();
+        workDescriptionDoc.setDescription(workExperienceVo.getJobDescription());
+        WorkDescriptionDoc saveWorkDescriptionDoc = workDescriptionRepository.save(workDescriptionDoc);
+
+        WorkExperience workExperience = new WorkExperience();
+        BeanUtils.copyProperties(workExperienceVo, workExperience);
+        workExperience.setId(null);
+        workExperience.setJobDescription(saveWorkDescriptionDoc.getId());
+
+        int insert = workExperienceMapper.insert(workExperience);
+
+        return insert == 1 ? workExperience.getId() : null;
+    }
+
+    @Override
+    public Boolean deleteWorkExperience(Long resumeId, @NotNull Long workId, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(resumeId, userId);
+        if (resumeInfo == null) return null;
+        LambdaQueryWrapper<WorkExperience> workExperienceLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        workExperienceLambdaQueryWrapper.eq(WorkExperience::getId, workId)
+                .eq(WorkExperience::getResumeId, resumeId);
+
+        int delete = workExperienceMapper.delete(workExperienceLambdaQueryWrapper);
+        return delete == 1;
+    }
 
     private ResumeInfo getResumeInfo(@NotNull Long resumeId, @NotNull Long userId) {
         LambdaQueryWrapper<ResumeInfo> resumeInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -322,10 +418,10 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
     }
 
     @NotNull
-    private static List<BaseProjectExperienceVo> getBaseProjectExperienceVos(List<ProjectExperience> projectExperiences, List<BaseResumeVo> baseResumeVos) {
+    private static List<BaseProjectExperienceVo> getBaseProjectExperienceVos(List<ProjectExperience> projectExperiences, Long resumeId) {
         List<BaseProjectExperienceVo> baseProjectExperienceVos = new ArrayList<>();
         for (int x = 0; x < projectExperiences.size(); x++) {
-            if (Objects.equals(projectExperiences.get(x).getResumeId(), baseResumeVos.get(x).getId())) {
+            if (Objects.equals(projectExperiences.get(x).getResumeId(), resumeId)) {
                 BaseProjectExperienceVo baseProjectExperienceVo = new BaseProjectExperienceVo(projectExperiences.get(x).getId(), projectExperiences.get(x).getProjectName(), projectExperiences.get(x).getRole());
                 baseProjectExperienceVos.add(baseProjectExperienceVo);
             }

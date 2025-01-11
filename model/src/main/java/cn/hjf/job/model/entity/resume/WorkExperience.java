@@ -39,9 +39,9 @@ public class WorkExperience extends BaseEntity {
     @TableField("end_date")
     private LocalDate endDate;
 
-    @Schema(description = "职位id")
-    @TableField("position_id")
-    private Long positionId;
+    @Schema(description = "职位")
+    @TableField("position")
+    private String position;
 
     @Schema(description = "工作描述")
     @TableField("job_description")
@@ -50,8 +50,4 @@ public class WorkExperience extends BaseEntity {
     @Schema(description = "是否是实习 0表示不是，1表示是")
     @TableField("is_internship")
     private Integer isInternship;
-
-    @Schema(description = "是否对这家公司隐藏 0表示不隐藏，1表示隐藏")
-    @TableField("is_hidden")
-    private Integer isHidden;
 }

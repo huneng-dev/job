@@ -31,15 +31,12 @@ public class WorkExperienceVo {
     @Schema(description = "结束时间")
     private LocalDate endDate;
 
-    @Schema(description = "职位id")
-    private Long positionId;
+    @Schema(description = "职位")
+    private String position;
 
     @Schema(description = "工作描述")
     private String jobDescription;
 
     @Schema(description = "是否是实习 0表示不是，1表示是")
     private Integer isInternship;
-
-    @Schema(description = "是否对这家公司隐藏 0表示不隐藏，1表示隐藏")
-    private Integer isHidden;
 }
