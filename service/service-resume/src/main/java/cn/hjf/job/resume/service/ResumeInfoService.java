@@ -7,8 +7,10 @@ import cn.hjf.job.model.form.resume.BaseResumeForm;
 import cn.hjf.job.model.vo.resume.*;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * <p>
@@ -74,6 +76,37 @@ public interface ResumeInfoService extends IService<ResumeInfo> {
     Long addCertification(CertificationVo certificationVo, Long userId);
 
     Boolean deleteCertification(Long resumeId, Long certificationId, Long userId);
+
+    /**
+     * 获取 resumeVo
+     * 同步
+     *
+     * @param resumeId 简历 id
+     * @return ResumeVo
+     */
+    ResumeVo getResumeVo(Long resumeId);
+
+    /**
+     * 获取 resumeVo
+     * 异步
+     *
+     * @param resumeId 简历 id
+     * @return CompletableFuture<ResumeVo>
+     */
+    CompletableFuture<ResumeVo> getResumeVoAsync(Long resumeId);
+
+    void testResumeSaveToES(Long resumeId);
+
+    /**
+     * 删除简历
+     *
+     * @param resumeId 简历 id
+     * @param userId   用户 id
+     * @return 是否成功
+     */
+    Boolean deleteResumeInfo(Long resumeId, Long userId);
+
+    Boolean setResumeDefaultDisplay(Long resumeId, Long userId);
 }
 
 

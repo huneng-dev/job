@@ -5,10 +5,12 @@ import cn.hjf.job.model.dto.user.UserInfoPasswordStatus;
 import cn.hjf.job.model.dto.user.UserInfoStatus;
 import cn.hjf.job.model.form.user.UserIdCardInfoForm;
 import cn.hjf.job.model.vo.user.EmployeeInfoVo;
+import cn.hjf.job.model.vo.user.UserInfoAllVo;
 import cn.hjf.job.user.config.FeignRequestInterceptor;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @FeignClient(value = "service-user", configuration = FeignRequestInterceptor.class)
@@ -91,4 +93,23 @@ public interface UserInfoFeignClient {
      */
     @GetMapping("/user/employee/infos")
     public Result<List<EmployeeInfoVo>> findCompanyEmployeeByUserIds(@RequestParam List<Long> userIds, @RequestParam String serviceKey);
+
+    /**
+     * 获取基本用户信息(简历)
+     *
+     * @return Result<UserInfoAllVo>
+     */
+    @GetMapping("/user/all-info")
+    public Result<UserInfoAllVo> getUserInfoAllVo();
+
+
+    /**
+     * 系统调用
+     *
+     * @param userId     用户 id
+     * @param serviceKey 密钥
+     * @return 用户信息
+     */
+    @GetMapping("/user/resume")
+    public Result<UserInfoAllVo> getUserInfoAllVo(@RequestParam Long userId, @RequestParam String serviceKey);
 }

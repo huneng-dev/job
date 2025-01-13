@@ -1,5 +1,6 @@
 package cn.hjf.job.resume.service.impl;
 
+import cn.hjf.job.common.es.entity.BaseEsInfo;
 import cn.hjf.job.common.rabbit.constant.MqConst;
 import cn.hjf.job.common.rabbit.service.RabbitService;
 import cn.hjf.job.model.document.resume.ProjectDescriptionDoc;
@@ -19,13 +20,13 @@ import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.annotation.Resource;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
-import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * <p>
@@ -79,6 +80,7 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         Long resumeCount = resumeInfoMapper.selectCount(selectResumeCountQueryWrapper);
         if (resumeCount >= 10) return null;
 
+
         // 保存简历基本信息
         ResumeInfo resumeInfo = new ResumeInfo();
         BeanUtils.copyProperties(baseResumeForm.getResumeInfoForm(), resumeInfo);
@@ -121,16 +123,20 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
             throw new RuntimeException("教育背景");
         }
 
+
+        if (resumeCount == 0 || baseResumeForm.getResumeInfoForm().getIsDefaultDisplay().equals(1)) {
+            BaseEsInfo<ResumeInfo> resumeInfoBaseEsInfo = new BaseEsInfo<>();
+            resumeInfoBaseEsInfo.setOp("u");
+            resumeInfoBaseEsInfo.setData(resumeInfo);
+            rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfoBaseEsInfo);
+        }
+
         // 如果不是第一次创建,且用户设置当前简历是默认,设置除了当前 简历以外的全部简历为 非默认
         if (resumeCount > 0 && Objects.equals(baseResumeForm.getResumeInfoForm().getIsDefaultDisplay(), 1)) {
             LambdaUpdateWrapper<ResumeInfo> resumeInfoLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
             resumeInfoLambdaUpdateWrapper.set(ResumeInfo::getIsDefaultDisplay, 0).eq(ResumeInfo::getCandidateId, userId).ne(ResumeInfo::getId, resumeInfo.getId());
 
             resumeInfoMapper.update(resumeInfoLambdaUpdateWrapper); // 如果出异常也会正常回滚
-        }
-
-        if (resumeCount == 0 || baseResumeForm.getResumeInfoForm().getIsDefaultDisplay().equals(1)) {
-            rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfo);
         }
 
         return resumeInfo.getId();
@@ -315,7 +321,14 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
 
         // 如果当前是 ’默认显示‘ 就发送 MQ 消息告知存储到 ES 以供招聘端检索
         // 整体性更新简历到 ES
-        rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfo);
+        if (resumeInfo.getIsDefaultDisplay().equals(1)) {
+            BaseEsInfo<ResumeInfo> resumeInfoBaseEsInfo = new BaseEsInfo<>();
+            resumeInfoBaseEsInfo.setOp("u");
+            resumeInfoBaseEsInfo.setData(resumeInfo);
+            rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfoBaseEsInfo);
+        }
+        // 通知删除缓存
+        rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
         return resumeVo.getId();
     }
 
@@ -329,7 +342,16 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
 
         educationBackgroundMapper.update(educationBackgroundVoLambdaUpdateWrapper);
 
-        rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfo);
+        // 如果当前是 ’默认显示‘ 就发送 MQ 消息告知存储到 ES 以供招聘端检索
+        // 整体性更新简历到 ES
+        if (resumeInfo.getIsDefaultDisplay().equals(1)) {
+            BaseEsInfo<ResumeInfo> resumeInfoBaseEsInfo = new BaseEsInfo<>();
+            resumeInfoBaseEsInfo.setOp("u");
+            resumeInfoBaseEsInfo.setData(resumeInfo);
+            rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfoBaseEsInfo);
+        }
+        // 通知删除缓存
+        rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
 
         return educationBackgroundVo.getId();
     }
@@ -344,7 +366,16 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
 
         jobExpectationMapper.update(jobExpectationLambdaUpdateWrapper);
 
-        rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfo);
+        // 如果当前是 ’默认显示‘ 就发送 MQ 消息告知存储到 ES 以供招聘端检索
+        // 整体性更新简历到 ES
+        if (resumeInfo.getIsDefaultDisplay().equals(1)) {
+            BaseEsInfo<ResumeInfo> resumeInfoBaseEsInfo = new BaseEsInfo<>();
+            resumeInfoBaseEsInfo.setOp("u");
+            resumeInfoBaseEsInfo.setData(resumeInfo);
+            rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfoBaseEsInfo);
+        }
+        // 通知删除缓存
+        rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
 
         return jobExpectationVo.getId();
     }
@@ -366,6 +397,9 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
 
         int insert = projectExperienceMapper.insert(projectExperience);
 
+        // 通知删除缓存
+        rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
+
         return insert == 1 ? projectExperience.getId() : null;
     }
 
@@ -377,6 +411,8 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         projectExperienceLambdaQueryWrapper.eq(ProjectExperience::getId, projectId)
                 .eq(ProjectExperience::getResumeId, resumeId);
         int i = projectExperienceMapper.delete(projectExperienceLambdaQueryWrapper);
+        // 通知删除缓存
+        rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
         return i == 1;
     }
 
@@ -395,6 +431,8 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         workExperience.setJobDescription(saveWorkDescriptionDoc.getId());
 
         int insert = workExperienceMapper.insert(workExperience);
+        // 通知删除缓存
+        rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
 
         return insert == 1 ? workExperience.getId() : null;
     }
@@ -408,6 +446,8 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
                 .eq(WorkExperience::getResumeId, resumeId);
 
         int delete = workExperienceMapper.delete(workExperienceLambdaQueryWrapper);
+        // 通知删除缓存
+        rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
         return delete == 1;
     }
 
@@ -420,6 +460,8 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         BeanUtils.copyProperties(honorAwardVo, honorAward);
         honorAward.setId(null);
         int insert = honorAwardMapper.insert(honorAward);
+        // 通知删除缓存
+        rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
 
         return insert == 1 ? honorAward.getId() : null;
     }
@@ -434,6 +476,8 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
                 .eq(HonorAward::getResumeId, resumeId);
 
         int delete = honorAwardMapper.delete(honorAwardLambdaQueryWrapper);
+        // 通知删除缓存
+        rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
 
         return delete == 1;
     }
@@ -449,6 +493,9 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
 
         int insert = certificationMapper.insert(certification);
 
+        // 通知删除缓存
+        rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
+
         return certification.getId();
     }
 
@@ -461,8 +508,104 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
                 .eq(Certification::getResumeId, resumeId);
 
         int delete = certificationMapper.delete(certificationLambdaQueryWrapper);
-
+        // 通知删除缓存
+        rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
         return delete == 1;
+    }
+
+    @Override
+    public ResumeVo getResumeVo(Long resumeId) {
+        //
+        ResumeInfo resumeInfo = resumeInfoMapper.selectById(resumeId);
+        ResumeVo resumeVo = new ResumeVo();
+        BeanUtils.copyProperties(resumeInfo, resumeVo);
+        return resumeVo;
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public CompletableFuture<ResumeVo> getResumeVoAsync(Long resumeId) {
+        return CompletableFuture.supplyAsync(() -> {
+            System.out.println("Current thread: " + Thread.currentThread().getName());
+            ResumeInfo resumeInfo = resumeInfoMapper.selectById(resumeId);
+            if (resumeInfo == null) throw new RuntimeException();
+            ResumeVo resumeVo = new ResumeVo();
+            BeanUtils.copyProperties(resumeInfo, resumeVo);
+            return resumeVo;
+        });
+    }
+
+    @Override
+    public void testResumeSaveToES(Long resumeId) {
+        ResumeInfo resumeInfo = resumeInfoMapper.selectById(resumeId);
+        BaseEsInfo<ResumeInfo> resumeInfoBaseEsInfo = new BaseEsInfo<>();
+        resumeInfoBaseEsInfo.setOp("u");
+        resumeInfoBaseEsInfo.setData(resumeInfo);
+        rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfoBaseEsInfo);
+    }
+
+    @Override
+    @GlobalTransactional(name = "delete-resume", rollbackFor = Exception.class)
+    public Boolean deleteResumeInfo(Long resumeId, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(resumeId, userId);
+        if (resumeInfo == null) return false;
+
+        if (Objects.equals(resumeInfo.getIsDefaultDisplay(), 1)) {
+            return false;
+        }
+
+        resumeInfoMapper.deleteById(resumeId);
+
+        LambdaQueryWrapper<JobExpectation> jobExpectationLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        jobExpectationLambdaQueryWrapper.eq(JobExpectation::getResumeId, resumeId);
+        jobExpectationMapper.delete(jobExpectationLambdaQueryWrapper);
+
+        LambdaQueryWrapper<EducationBackground> educationBackgroundLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        educationBackgroundLambdaQueryWrapper.eq(EducationBackground::getResumeId, resumeId);
+        educationBackgroundMapper.delete(educationBackgroundLambdaQueryWrapper);
+
+        LambdaQueryWrapper<ProjectExperience> projectExperienceLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        projectExperienceLambdaQueryWrapper.eq(ProjectExperience::getResumeId, resumeId);
+        projectExperienceMapper.delete(projectExperienceLambdaQueryWrapper);
+
+        LambdaQueryWrapper<WorkExperience> workExperienceLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        workExperienceLambdaQueryWrapper.eq(WorkExperience::getResumeId, resumeId);
+        workExperienceMapper.delete(workExperienceLambdaQueryWrapper);
+
+        LambdaQueryWrapper<HonorAward> honorAwardLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        honorAwardLambdaQueryWrapper.eq(HonorAward::getResumeId, resumeId);
+        honorAwardMapper.delete(honorAwardLambdaQueryWrapper);
+
+        LambdaQueryWrapper<Certification> certificationLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        certificationLambdaQueryWrapper.eq(Certification::getResumeId, resumeId);
+        certificationMapper.delete(certificationLambdaQueryWrapper);
+
+        return true;
+    }
+
+    @Override
+    public Boolean setResumeDefaultDisplay(Long resumeId, Long userId) {
+        ResumeInfo resumeInfo = getResumeInfo(resumeId, userId);
+        if (resumeInfo == null) return false;
+        if (Objects.equals(resumeInfo.getIsDefaultDisplay(), 0)) {
+            LambdaUpdateWrapper<ResumeInfo> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+            lambdaUpdateWrapper.set(ResumeInfo::getIsDefaultDisplay, 0)
+                    .eq(ResumeInfo::getCandidateId, userId);
+
+            resumeInfoMapper.update(lambdaUpdateWrapper);
+
+            LambdaUpdateWrapper<ResumeInfo> resumeInfoLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+            resumeInfoLambdaUpdateWrapper.set(ResumeInfo::getIsDefaultDisplay, 1)
+                    .eq(ResumeInfo::getId, resumeId);
+
+            resumeInfoMapper.update(resumeInfoLambdaUpdateWrapper);
+
+            BaseEsInfo<ResumeInfo> resumeInfoBaseEsInfo = new BaseEsInfo<>();
+            resumeInfoBaseEsInfo.setOp("u");
+            resumeInfoBaseEsInfo.setData(resumeInfo);
+            rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfoBaseEsInfo);
+        }
+        return true;
     }
 
     private ResumeInfo getResumeInfo(@NotNull Long resumeId, @NotNull Long userId) {
@@ -483,16 +626,6 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         return baseProjectExperienceVos;
     }
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

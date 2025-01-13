@@ -51,4 +51,8 @@ public class MqConst {
     public static final String ROUTING_ES_RESUME = "job.es.resume";
     public static final String QUEUE_ES_RESUME = "job.es.resume";
 
+    public static final String EXCHANGE_RESUME = "job.resume";
+    public static final String ROUTING_RESUME_CACHE = "job.resume.cache";
+    public static final String QUEUE_RESUME_CACHE = "job.resume.cache";
+
 }

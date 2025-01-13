@@ -373,4 +373,25 @@ public class UserInfoController {
             return Result.fail();
         }
     }
+
+
+    /**
+     * 系统调用
+     *
+     * @param userId     用户 id
+     * @param serviceKey 密钥
+     * @return 用户信息
+     */
+    @GetMapping("/resume")
+    public Result<UserInfoAllVo> getUserInfoAllVo(@RequestParam Long userId, @RequestParam String serviceKey) {
+        if (!Objects.equals(serviceKey, keyProperties.getKey())) {
+            return Result.fail(null);
+        }
+        try {
+            UserInfoAllVo userInfoAllVo = userInfoService.getUserInfoAllVo(userId);
+            return userInfoAllVo != null ? Result.ok(userInfoAllVo) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
 }

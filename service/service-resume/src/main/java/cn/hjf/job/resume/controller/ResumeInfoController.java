@@ -284,6 +284,56 @@ public class ResumeInfoController {
         }
     }
 
+    /**
+     * 测试保存到 ES
+     *
+     * @return 发送结果
+     */
+    @GetMapping("/test")
+    public Result<String> testResumeSaveToES(@RequestParam Long resumeId) {
+        try {
+            resumeInfoService.testResumeSaveToES(resumeId);
+            return Result.ok("发送成功");
+        } catch (Exception e) {
+            return Result.fail("发送失败");
+        }
+    }
+
+    /**
+     * 删除简历
+     *
+     * @param resumeId  简历 id
+     * @param principal 用户信息
+     * @return 是否成功
+     */
+    @DeleteMapping("/info")
+    public Result<String> deleteResumeInfo(@RequestParam Long resumeId, Principal principal) {
+        try {
+            Boolean isSuccess = resumeInfoService.deleteResumeInfo(resumeId, Long.parseLong(principal.getName()));
+            return isSuccess ? Result.ok("删除成功") : Result.fail("删除失败");
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 设置简历成为默认显示
+     *
+     * @param resumeId  简历 id
+     * @param principal 用户信息
+     * @return 是否成功
+     */
+    @PutMapping("/defaultDisplay")
+    public Result<String> setResumeDefaultDisplay(@RequestParam Long resumeId, Principal principal) {
+        try {
+            Boolean isSuccess
+                    = resumeInfoService.setResumeDefaultDisplay(resumeId, Long.parseLong(principal.getName()));
+
+            return isSuccess ? Result.ok("更改成功") : Result.fail("更改失败");
+        } catch (Exception e) {
+            return Result.fail("更改失败");
+        }
+    }
 }
 
 

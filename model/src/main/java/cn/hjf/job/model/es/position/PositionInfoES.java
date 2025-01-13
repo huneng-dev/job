@@ -27,7 +27,7 @@ public class PositionInfoES {
     /**
      * 公司 id
      */
-    @Field(type = FieldType.Long)
+        @Field(type = FieldType.Long)
     private Long companyId;
 
     /**
