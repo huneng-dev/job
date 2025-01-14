@@ -7,12 +7,17 @@ import cn.hjf.job.model.document.resume.ProjectDescriptionDoc;
 import cn.hjf.job.model.document.resume.WorkDescriptionDoc;
 import cn.hjf.job.model.dto.resume.ResumeInfoDto;
 import cn.hjf.job.model.entity.resume.*;
+import cn.hjf.job.model.es.resume.ResumeES;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
+import cn.hjf.job.model.request.resume.ResumeSearchPageParam;
+import cn.hjf.job.model.vo.base.PageEsVo;
 import cn.hjf.job.model.vo.resume.*;
 import cn.hjf.job.resume.mapper.*;
 import cn.hjf.job.resume.repository.ProjectDescriptionRepository;
 import cn.hjf.job.resume.repository.WorkDescriptionRepository;
 import cn.hjf.job.resume.service.ResumeInfoService;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
+import co.elastic.clients.json.JsonData;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -20,10 +25,18 @@ import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.annotation.Resource;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -69,6 +82,8 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
     @Resource
     private WorkDescriptionRepository workDescriptionRepository;
 
+    @Resource
+    private ElasticsearchOperations elasticsearchOperations;
 
     @Override
     @GlobalTransactional(name = "create-resume", rollbackFor = Exception.class)
@@ -361,10 +376,15 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         ResumeInfo resumeInfo = getResumeInfo(jobExpectationVo.getResumeId(), userId);
         if (resumeInfo == null) return null;
 
+        if (jobExpectationVo.getSalaryMin() == null || jobExpectationVo.getSalaryMin() == 0) {
+            jobExpectationVo.setIsNegotiable(1);
+        }
+
         LambdaUpdateWrapper<JobExpectation> jobExpectationLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
         jobExpectationLambdaUpdateWrapper.set(JobExpectation::getJobType, jobExpectationVo.getJobType()).set(JobExpectation::getSalaryMax, jobExpectationVo.getSalaryMax()).set(JobExpectation::getSalaryMin, jobExpectationVo.getSalaryMin()).set(JobExpectation::getIsNegotiable, jobExpectationVo.getIsNegotiable()).eq(JobExpectation::getId, jobExpectationVo.getId());
 
         jobExpectationMapper.update(jobExpectationLambdaUpdateWrapper);
+
 
         // 如果当前是 ’默认显示‘ 就发送 MQ 消息告知存储到 ES 以供招聘端检索
         // 整体性更新简历到 ES
@@ -408,8 +428,7 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         ResumeInfo resumeInfo = getResumeInfo(resumeId, userId);
         if (resumeInfo == null) return null;
         LambdaQueryWrapper<ProjectExperience> projectExperienceLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        projectExperienceLambdaQueryWrapper.eq(ProjectExperience::getId, projectId)
-                .eq(ProjectExperience::getResumeId, resumeId);
+        projectExperienceLambdaQueryWrapper.eq(ProjectExperience::getId, projectId).eq(ProjectExperience::getResumeId, resumeId);
         int i = projectExperienceMapper.delete(projectExperienceLambdaQueryWrapper);
         // 通知删除缓存
         rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
@@ -442,8 +461,7 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         ResumeInfo resumeInfo = getResumeInfo(resumeId, userId);
         if (resumeInfo == null) return null;
         LambdaQueryWrapper<WorkExperience> workExperienceLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        workExperienceLambdaQueryWrapper.eq(WorkExperience::getId, workId)
-                .eq(WorkExperience::getResumeId, resumeId);
+        workExperienceLambdaQueryWrapper.eq(WorkExperience::getId, workId).eq(WorkExperience::getResumeId, resumeId);
 
         int delete = workExperienceMapper.delete(workExperienceLambdaQueryWrapper);
         // 通知删除缓存
@@ -472,8 +490,7 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         if (resumeInfo == null) return null;
 
         LambdaQueryWrapper<HonorAward> honorAwardLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        honorAwardLambdaQueryWrapper.eq(HonorAward::getId, honorId)
-                .eq(HonorAward::getResumeId, resumeId);
+        honorAwardLambdaQueryWrapper.eq(HonorAward::getId, honorId).eq(HonorAward::getResumeId, resumeId);
 
         int delete = honorAwardMapper.delete(honorAwardLambdaQueryWrapper);
         // 通知删除缓存
@@ -504,8 +521,7 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         ResumeInfo resumeInfo = getResumeInfo(resumeId, userId);
         if (resumeInfo == null) return null;
         LambdaQueryWrapper<Certification> certificationLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        certificationLambdaQueryWrapper.eq(Certification::getId, certificationId)
-                .eq(Certification::getResumeId, resumeId);
+        certificationLambdaQueryWrapper.eq(Certification::getId, certificationId).eq(Certification::getResumeId, resumeId);
 
         int delete = certificationMapper.delete(certificationLambdaQueryWrapper);
         // 通知删除缓存
@@ -589,14 +605,12 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         if (resumeInfo == null) return false;
         if (Objects.equals(resumeInfo.getIsDefaultDisplay(), 0)) {
             LambdaUpdateWrapper<ResumeInfo> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
-            lambdaUpdateWrapper.set(ResumeInfo::getIsDefaultDisplay, 0)
-                    .eq(ResumeInfo::getCandidateId, userId);
+            lambdaUpdateWrapper.set(ResumeInfo::getIsDefaultDisplay, 0).eq(ResumeInfo::getCandidateId, userId);
 
             resumeInfoMapper.update(lambdaUpdateWrapper);
 
             LambdaUpdateWrapper<ResumeInfo> resumeInfoLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
-            resumeInfoLambdaUpdateWrapper.set(ResumeInfo::getIsDefaultDisplay, 1)
-                    .eq(ResumeInfo::getId, resumeId);
+            resumeInfoLambdaUpdateWrapper.set(ResumeInfo::getIsDefaultDisplay, 1).eq(ResumeInfo::getId, resumeId);
 
             resumeInfoMapper.update(resumeInfoLambdaUpdateWrapper);
 
@@ -606,6 +620,131 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
             rabbitService.sendMessage(MqConst.EXCHANGE_ES, MqConst.ROUTING_ES_RESUME, resumeInfoBaseEsInfo);
         }
         return true;
+    }
+
+    @Override
+    public PageEsVo<ResumeVoEs> searchBaseResumeInfoPage(Integer limit, ResumeSearchPageParam resumeSearchPageParam) {
+        // 设置查询参数
+        NativeQueryBuilder builder = NativeQuery.builder();
+        BoolQuery.Builder bool = QueryBuilders.bool();
+
+        // 如果搜索参数存在 就设置查询参数
+        String search = resumeSearchPageParam.getSearch();
+        if (search != null && !search.isEmpty()) {
+            MultiMatchQuery query = QueryBuilders.multiMatch().query(search).fields(Arrays.asList("personalAdvantages", "professionalSkills")).type(TextQueryType.BestFields).operator(Operator.Or).fuzziness("AUTO").build();
+            bool.must(q -> q.multiMatch(query));
+        }
+
+        // 如果求职状态存在 就设置查询参数
+        Integer jobStatus = resumeSearchPageParam.getJobStatus();
+        if (jobStatus != null) {
+            TermQuery query = QueryBuilders.term().field("jobStatus").value(jobStatus).build();
+            bool.filter(q -> q.term(query));
+        }
+
+        // 如果行业id与职业id存在 就设置查询参数
+        Long industryId = resumeSearchPageParam.getIndustryId();
+        Long expectedPositionId = resumeSearchPageParam.getExpectedPositionId();
+        if (industryId != null && expectedPositionId != null) {
+            Query industryQuery = QueryBuilders.term(q -> q.field("industryId").value(industryId));
+            Query positionQuery = QueryBuilders.term(q -> q.field("expectedPositionId").value(expectedPositionId));
+            BoolQuery query = QueryBuilders.bool().should(industryQuery, positionQuery).build();
+            bool.filter(q -> q.bool(query));
+
+        }
+
+        // 如果工作城市存在 就设置查询参数
+        String workCity = resumeSearchPageParam.getWorkCity();
+        if (workCity != null && !workCity.isEmpty()) {
+            TermQuery query = QueryBuilders.term().field("workCity").value(workCity).build();
+            bool.filter(q -> q.term(query));
+        }
+
+        // 如果薪资存在 就设置查询参数
+        Integer salaryMin = resumeSearchPageParam.getSalaryMin();
+        Integer salaryMax = resumeSearchPageParam.getSalaryMax();
+        if (salaryMin != null || salaryMax != null) {
+            Query salaryMinQuery = QueryBuilders.range(
+                    q -> q.field("salaryMin")
+                            .lte(salaryMax != null ? JsonData.of(salaryMax) : JsonData.of(999))
+            );
+
+            Query salaryMaxQuery = QueryBuilders.range(
+                    q -> q.field("salaryMax")
+                            .gte(salaryMin != null ? JsonData.of(salaryMin) : JsonData.of(0))
+            );
+
+            BoolQuery query = QueryBuilders.bool().must(salaryMinQuery, salaryMaxQuery).build();
+            bool.filter(q -> q.bool(query));
+
+        }
+
+        // 如果工作类型存在 就设置查询参数
+        Integer jobType = resumeSearchPageParam.getJobType();
+        if (jobType != null) {
+            TermQuery query = QueryBuilders.term()
+                    .field("jobType")
+                    .value(jobType)
+                    .build();
+            bool.filter(q -> q.term(query));
+        }
+
+        // 灵活教育水平存在 就设置查询参数
+        Integer educationLevel = resumeSearchPageParam.getEducationLevel();
+        if (educationLevel != null) {
+            TermQuery query = QueryBuilders.term()
+                    .field("educationLevel")
+                    .value(educationLevel)
+                    .build();
+            bool.filter(q -> q.term(query));
+        }
+
+        // 如果有 分页 信息 设置 limit , search_after
+        Double score = resumeSearchPageParam.getScore();
+        Long updateTime = resumeSearchPageParam.getUpdateTime();
+        if (score != null && updateTime != null) {
+            builder.withSearchAfter(Arrays.asList(score, updateTime));
+        }
+
+        NativeQuery query = builder
+                .withQuery(q -> q.bool(bool.build()))
+                .withSort(Sort.by(
+                        Sort.Order.desc("_score"),
+                        Sort.Order.desc("updateTime")
+                ))
+                .withPageable(PageRequest.of(0, limit))
+                .build();
+
+        SearchHits<ResumeES> resumeESSearchHits = elasticsearchOperations.search(query, ResumeES.class);
+
+        PageEsVo<ResumeVoEs> resumeVoEsPageEsVo = new PageEsVo<>();
+
+        // 设置总记录条数
+        resumeVoEsPageEsVo.setTotal(resumeESSearchHits.getTotalHits());
+
+        // 获取 结果列表
+        List<SearchHit<ResumeES>> searchHits = resumeESSearchHits.getSearchHits();
+        if (!searchHits.isEmpty()) {
+            // 获取最后一条记录
+            SearchHit<ResumeES> lastHit = searchHits.get(searchHits.size() - 1);
+
+            // 设置分页参数
+            resumeVoEsPageEsVo.setScore((Double) lastHit.getSortValues().get(0));
+            resumeVoEsPageEsVo.setUpdateTime((Long) lastHit.getSortValues().get(1));
+        }
+
+        List<ResumeVoEs> resumeVoEsList = searchHits.stream().map(
+                resumeESSearchHit -> {
+                    ResumeES content = resumeESSearchHit.getContent();
+                    ResumeVoEs resumeVoEs = new ResumeVoEs();
+                    BeanUtils.copyProperties(content, resumeVoEs);
+                    return resumeVoEs;
+                }
+        ).toList();
+
+        // 设置结果记录
+        resumeVoEsPageEsVo.setRecords(resumeVoEsList);
+        return resumeVoEsPageEsVo;
     }
 
     private ResumeInfo getResumeInfo(@NotNull Long resumeId, @NotNull Long userId) {
@@ -625,6 +764,8 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         }
         return baseProjectExperienceVos;
     }
+
+
 }
 
 

@@ -7,6 +7,8 @@ import cn.hjf.job.model.form.resume.BaseResumeForm;
 import cn.hjf.job.model.form.resume.EducationBackgroundForm;
 import cn.hjf.job.model.form.resume.JobExpectationForm;
 import cn.hjf.job.model.form.resume.ResumeInfoForm;
+import cn.hjf.job.model.request.resume.ResumeSearchPageParam;
+import cn.hjf.job.model.vo.base.PageEsVo;
 import cn.hjf.job.model.vo.resume.*;
 import cn.hjf.job.resume.service.ResumeInfoService;
 import jakarta.annotation.Resource;
@@ -332,6 +334,27 @@ public class ResumeInfoController {
             return isSuccess ? Result.ok("更改成功") : Result.fail("更改失败");
         } catch (Exception e) {
             return Result.fail("更改失败");
+        }
+    }
+
+    /**
+     * 招聘端搜索人才
+     *
+     * @param limit 每页记录数量
+     * @param resumeSearchPageParam 参数
+     * @return Result<PageEsVo<ResumeVoEs>>
+     */
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE_RECRUITER')")
+    @GetMapping("/recruiter/base/{limit}")
+    public Result<PageEsVo<ResumeVoEs>> searchBaseResumeInfoPage(
+            @PathVariable(name = "limit") Integer limit,
+            ResumeSearchPageParam resumeSearchPageParam
+    ) {
+        try {
+            PageEsVo<ResumeVoEs> resumeVoEsPageEsVo = resumeInfoService.searchBaseResumeInfoPage(limit, resumeSearchPageParam);
+            return Result.ok(resumeVoEsPageEsVo);
+        } catch (Exception e) {
+            return Result.fail();
         }
     }
 }

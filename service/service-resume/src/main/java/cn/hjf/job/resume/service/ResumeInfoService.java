@@ -4,6 +4,8 @@ import cn.hjf.job.model.dto.resume.ResumeInfoDto;
 import cn.hjf.job.model.entity.resume.ProjectExperience;
 import cn.hjf.job.model.entity.resume.ResumeInfo;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
+import cn.hjf.job.model.request.resume.ResumeSearchPageParam;
+import cn.hjf.job.model.vo.base.PageEsVo;
 import cn.hjf.job.model.vo.resume.*;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jetbrains.annotations.NotNull;
@@ -107,6 +109,9 @@ public interface ResumeInfoService extends IService<ResumeInfo> {
     Boolean deleteResumeInfo(Long resumeId, Long userId);
 
     Boolean setResumeDefaultDisplay(Long resumeId, Long userId);
+
+    PageEsVo<ResumeVoEs> searchBaseResumeInfoPage(Integer limit, ResumeSearchPageParam resumeSearchPageParam);
+
 }
 
 

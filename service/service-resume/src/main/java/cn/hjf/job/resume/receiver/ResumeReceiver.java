@@ -37,6 +37,7 @@ import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -185,6 +186,7 @@ public class ResumeReceiver {
                 BeanUtils.copyProperties(educationBackgroundVo, resumeES);
                 resumeES.setId(resumeVo.getId());
 
+                resumeES.setUpdateTime(new Date());
                 assert userInfo != null;
                 resumeES.setSurname(getSurname(userInfo.getName()));
 

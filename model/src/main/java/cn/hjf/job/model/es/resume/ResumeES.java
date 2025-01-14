@@ -8,6 +8,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.util.Date;
+
 @Document(indexName = "resume")
 @Data
 @AllArgsConstructor
@@ -35,8 +37,8 @@ public class ResumeES {
     /**
      * 求职状态
      */
-    @Field(type = FieldType.Long)
-    private String jobStatus;
+    @Field(type = FieldType.Integer)
+    private Integer jobStatus;
 
     /**
      * 个人优势
@@ -121,4 +123,10 @@ public class ResumeES {
      */
     @Field(type = FieldType.Integer, nullValue = "-1")
     private Integer endYear;
+
+    /**
+     * 简历更新时间
+     */
+    @Field(type = FieldType.Date)
+    private Date updateTime;
 }
