@@ -284,6 +284,20 @@ public class CompanyInfoServiceImpl extends ServiceImpl<CompanyInfoMapper, Compa
         return companyInfoCandidateVo;
     }
 
+    @Override
+    public Long getCompanyIndustryId(Long userId) {
+        // 查询当前用户的 id
+        LambdaQueryWrapper<CompanyEmployee> employeeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        employeeLambdaQueryWrapper.eq(CompanyEmployee::getUserId, userId);
+        CompanyEmployee companyEmployee = companyEmployeeMapper.selectOne(employeeLambdaQueryWrapper);
+
+        LambdaQueryWrapper<CompanyInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(CompanyInfo::getIndustryId)
+                .eq(CompanyInfo::getId, companyEmployee.getCompanyId());
+        CompanyInfo companyInfo = companyInfoMapper.selectOne(queryWrapper);
+        return companyInfo.getIndustryId();
+    }
+
 
     /**
      * 保存公司描述到 MongoDB

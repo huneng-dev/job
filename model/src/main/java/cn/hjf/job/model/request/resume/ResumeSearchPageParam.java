@@ -43,5 +43,4 @@ public class ResumeSearchPageParam {
 
     @Schema(description = "更新时间")
     private Long updateTime;
-
 }

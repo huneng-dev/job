@@ -158,4 +158,17 @@ public class CompanyInfoController {
             return Result.fail();
         }
     }
+
+
+    /**
+     * 获取公司行业 id
+     *
+     * @return 行业 id
+     */
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE_RECRUITER')")
+    @GetMapping("/companyIndustryId")
+    public Result<Long> getCompanyIndustryIdById(Principal principal) {
+        Long companyIndustryId = companyInfoService.getCompanyIndustryId(Long.parseLong(principal.getName()));
+        return Result.ok(companyIndustryId);
+    }
 }

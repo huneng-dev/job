@@ -112,6 +112,8 @@ public interface ResumeInfoService extends IService<ResumeInfo> {
 
     PageEsVo<ResumeVoEs> searchBaseResumeInfoPage(Integer limit, ResumeSearchPageParam resumeSearchPageParam);
 
+    Boolean isResumeExist(Long resumeId);
+
 }
 
 

@@ -747,6 +747,14 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         return resumeVoEsPageEsVo;
     }
 
+    @Override
+    public Boolean isResumeExist(Long resumeId) {
+
+        ResumeInfo resumeInfo = resumeInfoMapper.selectById(resumeId);
+
+        return resumeInfo != null;
+    }
+
     private ResumeInfo getResumeInfo(@NotNull Long resumeId, @NotNull Long userId) {
         LambdaQueryWrapper<ResumeInfo> resumeInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
         resumeInfoLambdaQueryWrapper.eq(ResumeInfo::getId, resumeId).eq(ResumeInfo::getCandidateId, userId);

@@ -286,20 +286,6 @@ public class ResumeInfoController {
         }
     }
 
-    /**
-     * 测试保存到 ES
-     *
-     * @return 发送结果
-     */
-    @GetMapping("/test")
-    public Result<String> testResumeSaveToES(@RequestParam Long resumeId) {
-        try {
-            resumeInfoService.testResumeSaveToES(resumeId);
-            return Result.ok("发送成功");
-        } catch (Exception e) {
-            return Result.fail("发送失败");
-        }
-    }
 
     /**
      * 删除简历
@@ -340,9 +326,9 @@ public class ResumeInfoController {
     /**
      * 招聘端搜索人才
      *
-     * @param limit 每页记录数量
+     * @param limit                 每页记录数量
      * @param resumeSearchPageParam 参数
-     * @return Result<PageEsVo<ResumeVoEs>>
+     * @return Result<PageEsVo < ResumeVoEs>>
      */
     @PreAuthorize("hasRole('ROLE_EMPLOYEE_RECRUITER')")
     @GetMapping("/recruiter/base/{limit}")

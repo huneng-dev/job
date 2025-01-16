@@ -87,4 +87,12 @@ public interface CompanyInfoService extends IService<CompanyInfo> {
      */
     CompanyInfoCandidateVo getCompanyInfoCandidateVo(Long companyId);
 
+    /**
+     * 获取公司的行业
+     *
+     * @param userId 用户 id
+     * @return 行业 id
+     */
+    Long getCompanyIndustryId(Long userId);
+
 }
