@@ -15,6 +15,7 @@ import cn.hjf.job.model.vo.resume.*;
 import cn.hjf.job.resume.mapper.*;
 import cn.hjf.job.resume.repository.ProjectDescriptionRepository;
 import cn.hjf.job.resume.repository.WorkDescriptionRepository;
+import cn.hjf.job.resume.service.ResumeFavoriteService;
 import cn.hjf.job.resume.service.ResumeInfoService;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.json.JsonData;
@@ -35,10 +36,7 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -84,6 +82,9 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
 
     @Resource
     private ElasticsearchOperations elasticsearchOperations;
+
+    @Resource
+    private ResumeFavoriteMapper resumeFavoriteMapper;
 
     @Override
     @GlobalTransactional(name = "create-resume", rollbackFor = Exception.class)
@@ -542,7 +543,6 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
     @Async("taskExecutor")
     public CompletableFuture<ResumeVo> getResumeVoAsync(Long resumeId) {
         return CompletableFuture.supplyAsync(() -> {
-            System.out.println("Current thread: " + Thread.currentThread().getName());
             ResumeInfo resumeInfo = resumeInfoMapper.selectById(resumeId);
             if (resumeInfo == null) throw new RuntimeException();
             ResumeVo resumeVo = new ResumeVo();
@@ -595,6 +595,11 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         LambdaQueryWrapper<Certification> certificationLambdaQueryWrapper = new LambdaQueryWrapper<>();
         certificationLambdaQueryWrapper.eq(Certification::getResumeId, resumeId);
         certificationMapper.delete(certificationLambdaQueryWrapper);
+
+        // 删除简历收藏
+        LambdaQueryWrapper<ResumeFavorite> resumeFavoriteLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        resumeFavoriteLambdaQueryWrapper.eq(ResumeFavorite::getResumeId, resumeId);
+        resumeFavoriteMapper.delete(resumeFavoriteLambdaQueryWrapper);
 
         return true;
     }
@@ -753,6 +758,23 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         ResumeInfo resumeInfo = resumeInfoMapper.selectById(resumeId);
 
         return resumeInfo != null;
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public CompletableFuture<Map<Long, ResumeVo>> getResumeVosAsync(List<Long> resumeIds) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<ResumeInfo> resumeInfos = resumeInfoMapper.selectByIds(resumeIds);
+
+            HashMap<Long, ResumeVo> longResumeVoHashMap = new HashMap<>();
+
+            for (ResumeInfo resumeInfo : resumeInfos) {
+                ResumeVo resumeVo = new ResumeVo();
+                BeanUtils.copyProperties(resumeInfo, resumeVo);
+                longResumeVoHashMap.put(resumeInfo.getId(), resumeVo);
+            }
+            return longResumeVoHashMap;
+        });
     }
 
     private ResumeInfo getResumeInfo(@NotNull Long resumeId, @NotNull Long userId) {

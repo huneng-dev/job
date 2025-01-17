@@ -1,5 +1,8 @@
 package cn.hjf.job.model.vo.resume;
 
+import cn.hjf.job.model.vo.user.EmployeeInfoVo;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,11 +10,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "简历ES搜索结果")
-public class ResumeVoEs {
+@Data
+@Schema(description = "收藏简历信息")
+public class ResumeFavoriteInfoVo {
 
     @Schema(description = "简历 id")
     private Long id;
@@ -67,5 +70,6 @@ public class ResumeVoEs {
     @Schema(description = "结束年")
     private Integer endYear;
 
-
+    @Schema(description = "操作时间")
+    private Date updateTime;
 }

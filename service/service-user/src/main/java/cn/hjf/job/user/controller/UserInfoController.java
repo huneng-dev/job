@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -374,7 +375,6 @@ public class UserInfoController {
         }
     }
 
-
     /**
      * 系统调用
      *
@@ -394,4 +394,20 @@ public class UserInfoController {
             return Result.fail();
         }
     }
+
+
+    @GetMapping("/resumes")
+    public Result<Map<Long, UserInfoAllVo>> getUserInfoAllVos(@RequestParam List<Long> userIds, @RequestParam String serviceKey) {
+        if (!Objects.equals(serviceKey, keyProperties.getKey())) {
+            return Result.fail(null);
+        }
+
+        try {
+            Map<Long, UserInfoAllVo> userInfoAllVos = userInfoService.getUserInfoAllVos(userIds);
+            return userInfoAllVos != null ? Result.ok(userInfoAllVos) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @FeignClient(value = "service-user", configuration = FeignRequestInterceptor.class)
 public interface UserInfoFeignClient {
@@ -112,4 +113,7 @@ public interface UserInfoFeignClient {
      */
     @GetMapping("/user/resume")
     public Result<UserInfoAllVo> getUserInfoAllVo(@RequestParam Long userId, @RequestParam String serviceKey);
+
+    @GetMapping("/user/resumes")
+    public Result<Map<Long, UserInfoAllVo>> getUserInfoAllVos(@RequestParam List<Long> userIds, @RequestParam String serviceKey);
 }

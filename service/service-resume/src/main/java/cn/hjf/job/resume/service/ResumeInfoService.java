@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -113,6 +114,8 @@ public interface ResumeInfoService extends IService<ResumeInfo> {
     PageEsVo<ResumeVoEs> searchBaseResumeInfoPage(Integer limit, ResumeSearchPageParam resumeSearchPageParam);
 
     Boolean isResumeExist(Long resumeId);
+
+    CompletableFuture<Map<Long,ResumeVo>> getResumeVosAsync(List<Long> resumeIds);
 
 }
 

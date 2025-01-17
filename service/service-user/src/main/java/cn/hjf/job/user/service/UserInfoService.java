@@ -13,6 +13,7 @@ import cn.hjf.job.model.vo.user.UserInfoVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -156,4 +157,7 @@ public interface UserInfoService extends IService<UserInfo> {
      * @return 用户全部可见的基础信息
      */
     UserInfoAllVo getUserInfoAllVo(Long userId);
+
+
+    Map<Long, UserInfoAllVo> getUserInfoAllVos(List<Long> userIds);
 }

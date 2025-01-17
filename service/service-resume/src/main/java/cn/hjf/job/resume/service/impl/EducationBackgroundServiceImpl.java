@@ -11,6 +11,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -42,5 +45,24 @@ public class EducationBackgroundServiceImpl extends ServiceImpl<EducationBackgro
     @Async("taskExecutor")
     public CompletableFuture<EducationBackgroundVo> getEducationBackgroundVoAsync(Long resumeId) {
         return CompletableFuture.supplyAsync(() -> getEducationBackgroundVo(resumeId));
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public CompletableFuture<Map<Long, EducationBackgroundVo>> getEducationBackgroundVoAsync(List<Long> resumeIds) {
+        return CompletableFuture.supplyAsync(() -> {
+            LambdaQueryWrapper<EducationBackground> educationBackgroundLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            educationBackgroundLambdaQueryWrapper.in(EducationBackground::getResumeId, resumeIds);
+            List<EducationBackground> educationBackgrounds = educationBackgroundMapper.selectList(educationBackgroundLambdaQueryWrapper);
+            HashMap<Long, EducationBackgroundVo> longEducationBackgroundVoHashMap = new HashMap<>();
+
+            for (EducationBackground educationBackground : educationBackgrounds) {
+                EducationBackgroundVo educationBackgroundVo = new EducationBackgroundVo();
+                BeanUtils.copyProperties(educationBackground, educationBackgroundVo);
+                longEducationBackgroundVoHashMap.put(educationBackground.getResumeId(), educationBackgroundVo);
+            }
+
+            return longEducationBackgroundVoHashMap;
+        });
     }
 }

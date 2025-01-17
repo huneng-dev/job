@@ -11,6 +11,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -45,5 +48,22 @@ public class JobExpectationServiceImpl extends ServiceImpl<JobExpectationMapper,
     @Async("taskExecutor")
     public CompletableFuture<JobExpectationVo> getJobExpectationVoAsync(Long resumeId) {
         return CompletableFuture.supplyAsync(() -> getJobExpectationVo(resumeId));
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public CompletableFuture<Map<Long, JobExpectationVo>> getJobExpectationVosAsync(List<Long> resumeIds) {
+        return CompletableFuture.supplyAsync(() -> {
+            LambdaQueryWrapper<JobExpectation> jobExpectationLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            jobExpectationLambdaQueryWrapper.in(JobExpectation::getResumeId, resumeIds);
+            List<JobExpectation> jobExpectations = jobExpectationMapper.selectList(jobExpectationLambdaQueryWrapper);
+            HashMap<Long, JobExpectationVo> longJobExpectationVoHashMap = new HashMap<>();
+            for (JobExpectation jobExpectation : jobExpectations) {
+                JobExpectationVo jobExpectationVo = new JobExpectationVo();
+                BeanUtils.copyProperties(jobExpectation, jobExpectationVo);
+                longJobExpectationVoHashMap.put(jobExpectation.getResumeId(), jobExpectationVo);
+            }
+            return longJobExpectationVoHashMap;
+        });
     }
 }

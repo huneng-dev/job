@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @Schema(description = "公司员工信息")
 public class EmployeeInfoVo {
 
+    @Schema(description = "id")
+    private Long id;
+
     @Schema(description = "头像")
     private String avatar;
 

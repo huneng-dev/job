@@ -4,6 +4,8 @@ import cn.hjf.job.model.entity.resume.JobExpectation;
 import cn.hjf.job.model.vo.resume.JobExpectationVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -26,4 +28,6 @@ public interface JobExpectationService extends IService<JobExpectation> {
     JobExpectationVo getJobExpectationVo(Long resumeId);
 
     CompletableFuture<JobExpectationVo> getJobExpectationVoAsync(Long resumeId);
+
+    CompletableFuture<Map<Long, JobExpectationVo>> getJobExpectationVosAsync(List<Long> resumeIds);
 }

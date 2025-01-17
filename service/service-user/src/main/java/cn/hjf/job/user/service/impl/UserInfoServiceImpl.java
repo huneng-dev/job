@@ -42,7 +42,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -449,11 +451,11 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     public List<EmployeeInfoVo> findCompanyEmployeeByUserIds(List<Long> ids) {
         LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.select(UserInfo::getNickname, UserInfo::getName, UserInfo::getAvatar).in(UserInfo::getId, ids);
+        queryWrapper.select(UserInfo::getId, UserInfo::getNickname, UserInfo::getName, UserInfo::getAvatar).in(UserInfo::getId, ids);
 
         List<UserInfo> userInfos = userInfoMapper.selectList(queryWrapper);
 
-        return userInfos.stream().map(userInfo -> new EmployeeInfoVo(publicFileUrlResolver.resolveSingleUrl(userInfo.getAvatar()), userInfo.getNickname(), userInfo.getName())).toList();
+        return userInfos.stream().map(userInfo -> new EmployeeInfoVo(userInfo.getId(), publicFileUrlResolver.resolveSingleUrl(userInfo.getAvatar()), userInfo.getNickname(), userInfo.getName())).toList();
     }
 
     @Override
@@ -579,6 +581,24 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         userInfoAllVo.setAvatar(url);
 
         return userInfoAllVo;
+    }
+
+    @Override
+    public Map<Long, UserInfoAllVo> getUserInfoAllVos(List<Long> userIds) {
+        List<UserInfo> userInfos = userInfoMapper.selectByIds(userIds);
+
+        HashMap<Long, UserInfoAllVo> longUserInfoAllVoHashMap = new HashMap<>();
+
+        for (UserInfo userInfo : userInfos) {
+            maskUserInfo(userInfo);
+            UserInfoAllVo userInfoAllVo = new UserInfoAllVo();
+            BeanUtils.copyProperties(userInfo, userInfoAllVo);
+            String url = publicFileUrlResolver.resolveSingleUrl(userInfo.getAvatar());
+            userInfoAllVo.setAvatar(url);
+            longUserInfoAllVoHashMap.put(userInfo.getId(), userInfoAllVo);
+        }
+
+        return longUserInfoAllVoHashMap;
     }
 
 
