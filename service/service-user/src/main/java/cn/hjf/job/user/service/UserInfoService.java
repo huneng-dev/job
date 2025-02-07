@@ -6,10 +6,7 @@ import cn.hjf.job.model.dto.user.UserInfoPasswordStatus;
 import cn.hjf.job.model.dto.user.UserInfoStatus;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
-import cn.hjf.job.model.vo.user.EmployeeInfoVo;
-import cn.hjf.job.model.vo.user.RecruiterUserInfoVo;
-import cn.hjf.job.model.vo.user.UserInfoAllVo;
-import cn.hjf.job.model.vo.user.UserInfoVo;
+import cn.hjf.job.model.vo.user.*;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -160,4 +157,6 @@ public interface UserInfoService extends IService<UserInfo> {
 
 
     Map<Long, UserInfoAllVo> getUserInfoAllVos(List<Long> userIds);
+
+    PublicUserInfoVo getPublicUserInfoVo(Long userId);
 }

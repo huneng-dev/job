@@ -2,17 +2,12 @@ package cn.hjf.job.resume.controller;
 
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.model.dto.resume.ResumeInfoDto;
-import cn.hjf.job.model.entity.resume.ProjectExperience;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
-import cn.hjf.job.model.form.resume.EducationBackgroundForm;
-import cn.hjf.job.model.form.resume.JobExpectationForm;
-import cn.hjf.job.model.form.resume.ResumeInfoForm;
 import cn.hjf.job.model.request.resume.ResumeSearchPageParam;
 import cn.hjf.job.model.vo.base.PageEsVo;
 import cn.hjf.job.model.vo.resume.*;
 import cn.hjf.job.resume.service.ResumeInfoService;
 import jakarta.annotation.Resource;
-import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -342,6 +337,22 @@ public class ResumeInfoController {
         } catch (Exception e) {
             return Result.fail();
         }
+    }
+
+    /**
+     * 招聘端获取用户的默认简历（基本信息）
+     *
+     * @param candidateId 用户 id
+     * @return Result<ResumeVoEs>
+     */
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE_RECRUITER')")
+    @GetMapping("/candidate/base/resume/{candidateId}")
+    public Result<ResumeVoEs> getResumeVoEsByUserId(@PathVariable Long candidateId) {
+        ResumeVoEs resumeVoEs = resumeInfoService.getResumeVoEsByUserId(candidateId);
+        if (resumeVoEs != null) {
+            return Result.ok(resumeVoEs);
+        }
+        return Result.fail();
     }
 }
 

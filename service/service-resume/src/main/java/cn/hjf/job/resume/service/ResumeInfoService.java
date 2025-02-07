@@ -115,8 +115,9 @@ public interface ResumeInfoService extends IService<ResumeInfo> {
 
     Boolean isResumeExist(Long resumeId);
 
-    CompletableFuture<Map<Long,ResumeVo>> getResumeVosAsync(List<Long> resumeIds);
+    CompletableFuture<Map<Long, ResumeVo>> getResumeVosAsync(List<Long> resumeIds);
 
+    ResumeVoEs getResumeVoEsByUserId(Long candidateId);
 }
 
 

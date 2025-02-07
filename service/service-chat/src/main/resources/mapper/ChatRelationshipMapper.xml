@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hjf.job.chat.mapper.ChatRelationshipMapper">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="cn.hjf.job.model.entity.chat.ChatRelationship">
+                    <result column="recruiter_id" property="recruiterId" />
+                    <result column="candidate_id" property="candidateId" />
+                    <result column="position_id" property="positionId" />
+                    <result column="blocked" property="blocked" />
+                    <result column="deleted_by_recruiter" property="deletedByRecruiter" />
+                    <result column="deleted_by_candidate" property="deletedByCandidate" />
+                    <result column="relationship_type" property="relationshipType" />
+        </resultMap>
+
+        <!-- 通用查询结果列 -->
+        <sql id="columns">
+            recruiter_id
+            , candidate_id,position_id, blocked, deleted_by_recruiter, deleted_by_candidate, relationship_type
+        </sql>
+
+</mapper>

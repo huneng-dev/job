@@ -10,7 +10,9 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/service/auth-test/pom.xml" />
+        <option value="$PROJECT_DIR$/service/service-application/pom.xml" />
         <option value="$PROJECT_DIR$/service/service-candidate/pom.xml" />
+        <option value="$PROJECT_DIR$/service/service-message/pom.xml" />
         <option value="$PROJECT_DIR$/service/service-recruiter/pom.xml" />
         <option value="$PROJECT_DIR$/service/service-uplaod/pom.xml" />
       </set>

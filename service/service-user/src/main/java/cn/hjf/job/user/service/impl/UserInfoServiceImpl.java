@@ -17,10 +17,7 @@ import cn.hjf.job.model.request.auth.DefaultUserRoleRequest;
 import cn.hjf.job.model.request.auth.UserRoleRequest;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
-import cn.hjf.job.model.vo.user.EmployeeInfoVo;
-import cn.hjf.job.model.vo.user.RecruiterUserInfoVo;
-import cn.hjf.job.model.vo.user.UserInfoAllVo;
-import cn.hjf.job.model.vo.user.UserInfoVo;
+import cn.hjf.job.model.vo.user.*;
 import cn.hjf.job.user.config.KeyProperties;
 import cn.hjf.job.user.exception.EmailAlreadyRegisteredException;
 import cn.hjf.job.user.exception.PhoneAlreadyRegisterException;
@@ -599,6 +596,18 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         }
 
         return longUserInfoAllVoHashMap;
+    }
+
+    @Override
+    public PublicUserInfoVo getPublicUserInfoVo(Long userId) {
+        UserInfoVo userInfo = getUserInfo(userId);
+        if (userInfo != null) {
+            String url = publicFileUrlResolver.resolveSingleUrl(userInfo.getAvatar());
+            userInfo.setAvatar(url);
+            return new PublicUserInfoVo(userId, userInfo.getAvatar(), userInfo.getNickname());
+        }
+
+        return null;
     }
 
 

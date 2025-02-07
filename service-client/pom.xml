@@ -16,6 +16,7 @@
         <module>service-user-client</module>
         <module>service-auth-client</module>
         <module>service-company-client</module>
+        <module>service-position-client</module>
     </modules>
 
     <properties>

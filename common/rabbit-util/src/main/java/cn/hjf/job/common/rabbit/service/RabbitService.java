@@ -13,11 +13,15 @@ public class RabbitService {
 
     //发送消息
     public boolean sendMessage(String exchange,
-                               String routingkey,
+                               String routingKey,
                                Object message) {
-        rabbitTemplate.convertAndSend(exchange,routingkey,message);
+        rabbitTemplate.convertAndSend(exchange, routingKey, message);
         return true;
     }
 
-
+    // 发送消息到指定的队列
+    public boolean sendMessageToQueue(String queueName, Object message) {
+        rabbitTemplate.convertAndSend(queueName, message);
+        return true;
+    }
 }

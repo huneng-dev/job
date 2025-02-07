@@ -17,6 +17,9 @@ public class RecruiterBasePositionInfoVo {
     @Schema(description = "职位名称")
     private String positionName;
 
+    @Schema(description = "职位类型id")
+    private Long positionTypeId;
+
     @Schema(description = "学历要求  学历 0：不限|无 1：初中及以下  2：中专 3：高中 4：大专 5：本科 6：硕士 7：博士")
     private Integer educationRequirement;
 

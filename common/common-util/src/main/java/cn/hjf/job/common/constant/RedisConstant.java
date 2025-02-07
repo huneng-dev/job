@@ -71,4 +71,19 @@ public class RedisConstant {
 
     // 公司地址缓存时间 (一天 单位秒)
     public static final int COMPANY_ADDRESS_TIME_OUT = 60 * 60 * 24;
+
+    // 聊天关系缓存
+    public static final String CHAT_RELATION_CACHE = "chat:relation:";
+
+    // 聊天关系缓存时间
+    public static final int CHAT_RELATION_CACHE_TIME = 60 * 60 * 24;
+
+    // 聊天关系查询分布式锁
+    public static final String CHAT_RELATION_LOCK = "chat:relation:lock:";
+
+    // 聊天关系查询分布式锁等待时间
+    public static final int CHAT_RELATION_LOCK_WAIT_TIME = 5;
+
+    // 聊天关系查询分布式锁加锁时间
+    public static final int CHAT_RELATION_LOCK_LEASE_TIME = 5;
 }

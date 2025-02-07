@@ -3,6 +3,7 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/code-generator/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/TXCloud-util/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/common-logging/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/common-util/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/es-util/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/minio-util/src/main/java" charset="UTF-8" />
@@ -14,6 +15,7 @@
     <file url="file://$PROJECT_DIR$/model/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-client/service-auth-client/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-client/service-company-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/service-client/service-position-client/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-client/service-user-client/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-client/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-client/src/main/resources" charset="UTF-8" />
@@ -24,9 +26,12 @@
     <file url="file://$PROJECT_DIR$/service/service-application/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/service-auth/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/service-candidate/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/service/service-chat/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/service-company/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/service-email/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/service-interview/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/service/service-message-push/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/service/service-message/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/service-position/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/service-recruiter/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service/service-resume/src/main/java" charset="UTF-8" />

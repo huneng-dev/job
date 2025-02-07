@@ -8,10 +8,7 @@ import cn.hjf.job.model.dto.user.UserInfoQuery;
 import cn.hjf.job.model.dto.user.UserInfoStatus;
 import cn.hjf.job.model.request.user.EmailAndUserTypeRequest;
 import cn.hjf.job.model.request.user.PhoneAndUserTypeRequest;
-import cn.hjf.job.model.vo.user.EmployeeInfoVo;
-import cn.hjf.job.model.vo.user.RecruiterUserInfoVo;
-import cn.hjf.job.model.vo.user.UserInfoAllVo;
-import cn.hjf.job.model.vo.user.UserInfoVo;
+import cn.hjf.job.model.vo.user.*;
 import cn.hjf.job.user.config.KeyProperties;
 import cn.hjf.job.user.service.UserInfoService;
 import jakarta.annotation.Resource;
@@ -405,6 +402,24 @@ public class UserInfoController {
         try {
             Map<Long, UserInfoAllVo> userInfoAllVos = userInfoService.getUserInfoAllVos(userIds);
             return userInfoAllVos != null ? Result.ok(userInfoAllVos) : Result.fail();
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 根据用户ID获取公开的用户信息
+     * 此方法使用GET请求来获取用户的公开信息，主要包含用户名、头像等不敏感信息
+     *
+     * @param userId 用户ID，路径变量，用于指定要获取信息的用户
+     * @return 返回一个Result对象，其中包含PublicUserInfoVo实例如果找到用户信息，则返回成功结果，
+     * 否则返回失败结果如果抛出异常，也返回失败结果
+     */
+    @GetMapping("/public/{userId}")
+    public Result<PublicUserInfoVo> getPublicUserInfoVo(@PathVariable(name = "userId") Long userId) {
+        try {
+            PublicUserInfoVo publicUserInfoVo = userInfoService.getPublicUserInfoVo(userId);
+            return publicUserInfoVo != null ? Result.ok(publicUserInfoVo) : Result.fail();
         } catch (Exception e) {
             return Result.fail();
         }

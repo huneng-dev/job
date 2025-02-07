@@ -212,4 +212,23 @@ public class PositionInfoController {
 
         return Result.ok(companyPositionCount);
     }
+
+
+    /**
+     * 根据职位ID获取公开的基础职位信息
+     * 此方法使用GET请求来接收一个带有职位ID路径变量的请求，并返回相应的基础职位信息
+     * 如果找不到相应的职位信息，将返回失败的结果
+     *
+     * @param positionId 职位ID，用于标识和获取特定的基础职位信息
+     * @return 返回一个Result对象，其中包含成功时的基础职位信息或失败时的null
+     */
+    @GetMapping("/public/base/{positionId}")
+    public Result<CandidateBasePositionInfoVo> getPublicBasePositionInfoById(@PathVariable(name = "positionId") Long positionId) {
+        try {
+            CandidateBasePositionInfoVo candidateBasePositionInfoVo = positionInfoService.getPublicBasePositionInfoById(positionId);
+            return Result.ok(candidateBasePositionInfoVo);
+        } catch (Exception e) {
+            return Result.fail(null);
+        }
+    }
 }

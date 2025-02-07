@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 属性定义 -->
+    <property name="LOG_PATH" value="D:\Java\job\logs"/>
+    <property name="APP_NAME" value="121JOB"/>
+
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+
+    <!-- 控制台输出 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>
+                %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){bright,blue} %clr(%5p){ERROR=Bright Red, WARN=Bright Yellow, INFO=Bright Green, DEBUG=Bright Blue, TRACE=Gray} %clr(${PID:- }){magenta} %clr(---){faint} %clr([%thread]){bright,blue} %clr(%logger{36}){cyan} %clr(:){faint} %msg%n
+            </pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- JSON格式文件输出 -->
+    <appender name="FILE_JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}.json</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按天滚动 -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-%d{yyyy-MM-dd}.json</fileNamePattern>
+            <!-- 保留30天的历史记录 -->
+            <maxHistory>30</maxHistory>
+            <!-- 单个文件大小限制 -->
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>%msg%n</pattern>
+            </layout>
+        </encoder>
+    </appender>
+
+    <!-- 异步处理文件日志，提高性能 -->
+    <appender name="ASYNC_FILE_JSON" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志，配置的队列大小 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列深度，该值会影响性能，默认值为256 -->
+        <queueSize>512</queueSize>
+        <!-- 添加附加的线程，用于执行日志队列 -->
+        <neverBlock>true</neverBlock>
+        <!-- 引用JSON文件配置 -->
+        <appender-ref ref="FILE_JSON"/>
+    </appender>
+
+    <!-- 开发环境 -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_FILE_JSON"/>
+        </root>
+    </springProfile>
+
+    <!-- 测试环境 -->
+    <springProfile name="test">
+        <root level="INFO">
+            <appender-ref ref="ASYNC_FILE_JSON"/>
+        </root>
+    </springProfile>
+
+    <!-- 生产环境 -->
+    <springProfile name="prod">
+        <root level="WARN">
+            <appender-ref ref="ASYNC_FILE_JSON"/>
+        </root>
+    </springProfile>
+
+    <!-- 框架日志级别 -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.apache" level="WARN"/>
+
+    <!-- 应用日志级别 -->
+    <logger name="cn.hjf.job" level="INFO"/>
+</configuration>

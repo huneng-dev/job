@@ -119,6 +119,4 @@ public class VerificationCodeReceiver {
                 TimeUnit.SECONDS
         );
     }
-
-
 }

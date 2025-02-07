@@ -106,6 +106,4 @@ public class ResumeFavoriteController {
             return Result.fail();
         }
     }
-
-
 }

@@ -66,6 +66,4 @@ public class ResumeVoEs {
 
     @Schema(description = "结束年")
     private Integer endYear;
-
-
 }

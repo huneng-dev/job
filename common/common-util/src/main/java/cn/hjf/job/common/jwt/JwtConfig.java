@@ -23,6 +23,4 @@ public class JwtConfig {
         byte[] keyBytes = signingKey.getBytes(); // 转换为字节数组
         return new SecretKeySpec(keyBytes, "HmacSHA256");
     }
-
-
 }

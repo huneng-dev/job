@@ -55,4 +55,13 @@ public class MqConst {
     public static final String ROUTING_RESUME_CACHE = "job.resume.cache";
     public static final String QUEUE_RESUME_CACHE = "job.resume.cache";
 
+    public static final String EXCHANGE_JOB_CANAL = "job.canal";
+
+    public static final String ROUTING_CANAL_CHAT = "job.canal.chat";
+
+    public static final String QUEUE_CANAL_CHAT = "job.canal.chat";
+
+    public static final String STOMP_USER_QUEUE_PREFIX = "user-";
+
+
 }

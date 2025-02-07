@@ -669,15 +669,9 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         Integer salaryMin = resumeSearchPageParam.getSalaryMin();
         Integer salaryMax = resumeSearchPageParam.getSalaryMax();
         if (salaryMin != null || salaryMax != null) {
-            Query salaryMinQuery = QueryBuilders.range(
-                    q -> q.field("salaryMin")
-                            .lte(salaryMax != null ? JsonData.of(salaryMax) : JsonData.of(999))
-            );
+            Query salaryMinQuery = QueryBuilders.range(q -> q.field("salaryMin").lte(salaryMax != null ? JsonData.of(salaryMax) : JsonData.of(999)));
 
-            Query salaryMaxQuery = QueryBuilders.range(
-                    q -> q.field("salaryMax")
-                            .gte(salaryMin != null ? JsonData.of(salaryMin) : JsonData.of(0))
-            );
+            Query salaryMaxQuery = QueryBuilders.range(q -> q.field("salaryMax").gte(salaryMin != null ? JsonData.of(salaryMin) : JsonData.of(0)));
 
             BoolQuery query = QueryBuilders.bool().must(salaryMinQuery, salaryMaxQuery).build();
             bool.filter(q -> q.bool(query));
@@ -687,20 +681,14 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         // 如果工作类型存在 就设置查询参数
         Integer jobType = resumeSearchPageParam.getJobType();
         if (jobType != null) {
-            TermQuery query = QueryBuilders.term()
-                    .field("jobType")
-                    .value(jobType)
-                    .build();
+            TermQuery query = QueryBuilders.term().field("jobType").value(jobType).build();
             bool.filter(q -> q.term(query));
         }
 
         // 灵活教育水平存在 就设置查询参数
         Integer educationLevel = resumeSearchPageParam.getEducationLevel();
         if (educationLevel != null) {
-            TermQuery query = QueryBuilders.term()
-                    .field("educationLevel")
-                    .value(educationLevel)
-                    .build();
+            TermQuery query = QueryBuilders.term().field("educationLevel").value(educationLevel).build();
             bool.filter(q -> q.term(query));
         }
 
@@ -711,14 +699,7 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
             builder.withSearchAfter(Arrays.asList(score, updateTime));
         }
 
-        NativeQuery query = builder
-                .withQuery(q -> q.bool(bool.build()))
-                .withSort(Sort.by(
-                        Sort.Order.desc("_score"),
-                        Sort.Order.desc("updateTime")
-                ))
-                .withPageable(PageRequest.of(0, limit))
-                .build();
+        NativeQuery query = builder.withQuery(q -> q.bool(bool.build())).withSort(Sort.by(Sort.Order.desc("_score"), Sort.Order.desc("updateTime"))).withPageable(PageRequest.of(0, limit)).build();
 
         SearchHits<ResumeES> resumeESSearchHits = elasticsearchOperations.search(query, ResumeES.class);
 
@@ -738,14 +719,12 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
             resumeVoEsPageEsVo.setUpdateTime((Long) lastHit.getSortValues().get(1));
         }
 
-        List<ResumeVoEs> resumeVoEsList = searchHits.stream().map(
-                resumeESSearchHit -> {
-                    ResumeES content = resumeESSearchHit.getContent();
-                    ResumeVoEs resumeVoEs = new ResumeVoEs();
-                    BeanUtils.copyProperties(content, resumeVoEs);
-                    return resumeVoEs;
-                }
-        ).toList();
+        List<ResumeVoEs> resumeVoEsList = searchHits.stream().map(resumeESSearchHit -> {
+            ResumeES content = resumeESSearchHit.getContent();
+            ResumeVoEs resumeVoEs = new ResumeVoEs();
+            BeanUtils.copyProperties(content, resumeVoEs);
+            return resumeVoEs;
+        }).toList();
 
         // 设置结果记录
         resumeVoEsPageEsVo.setRecords(resumeVoEsList);
@@ -775,6 +754,20 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
             }
             return longResumeVoHashMap;
         });
+    }
+
+    @Override
+    public ResumeVoEs getResumeVoEsByUserId(Long candidateId) {
+        // 查询应聘者用户的默认简历信息
+        NativeQuery query = NativeQuery.builder().withQuery(q -> q.term(t -> t.field("candidateId").value(candidateId))).build();
+        SearchHit<ResumeES> resumeESSearchHit = elasticsearchOperations.searchOne(query, ResumeES.class);
+        if (resumeESSearchHit != null) {
+            ResumeES content = resumeESSearchHit.getContent();
+            ResumeVoEs resumeVoEs = new ResumeVoEs();
+            BeanUtils.copyProperties(content, resumeVoEs);
+            return resumeVoEs;
+        }
+        return null;
     }
 
     private ResumeInfo getResumeInfo(@NotNull Long resumeId, @NotNull Long userId) {

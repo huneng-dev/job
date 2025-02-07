@@ -136,7 +136,7 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
         Integer isAdmin = companyIdAndIsAdmin.getIsAdmin();
 
         LambdaQueryWrapper<PositionInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.select(PositionInfo::getId, PositionInfo::getPositionName, PositionInfo::getEducationRequirement, PositionInfo::getExperienceRequirement, PositionInfo::getMinSalary, PositionInfo::getMaxSalary, PositionInfo::getStatus, PositionInfo::getWatchCount, PositionInfo::getCommunicationCount, PositionInfo::getFavoriteCount).eq(PositionInfo::getCompanyId, companyId).orderByDesc(PositionInfo::getId);
+        queryWrapper.select(PositionInfo::getId, PositionInfo::getPositionName, PositionInfo::getPositionTypeId, PositionInfo::getEducationRequirement, PositionInfo::getExperienceRequirement, PositionInfo::getMinSalary, PositionInfo::getMaxSalary, PositionInfo::getStatus, PositionInfo::getWatchCount, PositionInfo::getCommunicationCount, PositionInfo::getFavoriteCount).eq(PositionInfo::getCompanyId, companyId).orderByDesc(PositionInfo::getId);
 
 
         // 设置状态 0 标识没有状态查询全部
@@ -160,7 +160,7 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
 
         List<PositionInfo> records = selectPage.getRecords();
 
-        List<RecruiterBasePositionInfoVo> recruiterBasePositionInfoVos = records.stream().map(positionInfo -> new RecruiterBasePositionInfoVo(positionInfo.getId(), positionInfo.getPositionName(), positionInfo.getEducationRequirement(), positionInfo.getExperienceRequirement(), positionInfo.getMinSalary(), positionInfo.getMaxSalary(), positionInfo.getStatus(), positionInfo.getWatchCount(), positionInfo.getCommunicationCount(), positionInfo.getFavoriteCount())).toList();
+        List<RecruiterBasePositionInfoVo> recruiterBasePositionInfoVos = records.stream().map(positionInfo -> new RecruiterBasePositionInfoVo(positionInfo.getId(), positionInfo.getPositionName(), positionInfo.getPositionTypeId(), positionInfo.getEducationRequirement(), positionInfo.getExperienceRequirement(), positionInfo.getMinSalary(), positionInfo.getMaxSalary(), positionInfo.getStatus(), positionInfo.getWatchCount(), positionInfo.getCommunicationCount(), positionInfo.getFavoriteCount())).toList();
 
         PageVo<RecruiterBasePositionInfoVo> recruiterBasePositionInfoVoPageVo = new PageVo<>();
         recruiterBasePositionInfoVoPageVo.setRecords(recruiterBasePositionInfoVos);
@@ -544,6 +544,20 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
     }
 
     @Override
+    public CandidateBasePositionInfoVo findCandidateBasePositionInfoById(Long positionId) {
+        NativeQuery query = NativeQuery.builder().withQuery(q -> q.term(t -> t.field("id").value(positionId))).build();
+
+        SearchHit<PositionInfoES> positionInfoESSearchHit = elasticsearchOperations.searchOne(query, PositionInfoES.class);
+        if (positionInfoESSearchHit != null) {
+            PositionInfoES content = positionInfoESSearchHit.getContent();
+            CandidateBasePositionInfoVo candidateBasePositionInfoVo = new CandidateBasePositionInfoVo();
+            BeanUtils.copyProperties(content, candidateBasePositionInfoVo);
+            return candidateBasePositionInfoVo;
+        }
+        return null;
+    }
+
+    @Override
     public CandidatePositionInfoVo getCandidatePositionInfoById(Long id) {
         // 1.职位信息 2. 公司信息 3.职位负责人信息 4.地址信息
         // 获取职位信息
@@ -583,6 +597,30 @@ public class PositionInfoServiceImpl extends ServiceImpl<PositionInfoMapper, Pos
             queryWrapper.eq(PositionInfo::getStatus, status);
         }
         return positionInfoMapper.selectCount(queryWrapper);
+    }
+
+    @Override
+    public CandidateBasePositionInfoVo getPublicBasePositionInfoById(Long positionId) {
+
+        PositionInfoES positionInfoES = elasticsearchOperations.get(String.valueOf(positionId), PositionInfoES.class);
+        if (positionInfoES != null) {
+            return new CandidateBasePositionInfoVo(
+                    positionInfoES.getId(),
+                    positionInfoES.getPositionName(),
+                    positionInfoES.getCompanyName(),
+                    positionInfoES.getPositionTypeId(),
+                    positionInfoES.getPositionType(),
+                    positionInfoES.getExperienceRequirement(),
+                    positionInfoES.getEducationRequirement(),
+                    positionInfoES.getMinSalary(),
+                    positionInfoES.getMaxSalary(),
+                    positionInfoES.getDistrict(),
+                    positionInfoES.getLocation(),
+                    positionInfoES.getCompanySizeId()
+            );
+        }
+
+        return null;
     }
 
     /**
