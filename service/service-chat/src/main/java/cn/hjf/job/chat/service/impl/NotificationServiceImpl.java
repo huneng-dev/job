@@ -53,4 +53,22 @@ public class NotificationServiceImpl implements NotificationService {
             LogUtils.error("发送消息失败", message.getReceiverId(), message);
         }
     }
+
+    @Override
+    @Async
+    public void sendReadNotification(Long chatId, Long senderId) {
+        try {
+            // 1. 准备消息
+            MessageWrapper<Long> messageWrapper = new MessageWrapper<>();
+            messageWrapper.setMessageWrapperType(MessageWrapperType.READ);
+            messageWrapper.setData(chatId);
+
+            // 2. 发送消息
+            String userQueueName = MqConst.STOMP_USER_QUEUE_PREFIX + senderId;
+            rabbitService.sendMessageToQueue(userQueueName, messageWrapper);
+            LogUtils.info("发送已读消息给指定的用户", senderId, chatId);
+        } catch (Exception e) {
+            LogUtils.error("发送已读消息失败", senderId, chatId);
+        }
+    }
 }

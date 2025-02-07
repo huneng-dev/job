@@ -165,4 +165,42 @@ public class MessageController {
             return Result.fail();
         }
     }
+
+    /**
+     * 已读消息接口
+     * 携带聊天记录中的任意一条消息，即可标记对方信息全部已读
+     *
+     * @param message   消息对象，包含需要标记为已读的消息的聊天ID
+     * @param principal 用户信息，用于获取当前操作用户ID
+     * @return 返回标记消息是否成功的结果
+     */
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE_RECRUITER','ROLE_USER_CANDIDATE')")
+    @PutMapping("/read")
+    public Result<Boolean> setReadMessage(@RequestBody @Valid Message message, Principal principal) {
+
+        try {
+            Long userId = Long.parseLong(principal.getName());
+
+            // 判断聊天关系是否存在
+            ChatRelationshipVo relationship = chatRelationshipService.getChatRelationshipById(message.getChatId());
+            if (relationship == null) {
+                return Result.fail();
+            }
+
+            // 判断聊天关系是否属于当前用户
+            if (!(relationship.getRecruiterId().equals(userId) || relationship.getCandidateId().equals(userId))) {
+                return Result.fail();
+            }
+
+            // Tip: 这里的senderId 永远是对方ID
+            Long senderId = relationship.getRecruiterId().equals(userId) ? relationship.getCandidateId() : relationship.getRecruiterId();
+
+            Boolean isSuccess = messageService.setReadMessage(message.getChatId(), senderId);
+
+            notificationService.sendReadNotification(message.getChatId(), senderId);
+            return Result.ok(isSuccess);
+        } catch (NumberFormatException e) {
+            return Result.fail();
+        }
+    }
 }

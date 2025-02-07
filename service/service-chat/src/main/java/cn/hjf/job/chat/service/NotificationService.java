@@ -25,4 +25,13 @@ public interface NotificationService {
      * @param message 消息对象，包含了与消息相关的信息
      */
     void sendMessageNotification(Message message);
+
+    /**
+     * 发送已读通知
+     * 当用户阅读了某个聊天关系中的消息时，通过此方法向指定用户发送通知
+     *
+     * @param chatId         聊天关系ID，表示要发送已读通知的聊天关系
+     * @param notificationId 通知ID，表示要发送已读通知的ID
+     */
+    void sendReadNotification(Long chatId, Long notificationId);
 }

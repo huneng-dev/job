@@ -18,7 +18,13 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @CompoundIndexes({
-        @CompoundIndex(name = "chatId_timestamp_index", def = "{'chatId': 1, 'timestamp': -1}")
+        @CompoundIndex(name = "chatId_timestamp_index", def = "{'chatId': 1, 'timestamp': -1}"),
+        @CompoundIndex(
+                name = "status_update_index",
+                def = "{'chatId': 1, 'senderId': 1, 'status': 1}",
+                background = true
+        )
+
 })
 public class Message {
 
@@ -42,7 +48,7 @@ public class Message {
 
     private String attachmentUrl;          // 附件路径 (系统中拼接成URL)
 
-    private String status;                 // 消息状态 (sent/received/read)
+    private String status;                 // 消息状态 (send/received/read)
 
     private Instant timestamp;             // 服务器时间 (UTC时间)
 
