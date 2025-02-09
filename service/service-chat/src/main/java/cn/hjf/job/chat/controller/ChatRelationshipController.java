@@ -353,4 +353,47 @@ public class ChatRelationshipController {
 
         return Result.ok(relationshipPageFormRecruiter);
     }
+
+    /**
+     * 获取聊天关系
+     *
+     * @param chatId    聊天关系ID
+     * @param principal 当前用户信息
+     * @return 聊天关系
+     */
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE_RECRUITER','ROLE_USER_CANDIDATE')")
+    @GetMapping("/{chatId}")
+    public Result<ChatRelationshipVo> getChatRelationshipByChatId(@PathVariable(name = "chatId") Long chatId, Principal principal) {
+        try {
+            // 获取聊天关系
+            ChatRelationshipVo chatRelationship = chatRelationshipService.getChatRelationshipById(chatId);
+
+            if (chatRelationship == null) {
+                return Result.fail();
+            }
+
+            // 判断关系是否可用
+            if (chatRelationship.getBlocked() != 0) {
+                return Result.fail();
+            }
+
+            // 解析用户ID
+            String userIdStr = principal.getName();
+            if (!userIdStr.matches("\\d+")) {
+                return Result.fail();
+            }
+
+            Long userId = Long.parseLong(userIdStr);
+
+            // 判断消息是否属于当前用户
+            if (!(chatRelationship.getRecruiterId().equals(userId) || chatRelationship.getCandidateId().equals(userId))) {
+                return Result.fail();
+            }
+
+            return Result.ok(chatRelationship);
+
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
 }

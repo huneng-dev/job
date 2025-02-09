@@ -203,4 +203,137 @@ public class MessageController {
             return Result.fail();
         }
     }
+
+    /**
+     * 发送图片消息
+     *
+     * @param principal 用户信息，用于获取当前操作用户ID
+     * @param message   消息对象，包含消息内容、发送者ID、接收者ID、消息类型、附件URL、状态、时间戳等属性
+     * @return 返回发送的消息对象，如果发送失败则返回失败结果
+     */
+    @PostMapping("/sendImageMessage")
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE_RECRUITER','ROLE_USER_CANDIDATE')")
+    public Result<Message> sendImageMessage(Principal principal, @RequestBody @Valid Message message) {
+        try {
+            if (!message.getMessageType().equals(MessageType.IMAGE)) {
+                return Result.fail();
+            }
+
+            // 获取聊天关系
+            ChatRelationshipVo chatRelationship = chatRelationshipService.getChatRelationshipById(message.getChatId());
+
+            if (chatRelationship == null) {
+                return Result.fail();
+            }
+
+            // 判断关系是否可用
+            if (chatRelationship.getBlocked() != 0) {
+                return Result.fail();
+            }
+
+            // 解析用户ID
+            String userIdStr = principal.getName();
+            if (!userIdStr.matches("\\d+")) {
+                return Result.fail();
+            }
+
+            Long userId = Long.parseLong(userIdStr);
+
+            // 判断消息是否属于当前用户
+            if (!(chatRelationship.getRecruiterId().equals(userId) || chatRelationship.getCandidateId().equals(userId))) {
+                return Result.fail();
+            }
+
+            message.setSenderId(userId);
+
+            if (chatRelationship.getRecruiterId().equals(message.getSenderId())) {
+                message.setReceiverId(chatRelationship.getCandidateId());
+            } else {
+                message.setReceiverId(chatRelationship.getRecruiterId());
+            }
+
+            message.setStatus("SEND");
+
+            message.setTimestamp(Instant.now());
+
+            // 保存消息
+            Message saveMessage = messageService.saveMessage(message);
+
+            // 通知指定用户
+            notificationService.sendMessageNotification(saveMessage);
+
+            return Result.ok(saveMessage);
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 发送文件消息
+     *
+     * @param principal 用户信息，用于获取当前操作用户ID
+     * @param message   消息对象，包含消息内容、发送者ID、接收者ID、消息类型、附件URL、状态、时间戳等属性
+     * @return 返回发送的消息对象，如果发送失败则返回失败结果
+     */
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE_RECRUITER','ROLE_USER_CANDIDATE')")
+    @PostMapping("/sendFileMessage")
+    public Result<Message> sendFileMessage(Principal principal, @RequestBody @Valid Message message) {
+        try {
+            if (!message.getMessageType().equals(MessageType.WORD) &&
+                    !message.getMessageType().equals(MessageType.EXCEL) &&
+                    !message.getMessageType().equals(MessageType.PPT) &&
+                    !message.getMessageType().equals(MessageType.PDF) &&
+                    !message.getMessageType().equals(MessageType.ZIP) &&
+                    !message.getMessageType().equals(MessageType.FILE)) {
+                return Result.fail();
+            }
+
+            // 获取聊天关系
+            ChatRelationshipVo chatRelationship = chatRelationshipService.getChatRelationshipById(message.getChatId());
+
+            if (chatRelationship == null) {
+                return Result.fail();
+            }
+
+            // 判断关系是否可用
+            if (chatRelationship.getBlocked() != 0) {
+                return Result.fail();
+            }
+
+            // 解析用户ID
+            String userIdStr = principal.getName();
+            if (!userIdStr.matches("\\d+")) {
+                return Result.fail();
+            }
+
+            Long userId = Long.parseLong(userIdStr);
+
+            // 判断消息是否属于当前用户
+            if (!(chatRelationship.getRecruiterId().equals(userId) || chatRelationship.getCandidateId().equals(userId))) {
+                return Result.fail();
+            }
+
+            message.setSenderId(userId);
+
+            if (chatRelationship.getRecruiterId().equals(message.getSenderId())) {
+                message.setReceiverId(chatRelationship.getCandidateId());
+            } else {
+                message.setReceiverId(chatRelationship.getRecruiterId());
+            }
+
+            message.setStatus("SEND");
+
+            message.setTimestamp(Instant.now());
+
+            // 保存消息
+            Message saveMessage = messageService.saveMessage(message);
+
+            // 通知指定用户
+            notificationService.sendMessageNotification(saveMessage);
+
+            return Result.ok(saveMessage);
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
 }

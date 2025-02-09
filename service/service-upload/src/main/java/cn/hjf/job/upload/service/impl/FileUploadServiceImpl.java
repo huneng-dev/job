@@ -1,18 +1,27 @@
 package cn.hjf.job.upload.service.impl;
 
 import cn.hjf.job.common.minio.config.MinioProperties;
+import cn.hjf.job.model.dto.upload.UploadStatusDTO;
 import cn.hjf.job.upload.service.FileUploadService;
+import cn.hjf.job.upload.service.UploadStatusService;
 import cn.hjf.job.upload.utils.FileNameUtils;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.errors.*;
+import io.minio.messages.Part;
 import jakarta.annotation.Resource;
+import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FileUploadServiceImpl implements FileUploadService {
@@ -22,6 +31,15 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Resource
     private MinioProperties minioProperties;
+
+    @Resource
+    private UploadStatusService uploadStatusService;
+
+    @Resource
+    private RedisTemplate<String, UploadStatusDTO> redisTemplate;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     @Override
     public String upload(MultipartFile file, String pathPrefix) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
@@ -48,4 +66,40 @@ public class FileUploadServiceImpl implements FileUploadService {
 
         return minioProperties.getUrl() + "/" + minioProperties.getBucket() + "/" + fileName;
     }
+
+    @Override
+    public UploadStatusDTO initUpload(String fileHash, String fileName) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+
+        return null;
+    }
+
+    @Override
+    public UploadStatusDTO getUploadStatus(String hash) {
+        return null;
+    }
+
+    @Override
+    public void uploadChunk(String hash, int index, int total, MultipartFile chunk) {
+
+    }
+
+    @Override
+    public String mergeChunks(String hash) {
+        return null;
+    }
+
+    private List<Part> getCompletedParts(UploadStatusDTO status) {
+        return status.getCompletedChunks().stream()
+                .map(index -> new Part(index, null))
+                .collect(Collectors.toList());
+    }
+
+    private String generateObjectName(String fileHash, String fileName) {
+        return String.format("%s/%s/%s",
+                LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE),
+                fileHash.substring(0, 2),
+                fileName
+        );
+    }
+
 }

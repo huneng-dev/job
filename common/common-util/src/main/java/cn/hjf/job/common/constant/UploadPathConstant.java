@@ -31,4 +31,8 @@ public class UploadPathConstant {
      * 身份证反面
      */
     public static final String BACK_ID_CARD = "back-idcard";
+
+    public static final String CHAT_MESSAGE_PHOTO = "chat-message-photo";
+
+    public static final String CHAT_MESSAGE_FILE = "chat-message-file";
 }

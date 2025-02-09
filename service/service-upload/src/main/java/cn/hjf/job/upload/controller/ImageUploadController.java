@@ -13,10 +13,7 @@ import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.ocr.v20181119.models.IDCardOCRResponse;
 import io.minio.errors.*;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -305,6 +302,86 @@ public class ImageUploadController {
 
             // 上传文件
             String url = fileUploadService.upload(file, UploadPathConstant.COMPANY_PHOTO);
+
+            return Result.ok(url);
+        } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
+                 InvalidKeyException | NoSuchAlgorithmException | InvalidResponseException | XmlParserException |
+                 InternalException e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 上传聊天图片
+     *
+     * @param file 上传
+     * @return 图片
+     */
+    @PostMapping("/chat/message/photo")
+    public Result<String> chatMessagePhoto(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(required = false) Long chatId
+    ) {
+        // 设置类型校验
+        List<String> IMAGE_MIME_TYPES = Arrays.asList("image/jpeg", "image/png", "image/gif");
+
+        // 设置文件大小限制，假设限制为 10MB
+        long maxFileSize = 10 * 1024 * 1024;
+
+        try {
+            // 校验文件
+            boolean validatorResult = FileTypeValidatorUtils.fileTypeValidator(file, IMAGE_MIME_TYPES);
+
+            if (!validatorResult) {
+                return Result.fail();
+            }
+
+            // 校验文件大小
+            if (file.getSize() > maxFileSize) {
+                return Result.fail("文件大小超过限制，最大为 10MB");
+            }
+
+            // 上传文件
+            String url = fileUploadService.upload(file, UploadPathConstant.CHAT_MESSAGE_PHOTO + "/" + chatId);
+
+            return Result.ok(url);
+        } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
+                 InvalidKeyException | NoSuchAlgorithmException | InvalidResponseException | XmlParserException |
+                 InternalException e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 上传聊天文件
+     *
+     * @param file 上传
+     * @return 文件
+     */
+    @PostMapping("/chat/message/file")
+    public Result<String> chatMessageFile(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(required = false) Long chatId
+    ) {
+
+        // 设置文件大小限制，假设限制为 10MB
+        long maxFileSize = 10 * 1024 * 1024;
+
+        try {
+            // 校验文件
+            boolean validatorResult = FileTypeValidatorUtils.validateFileType(file);
+
+            if (!validatorResult) {
+                return Result.fail();
+            }
+
+            // 校验文件大小
+            if (file.getSize() > maxFileSize) {
+                return Result.fail("文件大小超过限制，最大为 10MB");
+            }
+
+            // 上传文件
+            String url = fileUploadService.upload(file, UploadPathConstant.CHAT_MESSAGE_FILE + "/" + chatId);
 
             return Result.ok(url);
         } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |

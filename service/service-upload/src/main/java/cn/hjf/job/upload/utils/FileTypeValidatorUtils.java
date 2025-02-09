@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 public class FileTypeValidatorUtils {
@@ -13,6 +14,7 @@ public class FileTypeValidatorUtils {
     private static final Tika tika = new Tika();
 
     private static final int SMALL_FILE_THRESHOLD = 5 * 1024 * 1024;  // 文件大小 5MB 以下算作小文件
+
 
     /**
      * 校验文件类型
@@ -59,4 +61,59 @@ public class FileTypeValidatorUtils {
             throw e;
         }
     }
+
+
+    // 允许的文件扩展名列表
+    private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(
+            // Microsoft Office
+            ".doc", ".docx",    // Word
+            ".xls", ".xlsx",    // Excel
+            ".ppt", ".pptx",    // PowerPoint
+            // PDF
+            ".pdf",
+            // 压缩文件
+            ".zip", ".rar", ".7z"
+    );
+
+
+    /**
+     * 验证文件类型
+     *
+     * @param file 要验证的文件
+     * @return true:文件类型允许 false:文件类型不允许
+     */
+    public static boolean validateFileType(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return false;
+        }
+
+        String fileName = file.getOriginalFilename();
+        if (fileName == null) {
+            return false;
+        }
+
+        // 获取文件扩展名并转为小写
+        String extension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+
+        // 1. 首先验证扩展名
+        if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            return false;
+        }
+
+        // 2. 尝试使用 Tika 验证
+        try {
+            String mimeType = tika.detect(file.getInputStream());
+
+            if ("application/octet-stream".equals(mimeType)) {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+
+        // 如果 Tika 验证失败，只要扩展名正确就允许
+        return true;
+    }
+
+
 }

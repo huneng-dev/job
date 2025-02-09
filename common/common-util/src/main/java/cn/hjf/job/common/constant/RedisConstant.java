@@ -86,4 +86,6 @@ public class RedisConstant {
 
     // 聊天关系查询分布式锁加锁时间
     public static final int CHAT_RELATION_LOCK_LEASE_TIME = 5;
+
+    public static final String UPLOAD_STATUS = "upload:status:";
 }

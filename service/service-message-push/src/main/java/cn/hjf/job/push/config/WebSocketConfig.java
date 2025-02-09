@@ -32,6 +32,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
+
         // 配置 STOMP 消息代理中继（使用 RabbitMQ）topic：群发 , queue：单独发送
         config.enableStompBrokerRelay("/topic", "/queue")
                 .setRelayHost(stompProperties.getHost())
