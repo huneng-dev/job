@@ -8,6 +8,7 @@ import cn.hjf.job.model.entity.chat.ChatRelationship;
 import cn.hjf.job.model.vo.base.PageVo;
 import cn.hjf.job.model.vo.chat.ChatRelationshipVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
@@ -156,7 +157,6 @@ public class ChatRelationshipServiceImpl extends ServiceImpl<ChatRelationshipMap
         LambdaQueryWrapper<ChatRelationship> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ChatRelationship::getRecruiterId, recruiterId)
                 .eq(ChatRelationship::getDeletedByRecruiter, 0)
-                .eq(ChatRelationship::getBlocked, 0)
                 .orderByDesc(ChatRelationship::getUpdateTime);
 
         if (updateTime != null) {
@@ -177,7 +177,6 @@ public class ChatRelationshipServiceImpl extends ServiceImpl<ChatRelationshipMap
         LambdaQueryWrapper<ChatRelationship> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ChatRelationship::getCandidateId, candidateId)
                 .eq(ChatRelationship::getDeletedByCandidate, 0)
-                .eq(ChatRelationship::getBlocked, 0)
                 .orderByDesc(ChatRelationship::getUpdateTime);
 
         if (updateTime != null) {
@@ -212,6 +211,75 @@ public class ChatRelationshipServiceImpl extends ServiceImpl<ChatRelationshipMap
 
         return pageVo;
     }
+
+    @Override
+    public ChatRelationshipVo alterChatRelationShipBlock(Long userId, Long chatId) {
+        // 获取聊天关系
+        ChatRelationshipVo chatRelationshipVo = getChatRelationshipById(chatId);
+
+        // 判断关系是否存在
+        if (chatRelationshipVo == null) {
+            return null;
+        }
+
+        int blocked;
+
+        // 判断当前用户是否为聊天关系中的任何一方
+        if (chatRelationshipVo.getRecruiterId().equals(userId)) {
+            // 根据规则设置状态
+            if (chatRelationshipVo.getBlocked().equals(0)) {
+                blocked = 1;
+            } else if (chatRelationshipVo.getBlocked().equals(1)) {
+                blocked = 0;
+            } else if (chatRelationshipVo.getBlocked().equals(2)) {
+                blocked = 3;
+            } else if (chatRelationshipVo.getBlocked().equals(3)) {
+                blocked = 2;
+            } else {
+                return null;
+            }
+            // 更新聊天关系
+            Boolean isSuccess = updateBlockStatus(chatId, blocked);
+
+            chatRelationshipVo.setBlocked(blocked);
+
+            return isSuccess ? chatRelationshipVo : null;
+
+        }
+
+        if (chatRelationshipVo.getCandidateId().equals(userId)) {
+            // 根据规则设置状态
+            if (chatRelationshipVo.getBlocked().equals(0)) {
+                blocked = 2;
+            } else if (chatRelationshipVo.getBlocked().equals(1)) {
+                blocked = 3;
+            } else if (chatRelationshipVo.getBlocked().equals(2)) {
+                blocked = 0;
+            } else if (chatRelationshipVo.getBlocked().equals(3)) {
+                blocked = 1;
+            } else {
+                return null;
+            }
+
+            // 更新聊天关系
+            Boolean isSuccess = updateBlockStatus(chatId, blocked);
+
+            chatRelationshipVo.setBlocked(blocked);
+
+            return isSuccess ? chatRelationshipVo : null;
+        }
+        return null;
+    }
+
+    private Boolean updateBlockStatus(Long chatId, int blocked) {
+        LambdaUpdateWrapper<ChatRelationship> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        lambdaUpdateWrapper.set(ChatRelationship::getBlocked, blocked)
+                .eq(ChatRelationship::getId, chatId);
+        int update = chatRelationshipMapper.update(lambdaUpdateWrapper);
+
+        return update == 1;
+    }
+
 
     private List<ChatRelationshipVo> getChatRelationshipList(LambdaQueryWrapper<ChatRelationship> queryWrapper) {
         List<ChatRelationship> chatRelationshipList = chatRelationshipMapper.selectList(queryWrapper);

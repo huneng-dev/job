@@ -14,8 +14,11 @@
     <file url="file://$PROJECT_DIR$/common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/model/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-client/service-auth-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/service-client/service-chat-client/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-client/service-company-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/service-client/service-interview-client/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-client/service-position-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/service-client/service-resume-client/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-client/service-user-client/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-client/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/service-client/src/main/resources" charset="UTF-8" />

@@ -319,7 +319,6 @@ public class ChatRelationshipController {
             updateTime = new Date(); // 默认当前时间
         }
 
-
         // 业务逻辑
         try {
             List<ChatRelationshipVo> result = chatRelationshipService.getCandidateChatRelationshipList(
@@ -396,4 +395,19 @@ public class ChatRelationshipController {
             return Result.fail();
         }
     }
+
+    /**
+     * 修改聊天的屏蔽状态
+     *
+     * @param chatId    聊天关系ID
+     * @param principal 当前用户信息
+     * @return 聊天关系
+     */
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE_RECRUITER','ROLE_USER_CANDIDATE')")
+    @GetMapping("/alterBlock")
+    public Result<ChatRelationshipVo> alterChatRelationShipBlock(@RequestParam Long chatId, Principal principal) {
+        ChatRelationshipVo chatRelationshipVo = chatRelationshipService.alterChatRelationShipBlock(Long.parseLong(principal.getName()), chatId);
+        return chatRelationshipVo == null ? Result.fail() : Result.ok(chatRelationshipVo);
+    }
+
 }

@@ -1,5 +1,6 @@
 package cn.hjf.job.resume.service;
 
+import cn.hjf.job.model.dto.resume.ResumeBaseDto;
 import cn.hjf.job.model.dto.resume.ResumeInfoDto;
 import cn.hjf.job.model.entity.resume.ProjectExperience;
 import cn.hjf.job.model.entity.resume.ResumeInfo;
@@ -118,6 +119,14 @@ public interface ResumeInfoService extends IService<ResumeInfo> {
     CompletableFuture<Map<Long, ResumeVo>> getResumeVosAsync(List<Long> resumeIds);
 
     ResumeVoEs getResumeVoEsByUserId(Long candidateId);
+
+    ResumeVo getBaseResumeById(Long resumeId, Long userId);
+
+    ResumeVo getBaseResumeByCandidateId(Long candidateId);
+
+    ResumeInfoDto getResumeInfoDtoByResumeId(Long resumeId, Long positionId);
+
+    ResumeBaseDto getResumeBaseDto(Long resumeId);
 }
 
 

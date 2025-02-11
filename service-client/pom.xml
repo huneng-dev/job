@@ -17,6 +17,9 @@
         <module>service-auth-client</module>
         <module>service-company-client</module>
         <module>service-position-client</module>
+        <module>service-resume-client</module>
+        <module>service-chat-client</module>
+        <module>service-interview-client</module>
     </modules>
 
     <properties>

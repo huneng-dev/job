@@ -3,19 +3,22 @@ package cn.hjf.job.resume.service.impl;
 import cn.hjf.job.common.es.entity.BaseEsInfo;
 import cn.hjf.job.common.rabbit.constant.MqConst;
 import cn.hjf.job.common.rabbit.service.RabbitService;
+import cn.hjf.job.common.result.Result;
+import cn.hjf.job.interview.client.ResumeDeliveryFeignClient;
 import cn.hjf.job.model.document.resume.ProjectDescriptionDoc;
 import cn.hjf.job.model.document.resume.WorkDescriptionDoc;
+import cn.hjf.job.model.dto.resume.ResumeBaseDto;
 import cn.hjf.job.model.dto.resume.ResumeInfoDto;
 import cn.hjf.job.model.entity.resume.*;
 import cn.hjf.job.model.es.resume.ResumeES;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
 import cn.hjf.job.model.request.resume.ResumeSearchPageParam;
 import cn.hjf.job.model.vo.base.PageEsVo;
+import cn.hjf.job.model.vo.interview.ResumeDeliveryVo;
 import cn.hjf.job.model.vo.resume.*;
 import cn.hjf.job.resume.mapper.*;
 import cn.hjf.job.resume.repository.ProjectDescriptionRepository;
 import cn.hjf.job.resume.repository.WorkDescriptionRepository;
-import cn.hjf.job.resume.service.ResumeFavoriteService;
 import cn.hjf.job.resume.service.ResumeInfoService;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.json.JsonData;
@@ -24,6 +27,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.PageRequest;
@@ -48,6 +52,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 2025-01-07
  */
 @Service
+@Slf4j
 public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeInfo> implements ResumeInfoService {
 
     @Resource
@@ -85,6 +90,9 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
 
     @Resource
     private ResumeFavoriteMapper resumeFavoriteMapper;
+
+    @Resource
+    private ResumeDeliveryFeignClient resumeDeliveryFeignClient;
 
     @Override
     @GlobalTransactional(name = "create-resume", rollbackFor = Exception.class)
@@ -509,7 +517,7 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         BeanUtils.copyProperties(certificationVo, certification);
         certification.setId(null);
 
-        int insert = certificationMapper.insert(certification);
+        certificationMapper.insert(certification);
 
         // 通知删除缓存
         rabbitService.sendMessage(MqConst.EXCHANGE_RESUME, MqConst.ROUTING_RESUME_CACHE, resumeInfo.getId());
@@ -770,6 +778,113 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         return null;
     }
 
+    @Override
+    public ResumeVo getBaseResumeById(Long resumeId, Long userId) {
+        LambdaQueryWrapper<ResumeInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ResumeInfo::getId, resumeId)
+                .eq(ResumeInfo::getCandidateId, userId);
+
+        ResumeInfo resumeInfo = resumeInfoMapper.selectOne(queryWrapper);
+
+        if (resumeInfo != null) {
+            ResumeVo resumeVo = new ResumeVo();
+            BeanUtils.copyProperties(resumeInfo, resumeVo);
+            return resumeVo;
+        }
+
+        return null;
+    }
+
+    @Override
+    public ResumeVo getBaseResumeByCandidateId(Long candidateId) {
+        LambdaQueryWrapper<ResumeInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ResumeInfo::getCandidateId, candidateId)
+                .eq(ResumeInfo::getIsDefaultDisplay, 1);
+
+        ResumeInfo resumeInfo = resumeInfoMapper.selectOne(queryWrapper);
+        if (resumeInfo != null) {
+            ResumeVo resumeVo = new ResumeVo();
+            BeanUtils.copyProperties(resumeInfo, resumeVo);
+            return resumeVo;
+        }
+        return null;
+    }
+
+    @Override
+    public ResumeInfoDto getResumeInfoDtoByResumeId(Long resumeId, Long positionId) {
+        try {
+            // 查询当前招聘者是否可以查看简历的全部信息
+            Result<ResumeDeliveryVo> resumeDeliveryVoResult = resumeDeliveryFeignClient.getResumeDeliveryVoByResumeId(resumeId, positionId);
+            if (!resumeDeliveryVoResult.getCode().equals(200) || resumeDeliveryVoResult.getData() == null) {
+                log.error("当前用户无权限获取简历，resumeId: {}", resumeId);
+                return null;
+            }
+
+            ResumeDeliveryVo resumeDeliveryVo = resumeDeliveryVoResult.getData();
+
+            // 获取简历DTO信息
+            ResumeInfoDto resumeInfoDto = getResumeInfoById(resumeId, resumeDeliveryVo.getCandidateId());
+
+            // 抹除敏感信息
+            resumeInfoDto.getResumeVo().setResumeName("仅限简历拥有者可见");
+
+            // 返回 resumeInfoDto
+            return resumeInfoDto;
+        } catch (Exception e) {
+            log.error("获取简历信息失败", e);
+            return null;
+        }
+    }
+
+    @Override
+    public ResumeBaseDto getResumeBaseDto(Long resumeId) {
+        try {
+            ResumeBaseDto resumeBaseDto = new ResumeBaseDto();
+
+            // 获取简历信息
+            ResumeInfo resumeInfo = resumeInfoMapper.selectById(resumeId);
+            if (resumeInfo == null) {
+                return null;
+            }
+
+            ResumeVo resumeVo = new ResumeVo();
+            BeanUtils.copyProperties(resumeInfo, resumeVo);
+            resumeBaseDto.setResumeVo(resumeVo);
+
+            // 获取教育背景信息
+            LambdaQueryWrapper<EducationBackground> educationBackgroundLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            educationBackgroundLambdaQueryWrapper.eq(EducationBackground::getResumeId, resumeId);
+            EducationBackground educationBackground = educationBackgroundMapper.selectOne(educationBackgroundLambdaQueryWrapper);
+
+            if (educationBackground == null) {
+                return null;
+            }
+
+            EducationBackgroundVo educationBackgroundVo = new EducationBackgroundVo();
+            BeanUtils.copyProperties(educationBackground, educationBackgroundVo);
+            resumeBaseDto.setEducationBackgroundVo(educationBackgroundVo);
+
+            // 获取工作期望
+
+            LambdaQueryWrapper<JobExpectation> jobExpectationLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            jobExpectationLambdaQueryWrapper.eq(JobExpectation::getResumeId, resumeId);
+            JobExpectation jobExpectation = jobExpectationMapper.selectOne(jobExpectationLambdaQueryWrapper);
+            if (jobExpectation == null) {
+                return null;
+            }
+
+            JobExpectationVo jobExpectationVo = new JobExpectationVo();
+            BeanUtils.copyProperties(jobExpectation, jobExpectationVo);
+            resumeBaseDto.setJobExpectationVo(jobExpectationVo);
+
+            resumeBaseDto.getResumeVo().setResumeName("");
+
+            return resumeBaseDto;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private ResumeInfo getResumeInfo(@NotNull Long resumeId, @NotNull Long userId) {
         LambdaQueryWrapper<ResumeInfo> resumeInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
         resumeInfoLambdaQueryWrapper.eq(ResumeInfo::getId, resumeId).eq(ResumeInfo::getCandidateId, userId);
@@ -787,8 +902,6 @@ public class ResumeInfoServiceImpl extends ServiceImpl<ResumeInfoMapper, ResumeI
         }
         return baseProjectExperienceVos;
     }
-
-
 }
 
 

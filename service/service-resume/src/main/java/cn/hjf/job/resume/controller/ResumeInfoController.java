@@ -1,6 +1,7 @@
 package cn.hjf.job.resume.controller;
 
 import cn.hjf.job.common.result.Result;
+import cn.hjf.job.model.dto.resume.ResumeBaseDto;
 import cn.hjf.job.model.dto.resume.ResumeInfoDto;
 import cn.hjf.job.model.form.resume.BaseResumeForm;
 import cn.hjf.job.model.request.resume.ResumeSearchPageParam;
@@ -11,6 +12,7 @@ import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Path;
 import java.security.Principal;
 import java.util.List;
 
@@ -50,7 +52,7 @@ public class ResumeInfoController {
 
 
     /**
-     * 查询用户的全部职位
+     * 查询用户的全部简历
      *
      * @param principal 用户信息
      * @return Result<List < BaseResumeVo>>
@@ -58,10 +60,7 @@ public class ResumeInfoController {
     @GetMapping("/base/list")
     public Result<List<BaseResumeVo>> findBaseResumeList(Principal principal) {
         try {
-            long startTime = System.currentTimeMillis();  // 开始计时
             List<BaseResumeVo> baseResumeVos = resumeInfoService.findBaseResumeList(Long.parseLong(principal.getName()));
-            long endTime = System.currentTimeMillis();  // 结束计时
-            System.out.println("Execution Time: " + (endTime - startTime) + " milliseconds");
             return baseResumeVos != null ? Result.ok(baseResumeVos) : Result.fail();
         } catch (Exception e) {
             return Result.fail();
@@ -78,10 +77,7 @@ public class ResumeInfoController {
     @GetMapping("/info/{resumeId}")
     public Result<ResumeInfoDto> getResumeById(@PathVariable(name = "resumeId") Long resumeId, Principal principal) {
         try {
-            long startTime = System.currentTimeMillis();
             ResumeInfoDto resumeInfoDto = resumeInfoService.getResumeInfoById(resumeId, Long.parseLong(principal.getName()));
-            long endTime = System.currentTimeMillis();
-            System.out.println("getResumeInfoById 耗时:" + (endTime - startTime));
             return resumeInfoDto != null ? Result.ok(resumeInfoDto) : Result.fail();
         } catch (Exception e) {
             return Result.fail();
@@ -309,8 +305,7 @@ public class ResumeInfoController {
     @PutMapping("/defaultDisplay")
     public Result<String> setResumeDefaultDisplay(@RequestParam Long resumeId, Principal principal) {
         try {
-            Boolean isSuccess
-                    = resumeInfoService.setResumeDefaultDisplay(resumeId, Long.parseLong(principal.getName()));
+            Boolean isSuccess = resumeInfoService.setResumeDefaultDisplay(resumeId, Long.parseLong(principal.getName()));
 
             return isSuccess ? Result.ok("更改成功") : Result.fail("更改失败");
         } catch (Exception e) {
@@ -327,10 +322,7 @@ public class ResumeInfoController {
      */
     @PreAuthorize("hasRole('ROLE_EMPLOYEE_RECRUITER')")
     @GetMapping("/recruiter/base/{limit}")
-    public Result<PageEsVo<ResumeVoEs>> searchBaseResumeInfoPage(
-            @PathVariable(name = "limit") Integer limit,
-            ResumeSearchPageParam resumeSearchPageParam
-    ) {
+    public Result<PageEsVo<ResumeVoEs>> searchBaseResumeInfoPage(@PathVariable(name = "limit") Integer limit, ResumeSearchPageParam resumeSearchPageParam) {
         try {
             PageEsVo<ResumeVoEs> resumeVoEsPageEsVo = resumeInfoService.searchBaseResumeInfoPage(limit, resumeSearchPageParam);
             return Result.ok(resumeVoEsPageEsVo);
@@ -353,6 +345,50 @@ public class ResumeInfoController {
             return Result.ok(resumeVoEs);
         }
         return Result.fail();
+    }
+
+    /**
+     * 招聘端获取用户的默认简历（基本信息）
+     *
+     * @param resumeId  简历 id
+     * @param principal 用户信息
+     * @return Result<ResumeVo>
+     */
+    @GetMapping("/base/{resumeId}")
+    public Result<ResumeVo> getBaseResumeById(@PathVariable Long resumeId, Principal principal) {
+        ResumeVo resumeVo = resumeInfoService.getBaseResumeById(resumeId, Long.parseLong(principal.getName()));
+        return Result.ok(resumeVo);
+    }
+
+    /**
+     * 应聘端获取用户的默认简历（基本信息）
+     *
+     * @param principal 用户信息
+     * @return Result<ResumeVo>
+     */
+    @GetMapping("/base/user")
+    public Result<ResumeVo> getBaseResume(Principal principal) {
+        ResumeVo resumeVo = resumeInfoService.getBaseResumeByCandidateId(Long.parseLong(principal.getName()));
+        return Result.ok(resumeVo);
+    }
+
+    /**
+     * 招聘端获取用户的简历详情
+     *
+     * @param resumeId  简历 id
+     * @param principal 用户信息
+     * @return Result<ResumeInfoDto>
+     */
+    @GetMapping("/recruiter/dto/{resumeId}/{positionId}")
+    public Result<ResumeInfoDto> getResumeInfoDtoByResumeId(@PathVariable(name = "resumeId") Long resumeId, @PathVariable(name = "positionId") Long positionId, Principal principal) {
+        ResumeInfoDto resumeInfoDto = resumeInfoService.getResumeInfoDtoByResumeId(resumeId, positionId);
+        return Result.ok(resumeInfoDto);
+    }
+
+    @GetMapping("/resumeBaseDto/{resumeId}")
+    public Result<ResumeBaseDto> getResumeBaseDto(@PathVariable(name = "resumeId") Long resumeId) {
+        ResumeBaseDto resumeBaseDto = resumeInfoService.getResumeBaseDto(resumeId);
+        return Result.ok(resumeBaseDto);
     }
 }
 

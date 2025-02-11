@@ -73,4 +73,5 @@ public interface ChatRelationshipService extends IService<ChatRelationship> {
 
     PageVo<ChatRelationshipVo> getRelationshipPageFormRecruiter(Long recruiterId, Page<ChatRelationship> chatRelationshipPage);
 
+    ChatRelationshipVo alterChatRelationShipBlock(Long userId, Long chatId);
 }
