@@ -7,6 +7,10 @@ public enum MessageType {
     AUDIO,  // 音频消息
     WORD,   // 文件类型
     EXCEL, PPT, PDF, ZIP, FILE,
-    GET_RESUME,
-    SEND_RESUME; // 简历类型
+    GET_RESUME, // 简历类型
+    SEND_RESUME,
+    DIALING,
+    RINGING,
+    ACTIVE,
+    ENDED;
 }

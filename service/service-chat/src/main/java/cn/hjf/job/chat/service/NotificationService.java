@@ -1,6 +1,7 @@
 package cn.hjf.job.chat.service;
 
 import cn.hjf.job.model.document.chat.Message;
+import cn.hjf.job.model.document.chat.RTCSessionDescriptionInit;
 import cn.hjf.job.model.vo.chat.ChatRelationshipVo;
 
 /**
@@ -34,4 +35,13 @@ public interface NotificationService {
      * @param notificationId 通知ID，表示要发送已读通知的ID
      */
     void sendReadNotification(Long chatId, Long notificationId);
+
+    /**
+     * 发送RTC通知 (仅发送 offer)
+     * 当有RTC消息到达时，通过此方法向指定用户发送通知
+     *
+     * @param message                   消息对象，包含了与消息相关的信息
+     * @param rtcSessionDescriptionInit SDP对象，包含了与RTC相关的信息
+     */
+    void sendActiveNotification(Message message, RTCSessionDescriptionInit rtcSessionDescriptionInit);
 }

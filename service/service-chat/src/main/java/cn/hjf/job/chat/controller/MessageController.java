@@ -6,6 +6,8 @@ import cn.hjf.job.chat.service.NotificationService;
 import cn.hjf.job.common.result.Result;
 import cn.hjf.job.model.document.chat.Message;
 import cn.hjf.job.model.document.chat.MessageType;
+import cn.hjf.job.model.document.chat.RTCSessionDescriptionInit;
+import cn.hjf.job.model.form.chat.ActiveMessage;
 import cn.hjf.job.model.vo.chat.ChatRelationshipVo;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -456,6 +458,208 @@ public class MessageController {
 
             // 通知指定用户
             notificationService.sendMessageNotification(saveMessage);
+
+            return Result.ok(saveMessage);
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+    /**
+     * 发送语音通话消息
+     *
+     * @param principal 用户信息，用于获取当前操作用户ID
+     * @param message   消息对象，包含消息内容、发送者ID、接收者ID、消息类型、附件URL、状态、时间戳等属性
+     * @return 返回发送的消息对象，如果发送失败则返回失败结果
+     */
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE_RECRUITER','ROLE_USER_CANDIDATE')")
+    @PostMapping("/sendDialingMessage")
+    public Result<Message> sendDialingMessage(Principal principal, @RequestBody @Valid Message message) {
+        try {
+            if (!message.getMessageType().equals(MessageType.DIALING)) {
+                return Result.fail();
+            }
+
+            // 获取聊天关系
+            ChatRelationshipVo chatRelationship = chatRelationshipService.getChatRelationshipById(message.getChatId());
+
+            if (chatRelationship == null) {
+                return Result.fail();
+            }
+
+            // 判断关系是否可用
+            if (chatRelationship.getBlocked() != 0) {
+                return Result.fail();
+            }
+
+            // 解析用户ID
+            String userIdStr = principal.getName();
+            if (!userIdStr.matches("\\d+")) {
+                return Result.fail();
+            }
+
+            Long userId = Long.parseLong(userIdStr);
+
+            // 判断消息是否属于当前用户
+            if (!(chatRelationship.getRecruiterId().equals(userId) || chatRelationship.getCandidateId().equals(userId))) {
+                return Result.fail();
+            }
+
+            message.setSenderId(userId);
+
+            if (chatRelationship.getRecruiterId().equals(message.getSenderId())) {
+                message.setReceiverId(chatRelationship.getCandidateId());
+            } else {
+                message.setReceiverId(chatRelationship.getRecruiterId());
+            }
+
+            message.setContent("音视频通话");
+
+            message.setStatus("SEND");
+
+            message.setMessageType(MessageType.RINGING);   // 设置为响铃状态
+
+            message.setTimestamp(Instant.now());
+
+            Message saveMessage = messageService.saveMessage(message);
+
+            // 通知指定用户
+            notificationService.sendMessageNotification(saveMessage);
+
+            return Result.ok(saveMessage);
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+
+    /**
+     * 发送结束通话消息
+     *
+     * @param principal 用户信息，用于获取当前操作用户ID
+     * @param message   消息对象，包含消息内容、发送者ID、接收者ID、消息类型、附件URL、状态、时间戳等属性
+     * @return 返回发送的消息对象，如果发送失败则返回失败结果
+     */
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE_RECRUITER','ROLE_USER_CANDIDATE')")
+    @PostMapping("/sendEndedMessage")
+    public Result<Message> sendEndedMessage(Principal principal, @RequestBody @Valid Message message) {
+        try {
+            if (!message.getMessageType().equals(MessageType.ENDED) &&
+                    !message.getMessageType().equals(MessageType.ACTIVE) &&
+                    !message.getMessageType().equals(MessageType.RINGING) &&
+                    !message.getMessageType().equals(MessageType.DIALING)
+            ) {
+                return Result.fail();
+            }
+
+            // 获取聊天关系
+            ChatRelationshipVo chatRelationship = chatRelationshipService.getChatRelationshipById(message.getChatId());
+
+            if (chatRelationship == null) {
+                return Result.fail();
+            }
+
+            // 判断关系是否可用
+            if (chatRelationship.getBlocked() != 0) {
+                return Result.fail();
+            }
+
+            // 解析用户ID
+            String userIdStr = principal.getName();
+            if (!userIdStr.matches("\\d+")) {
+                return Result.fail();
+            }
+
+            Long userId = Long.parseLong(userIdStr);
+
+            // 判断消息是否属于当前用户
+            if (!(chatRelationship.getRecruiterId().equals(userId) || chatRelationship.getCandidateId().equals(userId))) {
+                return Result.fail();
+            }
+
+            message.setSenderId(userId);
+
+            if (chatRelationship.getRecruiterId().equals(message.getSenderId())) {
+                message.setReceiverId(chatRelationship.getCandidateId());
+            } else {
+                message.setReceiverId(chatRelationship.getRecruiterId());
+            }
+
+            message.setContent("音视频通话");
+
+            message.setMessageType(MessageType.ENDED);
+
+            Message saveMessage = messageService.saveMessage(message);
+
+            // 通知指定用户
+            notificationService.sendMessageNotification(saveMessage);
+
+            return Result.ok(saveMessage);
+        } catch (Exception e) {
+            return Result.fail();
+        }
+    }
+
+
+    /**
+     * 发送主动通话消息
+     *
+     * @param principal     用户信息，用于获取当前操作用户ID
+     * @param activeMessage 消息对象，包含消息内容、发送者ID、接收者ID、消息类型、附件URL、状态、时间戳等属性
+     * @return 返回发送的消息对象，如果发送失败则返回失败结果
+     */
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE_RECRUITER','ROLE_USER_CANDIDATE')")
+    @PostMapping("/sendActiveMessage")
+    public Result<Message> sendActiveMessage(Principal principal, @RequestBody ActiveMessage activeMessage) {
+        try {
+            Message message = activeMessage.getMessage();
+            RTCSessionDescriptionInit rtcSessionDescriptionInit = activeMessage.getRtcSessionDescriptionInit();
+
+            if (!message.getMessageType().equals(MessageType.ACTIVE)) {
+                return Result.fail();
+            }
+
+            // 获取聊天关系
+            ChatRelationshipVo chatRelationship = chatRelationshipService.getChatRelationshipById(message.getChatId());
+
+            if (chatRelationship == null) {
+                return Result.fail();
+            }
+
+            // 判断关系是否可用
+            if (chatRelationship.getBlocked() != 0) {
+                return Result.fail();
+            }
+
+            // 解析用户ID
+            String userIdStr = principal.getName();
+            if (!userIdStr.matches("\\d+")) {
+                return Result.fail();
+            }
+
+            Long userId = Long.parseLong(userIdStr);
+
+            // 判断消息是否属于当前用户
+            if (!(chatRelationship.getRecruiterId().equals(userId) || chatRelationship.getCandidateId().equals(userId))) {
+                return Result.fail();
+            }
+
+            message.setSenderId(userId);
+
+            if (chatRelationship.getRecruiterId().equals(message.getSenderId())) {
+                message.setReceiverId(chatRelationship.getCandidateId());
+            } else {
+                message.setReceiverId(chatRelationship.getRecruiterId());
+            }
+
+            message.setContent("音视频通话");
+
+            message.setMessageType(MessageType.ACTIVE);
+
+            Message saveMessage = messageService.saveMessage(message);
+
+            // 通知指定用户
+            notificationService.sendActiveNotification(saveMessage, rtcSessionDescriptionInit);
 
             return Result.ok(saveMessage);
         } catch (Exception e) {

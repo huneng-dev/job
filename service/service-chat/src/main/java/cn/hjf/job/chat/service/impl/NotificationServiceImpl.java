@@ -5,8 +5,10 @@ import cn.hjf.job.common.logging.core.LogUtils;
 import cn.hjf.job.common.rabbit.constant.MqConst;
 import cn.hjf.job.common.rabbit.service.RabbitService;
 import cn.hjf.job.model.document.chat.Message;
+import cn.hjf.job.model.document.chat.RTCSessionDescriptionInit;
 import cn.hjf.job.model.entity.chat.MessageWrapper;
 import cn.hjf.job.model.entity.chat.MessageWrapperType;
+import cn.hjf.job.model.entity.chat.RTCMessage;
 import cn.hjf.job.model.vo.chat.ChatRelationshipVo;
 import jakarta.annotation.Resource;
 import org.springframework.scheduling.annotation.Async;
@@ -69,6 +71,24 @@ public class NotificationServiceImpl implements NotificationService {
             LogUtils.info("发送已读消息给指定的用户", senderId, chatId);
         } catch (Exception e) {
             LogUtils.error("发送已读消息失败", senderId, chatId);
+        }
+    }
+
+    @Override
+    @Async
+    public void sendActiveNotification(Message message, RTCSessionDescriptionInit rtcSessionDescriptionInit) {
+        try {
+            // 1. 准备消息
+            MessageWrapper<RTCMessage<RTCSessionDescriptionInit>> rtcMessageMessageWrapper = new MessageWrapper<>();
+            rtcMessageMessageWrapper.setMessageWrapperType(MessageWrapperType.ACTIVE);
+            rtcMessageMessageWrapper.setData(new RTCMessage<>("offer", rtcSessionDescriptionInit, message));
+
+            // 2. 发送消息
+            String userQueueName = MqConst.STOMP_USER_QUEUE_PREFIX + message.getReceiverId();
+            rabbitService.sendMessageToQueue(userQueueName, rtcMessageMessageWrapper);
+            LogUtils.info("发送RTC(offer)消息给指定的用户", message.getReceiverId(), message);
+        } catch (Exception e) {
+            LogUtils.error("发送RTC(offer)消息失败", message.getReceiverId(), message);
         }
     }
 }

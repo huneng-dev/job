@@ -51,4 +51,5 @@ public interface MessageService {
      * @return 如果有消息被成功标记为已读，则返回true；否则返回false
      */
     Boolean setReadMessage(Long chatId, Long senderId);
+
 }
