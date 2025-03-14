@@ -257,6 +257,7 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <skip>${project.artifactId} == 'model'</skip>
                 </configuration>
             </plugin>
         </plugins>
