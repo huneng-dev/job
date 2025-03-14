@@ -22,7 +22,6 @@
         <module>service-email</module>
         <module>service-sms</module>
         <module>service-upload</module>
-        <module>service-resume</module>
         <module>service-message-push</module>
         <module>service-chat</module>
     </modules>
