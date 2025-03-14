@@ -257,7 +257,14 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
-                    <skip>${project.artifactId} == 'model'</skip>
+                    <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>cn.hjf.job</groupId>
+                            <artifactId>model</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
                 </configuration>
             </plugin>
         </plugins>
