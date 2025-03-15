@@ -19,4 +19,8 @@
     <dependencies>
 
     </dependencies>
+
+    <build>
+        <finalName>service-gateway</finalName>
+    </build>
 </project>
