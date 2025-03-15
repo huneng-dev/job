@@ -20,4 +20,5 @@ public class SMSController {
     public Result<String> sendSMS() {
         return Result.ok("发送成功");
     }
+
 }
