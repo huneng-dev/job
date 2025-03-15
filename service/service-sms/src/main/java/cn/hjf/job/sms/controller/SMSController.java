@@ -21,4 +21,9 @@ public class SMSController {
         return Result.ok("发送成功");
     }
 
+    @PostMapping("/code")
+    public Result<String> getCode() {
+        return Result.ok("获取验证码成功");
+    }
+
 }
